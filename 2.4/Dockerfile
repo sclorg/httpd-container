@@ -31,8 +31,9 @@ COPY ./contrib/ /opt/app-root
 
 RUN yum install -y yum-utils gettext hostname && \
     yum install -y centos-release-scl && \
-    yum install -y --setopt=tsflags=nodocs nss_wrapper && \
-    yum install -y --setopt=tsflags=nodocs bind-utils httpd24 httpd24-mod_ssl && \
+    INSTALL_PKGS="nss_wrapper bind-utils httpd24 httpd24-mod_ssl" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
     yum clean all
 
 # When bash is started non-interactively, to run a shell script, for example it
