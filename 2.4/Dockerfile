@@ -30,7 +30,7 @@ COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./contrib/ /opt/app-root
 
 RUN yum install -y yum-utils gettext hostname && \
-    yum install -y centos-release-scl && \
+    yum install -y centos-release-scl epel-release && \
     INSTALL_PKGS="nss_wrapper bind-utils httpd24 httpd24-mod_ssl" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
