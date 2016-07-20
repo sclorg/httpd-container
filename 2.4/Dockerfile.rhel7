@@ -15,9 +15,9 @@ LABEL io.k8s.description="Platform for running httpd or building httpd-based app
       io.openshift.expose-services="8443:https" \
       io.openshift.tags="builder,httpd,httpd24" \
       Component="httpd24-docker" \
-      Name="rhscl_beta/httpd-24-rhel7" \
+      Name="rhscl/httpd-24-rhel7" \
       Version="2.4" \
-      Release="28" \
+      Release="32" \
       BZComponent="httpd24-docker" \
       Architecture="x86_64"
 
@@ -38,7 +38,7 @@ COPY ./contrib/ /opt/app-root
 RUN yum install -y yum-utils gettext hostname && \
     yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
-    yum-config-manager --enable rhel-7-server-ose-3.0-rpms && \
+    yum-config-manager --enable rhel-7-server-ose-3.2-rpms && \
     INSTALL_PKGS="nss_wrapper bind-utils httpd24 httpd24-mod_ssl" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \

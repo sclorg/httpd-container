@@ -4,12 +4,15 @@ IMAGE_NAME="${IMAGE_NAME:-rhscl/httpd-24-rhel7}"
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
 . ${THISDIR}/utils.sh
+test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
 
 function create_container() {
-    local name=$1 ; shift
+    local name="$1" ; shift
+    local image="${1-$IMAGE_NAME}" ; shift
     cidfile="$CIDFILE_DIR/$name"
     # create container with a cidfile in a directory for cleanup
-    docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d $IMAGE_NAME || return 1
+    docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d $image || return 1
+    echo docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d $image
     echo "Created container $(cat $cidfile)"
 }
 
@@ -93,6 +96,22 @@ sleep 2
 run "curl localhost > output"
 run "grep -e '^hello$' output"
 rm_container test_doc_root
+
+# Test s2i use case
+# Since we built the candidate image locally, we don't want S2I attempt to pull
+# it from Docker hub
+s2i_args="--force-pull=false"
+run "s2i usage ${s2i_args} ${IMAGE_NAME}" 0 "Testing 's2i usage'"
+run "s2i build ${s2i_args} file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp" 0 "Testing 's2i build'"
+DOCKER_ARGS='-p 8080:8080 -u 1000'
+create_container testing-app-s2i ${IMAGE_NAME}-testapp
+DOCKER_ARGS=
+sleep 5
+run "curl localhost:8080 > output_s2i"
+run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
+# 0 "Checking page served by s2i feature"
+sleep 2
+rm_container "testing-app-s2i"
 
 popd > /dev/null
 rm -Rf "$tmpdir"
