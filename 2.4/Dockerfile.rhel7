@@ -9,7 +9,7 @@ FROM rhscl/s2i-base-rhel7:1
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
 # Labels consumed by Red Hat build service
-LABEL io.k8s.description="Platform for running httpd or building httpd-based application" \
+LABEL io.k8s.description="Platform for running Apache httpd or building httpd-based application" \
       io.k8s.display-name="httpd 2.4.18" \
       io.openshift.expose-services="8080:http" \
       io.openshift.expose-services="8443:https" \
