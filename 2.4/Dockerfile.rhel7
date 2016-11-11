@@ -14,12 +14,11 @@ LABEL io.k8s.description="Platform for running Apache httpd or building httpd-ba
       io.openshift.expose-services="8080:http" \
       io.openshift.expose-services="8443:https" \
       io.openshift.tags="builder,httpd,httpd24" \
-      Component="httpd24-docker" \
-      Name="rhscl/httpd-24-rhel7" \
-      Version="2.4" \
-      Release="32" \
-      BZComponent="httpd24-docker" \
-      Architecture="x86_64"
+      name="rhscl/httpd-24-rhel7" \
+      version="2.4" \
+      release="32" \
+      com.redhat.component="httpd24-docker" \
+      architecture="x86_64"
 
 
 EXPOSE 80
