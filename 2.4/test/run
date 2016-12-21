@@ -28,9 +28,9 @@ function get_cid() {
   echo $(cat "$CIDFILE_DIR/$id")
 }
 
-function check_default_page {
-    curl localhost > output
-    fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output
+function get_container_ip() {
+    local id="$1" ; shift
+    docker inspect --format='{{.NetworkSettings.IPAddress}}' $(get_cid "$id")
 }
 
 function rm_container {
@@ -62,21 +62,20 @@ overall=0
 run "docker inspect $IMAGE_NAME >/dev/null || docker pull $IMAGE_NAME" 0
 
 # Check default page
-DOCKER_ARGS='-p 80:80'
 run "create_container test_default_page"
-DOCKER_ARGS=
 sleep 2
-run "check_default_page" 0 "Check that the default page is served."
+run "curl $(get_container_ip 'test_default_page') > output"
+run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output"
 rm_container test_default_page
 
 # Check the HTTP_LOG_TO_VOLUME env variable
 run "ls -d /var/log/httpd24-logs || mkdir /var/log/httpd24-logs" 0 'Create log directory'
 run "chcon -Rvt svirt_sandbox_file_t /var/log/httpd24-logs" 0 'Change SELinux context on the log dir'
-DOCKER_ARGS='-p 80:80 -e HTTPD_LOG_TO_VOLUME=1 -v /var/log/httpd24-logs:/var/log/httpd24'
+DOCKER_ARGS='-e HTTPD_LOG_TO_VOLUME=1 -v /var/log/httpd24-logs:/var/log/httpd24'
 run "create_container test_log_dir"
 DOCKER_ARGS=
 sleep 2
-run "curl localhost > /dev/null"
+run "curl $(get_container_ip 'test_log_dir') > /dev/null"
 ls /var/log/httpd24-logs > output
 run "grep -e '^access_log$' output" 0 "Checking that file access_log exists"
 run "grep -e '^error_log$' output" 0 "Checking that file error_log exists"
@@ -89,11 +88,11 @@ rm_container test_log_dir
 run "ls -d /var/www/html/ || mkdir -p /var/www/html/" 0 'Create document root'
 run "echo hello > /var/www/html/index.html"
 run "chcon -Rvt svirt_sandbox_file_t /var/www/" 0 'Change SELinux context on the document root'
-DOCKER_ARGS='-p 80:80 -v /var/www:/opt/rh/httpd24/root/var/www'
+DOCKER_ARGS='-v /var/www:/opt/rh/httpd24/root/var/www'
 run "create_container test_doc_root"
 DOCKER_ARGS=
 sleep 2
-run "curl localhost > output"
+run "curl $(get_container_ip 'test_doc_root') > output"
 run "grep -e '^hello$' output"
 rm_container test_doc_root
 
@@ -103,11 +102,11 @@ rm_container test_doc_root
 s2i_args="--force-pull=false"
 run "s2i usage ${s2i_args} ${IMAGE_NAME}" 0 "Testing 's2i usage'"
 run "s2i build ${s2i_args} file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp" 0 "Testing 's2i build'"
-DOCKER_ARGS='-p 8080:8080 -u 1000'
+DOCKER_ARGS='-u 1000'
 create_container testing-app-s2i ${IMAGE_NAME}-testapp
 DOCKER_ARGS=
 sleep 5
-run "curl localhost:8080 > output_s2i"
+run "curl $(get_container_ip 'testing-app-s2i'):8080 > output_s2i"
 run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
 # 0 "Checking page served by s2i feature"
 sleep 2
