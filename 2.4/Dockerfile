@@ -40,7 +40,7 @@ COPY run-*.sh /usr/bin/
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./contrib/ /opt/app-root
 
-RUN mkdir -p /opt/app-root/etc/httpd.d && \
+RUN mkdir -p ${HTTPD_CONFIGURATION_PATH} && \
     chmod -R a+rwx /opt/rh/httpd24/root/etc/httpd/conf && \
     chmod -R a+rwx /opt/rh/httpd24/root/etc/httpd/conf.d && \
     chmod -R a+r   /etc/pki/tls/certs/localhost.crt && \
