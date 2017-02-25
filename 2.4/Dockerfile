@@ -15,19 +15,10 @@ LABEL io.k8s.description="Platform for running Apache httpd or building httpd-ba
       io.openshift.expose-services="8443:https" \
       io.openshift.tags="builder,httpd,httpd24"
 
-
 EXPOSE 80
 EXPOSE 443
 EXPOSE 8080
 EXPOSE 8443
-
-ENV HTTPD_CONFIGURATION_PATH=/opt/app-root/etc/httpd.d
-
-COPY run-*.sh /usr/local/bin/
-RUN mkdir -p /var/lib/httpd24
-COPY ./contrib/ /var/lib/httpd24/
-COPY ./s2i/bin/ $STI_SCRIPTS_PATH
-COPY ./contrib/ /opt/app-root
 
 RUN yum install -y yum-utils gettext hostname && \
     yum install -y centos-release-scl epel-release && \
@@ -36,12 +27,20 @@ RUN yum install -y yum-utils gettext hostname && \
     rpm -V $INSTALL_PKGS && \
     yum clean all
 
+ENV HTTPD_CONFIGURATION_PATH=/opt/app-root/etc/httpd.d
+
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
 # the SCL for all scripts without need to do 'scl enable'.
 ENV BASH_ENV=/var/lib/httpd24/scl_enable \
     ENV=/var/lib/httpd24/scl_enable \
     PROMPT_COMMAND=". /var/lib/httpd24/scl_enable"
+
+COPY run-*.sh /usr/local/bin/
+RUN mkdir -p /var/lib/httpd24
+COPY ./contrib/ /var/lib/httpd24/
+COPY ./s2i/bin/ $STI_SCRIPTS_PATH
+COPY ./contrib/ /opt/app-root
 
 RUN mkdir -p /opt/app-root/etc/httpd.d && \
     chmod -R a+rwx /opt/rh/httpd24/root/etc/httpd/conf && \
@@ -52,10 +51,15 @@ RUN mkdir -p /opt/app-root/etc/httpd.d && \
     chmod -R a+rwx /opt/rh/httpd24/root/var/run/httpd && \
     chown -R 1001:0 /opt/app-root
 
+RUN sed -i -f /opt/app-root/httpdconf.sed /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf && \
+    sed -i -f /opt/app-root/sslconf.sed /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf && \
+sed -ri ' s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf && \
+sed -ri ' s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*TransferLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
+
 VOLUME ["/opt/rh/httpd24/root/var/www"]
 VOLUME ["/var/log/httpd24"]
 
-# USER 1001
+USER 1001
 
 ENTRYPOINT ["/usr/local/bin/run-httpd24.sh"]
 CMD ["httpd", "-DFOREGROUND"]

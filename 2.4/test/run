@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 IMAGE_NAME="${IMAGE_NAME:-rhscl/httpd-24-rhel7}"
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
@@ -8,7 +9,8 @@ test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
 
 function create_container() {
     local name="$1" ; shift
-    local image="${1-$IMAGE_NAME}" ; shift
+    local image="${1-$IMAGE_NAME}"
+    [ -n "$1" ] && shift
     cidfile="$CIDFILE_DIR/$name"
     # create container with a cidfile in a directory for cleanup
     docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d $image || return 1
@@ -64,8 +66,10 @@ run "docker inspect $IMAGE_NAME >/dev/null || docker pull $IMAGE_NAME" 0
 # Check default page
 run "create_container test_default_page"
 sleep 2
-run "curl $(get_container_ip 'test_default_page') > output"
-run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output"
+cip=$(get_container_ip 'test_default_page')
+run "curl ${cip}:8080 > output"
+
+run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output" || cat output
 rm_container test_default_page
 
 # Check the HTTP_LOG_TO_VOLUME env variable
@@ -75,7 +79,8 @@ DOCKER_ARGS='-e HTTPD_LOG_TO_VOLUME=1 -v /var/log/httpd24-logs:/var/log/httpd24'
 run "create_container test_log_dir"
 DOCKER_ARGS=
 sleep 2
-run "curl $(get_container_ip 'test_log_dir') > /dev/null"
+cip=$(get_container_ip 'test_log_dir')
+run "curl ${cip}:8080 > /dev/null"
 ls /var/log/httpd24-logs > output
 run "grep -e '^access_log$' output" 0 "Checking that file access_log exists"
 run "grep -e '^error_log$' output" 0 "Checking that file error_log exists"
@@ -85,14 +90,17 @@ run "grep -e '^ssl_request_log$' output" 0 "Checking that file ssl_request_log e
 rm_container test_log_dir
 
 # Test that docker volume for DocumentRoot works
-run "ls -d /var/www/html/ || mkdir -p /var/www/html/" 0 'Create document root'
-run "echo hello > /var/www/html/index.html"
-run "chcon -Rvt svirt_sandbox_file_t /var/www/" 0 'Change SELinux context on the document root'
-DOCKER_ARGS='-v /var/www:/opt/rh/httpd24/root/var/www'
+datadir=$(mktemp -d /tmp/httpdtestXXXXXX)
+run "mkdir -p ${datadir}/html" 0 'Create document root'
+run "echo hello > ${datadir}/html/index.html"
+run "chown -R 1001:1001 ${datadir}"
+run "chcon -Rvt svirt_sandbox_file_t ${datadir}/" 0 'Change SELinux context on the document root'
+DOCKER_ARGS="-v ${datadir}:/opt/rh/httpd24/root/var/www"
 run "create_container test_doc_root"
 DOCKER_ARGS=
 sleep 2
-run "curl $(get_container_ip 'test_doc_root') > output"
+cip=$(get_container_ip 'test_doc_root')
+run "curl ${cip}:8080 > output"
 run "grep -e '^hello$' output"
 rm_container test_doc_root
 
@@ -106,7 +114,8 @@ DOCKER_ARGS='-u 1000'
 create_container testing-app-s2i ${IMAGE_NAME}-testapp
 DOCKER_ARGS=
 sleep 5
-run "curl $(get_container_ip 'testing-app-s2i'):8080 > output_s2i"
+cip=$(get_container_ip 'testing-app-s2i')
+run "curl ${cip}:8080 > output_s2i"
 run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
 # 0 "Checking page served by s2i feature"
 sleep 2
