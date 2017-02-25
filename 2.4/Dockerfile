@@ -32,13 +32,11 @@ ENV HTTPD_CONFIGURATION_PATH=/opt/app-root/etc/httpd.d
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
 # the SCL for all scripts without need to do 'scl enable'.
-ENV BASH_ENV=/var/lib/httpd24/scl_enable \
-    ENV=/var/lib/httpd24/scl_enable \
-    PROMPT_COMMAND=". /var/lib/httpd24/scl_enable"
+ENV BASH_ENV=/opt/app-root/scl_enable \
+    ENV=/opt/app-root/scl_enable \
+    PROMPT_COMMAND=". /opt/app-root/scl_enable"
 
-COPY run-*.sh /usr/local/bin/
-RUN mkdir -p /var/lib/httpd24
-COPY ./contrib/ /var/lib/httpd24/
+COPY run-*.sh /usr/bin/
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./contrib/ /opt/app-root
 
@@ -61,5 +59,5 @@ VOLUME ["/var/log/httpd24"]
 
 USER 1001
 
-ENTRYPOINT ["/usr/local/bin/run-httpd24.sh"]
+ENTRYPOINT ["/usr/bin/run-httpd24.sh"]
 CMD ["httpd", "-DFOREGROUND"]
