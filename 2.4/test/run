@@ -68,9 +68,18 @@ run "create_container test_default_page"
 sleep 2
 cip=$(get_container_ip 'test_default_page')
 run "curl ${cip}:8080 > output"
-
 run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output" || cat output
 rm_container test_default_page
+
+# Try running as root
+DOCKER_ARGS="-u 0"
+run "create_container test_run_as_root"
+DOCKER_ARGS=
+sleep 2
+cip=$(get_container_ip 'test_run_as_root')
+run "curl ${cip}:8080 > output_root"
+run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output" || cat output_root
+rm_container test_run_as_root
 
 # Check the HTTP_LOG_TO_VOLUME env variable
 run "ls -d /var/log/httpd24-logs || mkdir /var/log/httpd24-logs" 0 'Create log directory'
