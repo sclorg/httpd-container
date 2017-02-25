@@ -49,15 +49,10 @@ RUN mkdir -p /opt/app-root/etc/httpd.d && \
     chmod -R a+rwx /opt/rh/httpd24/root/var/run/httpd && \
     chown -R 1001:0 /opt/app-root
 
-RUN sed -i -f /opt/app-root/httpdconf.sed /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf && \
-    sed -i -f /opt/app-root/sslconf.sed /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf && \
-sed -ri ' s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;' /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf && \
-sed -ri ' s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*TransferLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;' /opt/rh/httpd24/root/etc/httpd/conf.d/ssl.conf
+USER 1001
 
 VOLUME ["/opt/rh/httpd24/root/var/www"]
 VOLUME ["/var/log/httpd24"]
-
-USER 1001
 
 ENTRYPOINT ["/usr/bin/run-httpd24.sh"]
 CMD ["httpd", "-DFOREGROUND"]
