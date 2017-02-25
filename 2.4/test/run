@@ -124,4 +124,5 @@ rm_container "testing-app-s2i"
 popd > /dev/null
 rm -Rf "$tmpdir"
 
+[ "$overall" -eq 0 ] && print_result "pass" "All tests passed." || print_result "fail" "Tests failed."
 exit "$overall"
