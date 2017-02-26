@@ -15,4 +15,4 @@ The Apache HTTP Server container image supports the following configuration vari
 
 |    Variable name        |    Description                            |
 | :---------------------- | ----------------------------------------- |
-|  `HTTPD_LOG_TO_VOLUME1` | By default, httpd logs into standard output, so the logs are accessible by using the docker logs command. When `HTTPD_LOG_TO_VOLUME` is set, httpd logs into `/var/log/httpd24`, which can be mounted to host system using the Docker volumes. |
+|  `HTTPD_LOG_TO_VOLUME` | By default, httpd logs into standard output, so the logs are accessible by using the docker logs command. When `HTTPD_LOG_TO_VOLUME` is set, httpd logs into `/var/log/httpd24`, which can be mounted to host system using the Docker volumes. This option is only allowed when container is run as UID 0. |

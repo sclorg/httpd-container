@@ -3,11 +3,13 @@
 config_general() {
   sed -ie 's/^Listen 80/Listen 0.0.0.0:8080/' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   sed -ie '151s%AllowOverride None%AllowOverride All%' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
-  sed -ie 's/^Listen 443/Listen 0.0.0.0:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf && \
-  sed -ri " s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;" ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
-  sed -ri " s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*TransferLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+  sed -ie 's/^Listen 443/Listen 0.0.0.0:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
 }
 
+config_log_to_stdout() {
+  sed -ri " s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
+  sed -ri " s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*TransferLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+}
 
 runs_privileged() {
   test "$(id -u)" == "0"
@@ -24,9 +26,8 @@ config_privileged() {
   chmod 600 /etc/pki/tls/private/localhost.key && \
   chmod 710 ${HTTPD_VAR_RUN}
 
-  if [ ! -v HTTPD_LOG_TO_VOLUME ]; then
-    sed -ri ' s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g;' ${HTTPD_MAIN_CONF_PATH}/httpd.conf
-    sed -ri ' s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; s!^(\s*TransferLog)\s+\S+!\1 /proc/self/fd/1!g; s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g;' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+  if ! [ -v HTTPD_LOG_TO_VOLUME ] ; then
+    config_log_to_stdout
   fi
 }
 
@@ -38,9 +39,14 @@ config_s2i() {
   head -n151 ${HTTPD_MAIN_CONF_PATH}/httpd.conf | tail -n1 | grep "AllowOverride All" || exit
 }
 
-config_non_root() {
+config_non_privileged() {
   sed -ie "s/^User apache/User default/" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
   sed -ie "s/^Group apache/Group root/" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
+  config_log_to_stdout
+  if [ -v HTTPD_LOG_TO_VOLUME ] ; then
+    echo "Error: Option HTTPD_LOG_TO_VOLUME is only valid for privileged runs (as UID 0)."
+    return 1
+  fi
 }
 
 # Set current user in nss_wrapper
