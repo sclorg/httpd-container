@@ -31,10 +31,9 @@ config_privileged() {
 }
 
 config_s2i() {
-  #sed -i -f /opt/app-root/httpdconf-s2i.sed ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
-  sed -ie "s%^DocumentRoot \"${HTTPD_DATA_PATH}/html\"%DocumentRoot \"/opt/app-root/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
-  sed -ie "s%^<Directory \"${HTTPD_DATA_PATH}/html\"%<Directory \"/opt/app-root/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
-  sed -ie "s%^<Directory \"${HTTPD_VAR_PATH}/html\"%<Directory \"/opt/app-root/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
+  sed -ie "s%^DocumentRoot \"${HTTPD_DATA_PATH}/html\"%DocumentRoot \"${HTTPD_APP_ROOT}/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
+  sed -ie "s%^<Directory \"${HTTPD_DATA_PATH}/html\"%<Directory \"${HTTPD_APP_ROOT}/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
+  sed -ie "s%^<Directory \"${HTTPD_VAR_PATH}/html\"%<Directory \"${HTTPD_APP_ROOT}/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
   echo "IncludeOptional ${HTTPD_CONFIGURATION_PATH}/*.conf" >> ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   head -n151 ${HTTPD_MAIN_CONF_PATH}/httpd.conf | tail -n1 | grep "AllowOverride All" || exit
 }
@@ -42,5 +41,17 @@ config_s2i() {
 config_non_root() {
   sed -ie "s/^User apache/User default/" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
   sed -ie "s/^Group apache/Group root/" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
+}
+
+# Set current user in nss_wrapper
+generate_container_user() {
+  local passwd_output_dir="${HTTPD_APP_ROOT}/etc"
+
+  export USER_ID=$(id -u)
+  export GROUP_ID=$(id -g)
+  envsubst < ${HTTPD_CONTAINER_SCRIPTS_PATH}/passwd.template > ${passwd_output_dir}/passwd
+  export LD_PRELOAD=libnss_wrapper.so
+  export NSS_WRAPPER_PASSWD=${passwd_output_dir}/passwd
+  export NSS_WRAPPER_GROUP=/etc/group
 }
 

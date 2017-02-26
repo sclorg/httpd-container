@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /usr/share/container-scripts/httpd/common.sh
+source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
 
 config_general
 

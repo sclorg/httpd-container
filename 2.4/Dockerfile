@@ -27,7 +27,9 @@ RUN yum install -y yum-utils gettext hostname && \
     rpm -V $INSTALL_PKGS && \
     yum clean all
 
-ENV HTTPD_CONFIGURATION_PATH=/opt/app-root/etc/httpd.d \
+ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
+    HTTPD_APP_ROOT=/opt/app-root \
+    HTTPD_CONFIGURATION_PATH=${HTTPD_APP_ROOT}/etc/httpd.d \
     HTTPD_MAIN_CONF_PATH=/opt/rh/httpd24/root/etc/httpd/conf \
     HTTPD_MAIN_CONF_D_PATH=/opt/rh/httpd24/root/etc/httpd/conf.d \
     HTTPD_VAR_RUN=/opt/rh/httpd24/root/var/run/httpd \
@@ -38,13 +40,11 @@ ENV HTTPD_CONFIGURATION_PATH=/opt/app-root/etc/httpd.d \
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
 # the SCL for all scripts without need to do 'scl enable'.
-ENV BASH_ENV=/opt/app-root/scl_enable \
-    ENV=/opt/app-root/scl_enable \
-    PROMPT_COMMAND=". /opt/app-root/scl_enable"
+ENV BASH_ENV=${HTTPD_APP_ROOT}/scl_enable \
+    ENV=${HTTPD_APP_ROOT}/scl_enable \
+    PROMPT_COMMAND=". ${HTTPD_APP_ROOT}/scl_enable"
 
-COPY run-*.sh /usr/bin/
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
-COPY ./contrib/ /opt/app-root
 COPY ./root /
 
 RUN mkdir -p ${HTTPD_CONFIGURATION_PATH} && \
@@ -52,14 +52,14 @@ RUN mkdir -p ${HTTPD_CONFIGURATION_PATH} && \
     chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH} && \
     chmod -R a+r   /etc/pki/tls/certs/localhost.crt && \
     chmod -R a+r   /etc/pki/tls/private/localhost.key && \
-    chmod -R a+rwx /opt/app-root/etc && \
+    chmod -R a+rwx ${HTTPD_APP_ROOT}/etc && \
     chmod -R a+rwx ${HTTPD_VAR_RUN} && \
-    chown -R 1001:0 /opt/app-root
+    chown -R 1001:0 ${HTTPD_APP_ROOT}
 
 USER 1001
 
 VOLUME ["${HTTPD_DATA_PATH}"]
 VOLUME ["${HTTPD_LOG_PATH}"]
 
-ENTRYPOINT ["/usr/bin/run-httpd24.sh"]
+ENTRYPOINT ["/usr/bin/run-httpd"]
 CMD ["httpd", "-DFOREGROUND"]

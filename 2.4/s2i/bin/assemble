@@ -2,9 +2,10 @@
 
 set -e
 
+source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
+
 echo "---> Enabling s2i support in httpd24 image"
 
-source /usr/share/container-scripts/httpd/common.sh
 config_s2i
 
 echo "---> Installing application source"
