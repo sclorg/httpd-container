@@ -27,7 +27,13 @@ RUN yum install -y yum-utils gettext hostname && \
     rpm -V $INSTALL_PKGS && \
     yum clean all
 
-ENV HTTPD_CONFIGURATION_PATH=/opt/app-root/etc/httpd.d
+ENV HTTPD_CONFIGURATION_PATH=/opt/app-root/etc/httpd.d \
+    HTTPD_MAIN_CONF_PATH=/opt/rh/httpd24/root/etc/httpd/conf \
+    HTTPD_MAIN_CONF_D_PATH=/opt/rh/httpd24/root/etc/httpd/conf.d \
+    HTTPD_VAR_RUN=/opt/rh/httpd24/root/var/run/httpd \
+    HTTPD_VAR_PATH=/opt/rh/httpd24/root/var \
+    HTTPD_DATA_PATH=/opt/rh/httpd24/root/var/www \
+    HTTPD_LOG_PATH=/var/log/httpd24
 
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
@@ -39,20 +45,21 @@ ENV BASH_ENV=/opt/app-root/scl_enable \
 COPY run-*.sh /usr/bin/
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./contrib/ /opt/app-root
+COPY ./root /
 
 RUN mkdir -p ${HTTPD_CONFIGURATION_PATH} && \
-    chmod -R a+rwx /opt/rh/httpd24/root/etc/httpd/conf && \
-    chmod -R a+rwx /opt/rh/httpd24/root/etc/httpd/conf.d && \
+    chmod -R a+rwx ${HTTPD_MAIN_CONF_PATH} && \
+    chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH} && \
     chmod -R a+r   /etc/pki/tls/certs/localhost.crt && \
     chmod -R a+r   /etc/pki/tls/private/localhost.key && \
     chmod -R a+rwx /opt/app-root/etc && \
-    chmod -R a+rwx /opt/rh/httpd24/root/var/run/httpd && \
+    chmod -R a+rwx ${HTTPD_VAR_RUN} && \
     chown -R 1001:0 /opt/app-root
 
 USER 1001
 
-VOLUME ["/opt/rh/httpd24/root/var/www"]
-VOLUME ["/var/log/httpd24"]
+VOLUME ["${HTTPD_DATA_PATH}"]
+VOLUME ["${HTTPD_LOG_PATH}"]
 
 ENTRYPOINT ["/usr/bin/run-httpd24.sh"]
 CMD ["httpd", "-DFOREGROUND"]

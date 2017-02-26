@@ -10,7 +10,7 @@ if [ $? -ne 0 ] && runs_privileged ; then
   config_privileged
 else
   # We run as non-root or as s2i
-  config_s2i
+  config_non_root
 fi
 
 set -eu

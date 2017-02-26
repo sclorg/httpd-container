@@ -4,9 +4,8 @@ set -e
 
 echo "---> Enabling s2i support in httpd24 image"
 
-sed -i -f /opt/app-root/httpdconf-s2i.sed /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf && \
-echo "IncludeOptional ${HTTPD_CONFIGURATION_PATH}/*.conf" >> /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf && \
-head -n151 /opt/rh/httpd24/root/etc/httpd/conf/httpd.conf | tail -n1 | grep "AllowOverride All" || exit
+source /usr/share/container-scripts/httpd/common.sh
+config_s2i
 
 echo "---> Installing application source"
 cp -Rf /tmp/src/. ./
