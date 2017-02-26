@@ -1,8 +1,9 @@
 # Set of functions used in other scripts
 
 config_general() {
-  sed -i -f /opt/app-root/httpdconf.sed ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
-  sed -i -f /opt/app-root/sslconf.sed ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf && \
+  sed -ie 's/^Listen 80/Listen 0.0.0.0:8080/' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
+  sed -ie '151s%AllowOverride None%AllowOverride All%' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
+  sed -ie 's/^Listen 443/Listen 0.0.0.0:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf && \
   sed -ri " s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;" ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   sed -ri " s!^(\s*CustomLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*TransferLog)\s+\S+!\1 |/usr/bin/cat!g; s!^(\s*ErrorLog)\s+\S+!\1 |/usr/bin/cat!g;" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
 }
