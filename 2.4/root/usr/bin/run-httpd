@@ -2,17 +2,15 @@
 
 source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
 
-config_general
-
 # Check whether we run as s2i
-echo "$@" | grep --quiet "$STI_SCRIPTS_PATH"
-if [ $? -ne 0 ] && runs_privileged ; then
+if ! [ -v HTTPD_RUN_BY_S2I ] && runs_privileged ; then
   config_privileged
 else
   # We run as non-root or as s2i
   config_non_root
+  generate_container_user
 fi
 
 set -eu
 
-exec "$@"
+exec httpd -D FOREGROUND $@

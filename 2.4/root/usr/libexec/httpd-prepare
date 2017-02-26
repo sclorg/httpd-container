@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
+
+mkdir -p ${HTTPD_CONFIGURATION_PATH}
+chmod -R a+rwx ${HTTPD_MAIN_CONF_PATH}
+chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH}
+chmod -R a+r   /etc/pki/tls/certs/localhost.crt
+chmod -R a+r   /etc/pki/tls/private/localhost.key
+chmod -R a+rwx ${HTTPD_APP_ROOT}/etc
+chmod -R a+rwx ${HTTPD_VAR_RUN}
+chown -R 1001:0 ${HTTPD_APP_ROOT}
+
+config_general
+

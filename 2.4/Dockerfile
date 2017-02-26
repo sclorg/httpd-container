@@ -47,19 +47,11 @@ ENV BASH_ENV=${HTTPD_APP_ROOT}/scl_enable \
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./root /
 
-RUN mkdir -p ${HTTPD_CONFIGURATION_PATH} && \
-    chmod -R a+rwx ${HTTPD_MAIN_CONF_PATH} && \
-    chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH} && \
-    chmod -R a+r   /etc/pki/tls/certs/localhost.crt && \
-    chmod -R a+r   /etc/pki/tls/private/localhost.key && \
-    chmod -R a+rwx ${HTTPD_APP_ROOT}/etc && \
-    chmod -R a+rwx ${HTTPD_VAR_RUN} && \
-    chown -R 1001:0 ${HTTPD_APP_ROOT}
+RUN /usr/libexec/httpd-prepare
 
 USER 1001
 
 VOLUME ["${HTTPD_DATA_PATH}"]
 VOLUME ["${HTTPD_LOG_PATH}"]
 
-ENTRYPOINT ["/usr/bin/run-httpd"]
-CMD ["httpd", "-DFOREGROUND"]
+CMD ["/usr/bin/run-httpd"]
