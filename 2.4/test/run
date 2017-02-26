@@ -47,8 +47,11 @@ function run() {
     cmd="$1"
     expected_res="${2:-0}"
     msg="${3:-Running command '$cmd'}"
+    set +e
     run_command "$cmd" "$expected_res" "$msg"
     res=$?
+    set -e
+    test "$res" -eq "$expected_res" && res=0 || res=1
     update_overall $res
     return $res
 }
@@ -61,7 +64,6 @@ function run_default_page_test() {
   cip=$(get_container_ip 'test_default_page')
   run "curl ${cip}:8080 > output"
   run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output" || cat output
-  rm_container test_default_page
 }
 
 
@@ -74,14 +76,13 @@ function run_as_root_test() {
   cip=$(get_container_ip 'test_run_as_root')
   run "curl ${cip}:8080 > output_root"
   run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output" || cat output_root
-  rm_container test_run_as_root
 }
 
 
 function run_log_to_volume_test() {
   _run_invalid_log_volume_test
   _run_log_to_volume_test old /var/log/httpd24
-#  _run_log_to_volume_test new /var/log/httpd
+  #_run_log_to_volume_test new /var/log/httpd
 }
 
 function _run_log_to_volume_test() {
@@ -104,7 +105,6 @@ function _run_log_to_volume_test() {
   run "grep -e '^ssl_access_log$' output" 0 "Checking that file ssl_access_log exists"
   run "grep -e '^ssl_error_log$' output" 0 "Checking that file ssl_error_log exists"
   run "grep -e '^ssl_request_log$' output" 0 "Checking that file ssl_request_log exists"
-  rm_container test_log_dir_${variant}
 }
 
 function _run_invalid_log_volume_test() {
@@ -116,7 +116,6 @@ function _run_invalid_log_volume_test() {
   cid=$(get_cid "test_log_dir_fail")
   exit_status=$(docker inspect -f '{{.State.ExitCode}}' ${cid})
   run "test $exit_status == 1" 0 "Checking that setting HTTPD_LOG_TO_VOLUME is not allowed if UID is not 0"
-  rm_container test_log_dir_fail
 }
 
 
@@ -141,7 +140,6 @@ function _run_data_volume_test() {
   cip=$(get_container_ip "test_doc_root_${variant}")
   run "curl ${cip}:8080 > output"
   run "grep -e '^hello$' output"
-  rm_container test_doc_root_${variant}
 }
 
 
@@ -161,7 +159,6 @@ function run_s2i_test() {
   run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
   # 0 "Checking page served by s2i feature"
   sleep 2
-  rm_container "testing-app-s2i"
 }
 
 
@@ -187,19 +184,21 @@ function cleanup() {
     docker rm $CONTAINER
     rm $cidfile
     echo "Done."
-    if [ "$overall" -eq 0 ] ; then
-      print_result "pass" "All tests passed."
-    else
-      print_result "fail" "Tests failed."
-    fi
   done
+  if [ "$overall" -eq 0 ] ; then
+    print_result "pass" "All tests passed."
+  else
+    print_result "fail" "Tests failed."
+  fi
   rmdir $CIDFILE_DIR
+  rm -Rf "$working_dir"
+  return "$overall"
 }
-#trap cleanup EXIT
+trap cleanup EXIT
 
 
-tmpdir=`mktemp -d`
-pushd $tmpdir > /dev/null || exit 1
+working_dir=`mktemp -d`
+pushd $working_dir > /dev/null || exit 1
 
 CIDFILE_DIR=`pwd`/cid_files
 mkdir "$CIDFILE_DIR"
@@ -221,6 +220,5 @@ test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
 TEST_LIST=${@:-$TEST_LIST} run_all_tests
 
 popd > /dev/null
-rm -Rf "$tmpdir"
 
 exit "$overall"
