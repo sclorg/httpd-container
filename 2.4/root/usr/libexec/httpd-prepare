@@ -4,6 +4,17 @@ set -e
 
 source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
 
+# compatibility symlinks:
+mv /opt/rh/httpd24/root/etc/httpd /etc/httpd
+ln -s /etc/httpd /opt/rh/httpd24/root/etc/httpd
+
+mv /opt/rh/httpd24/root/var/run/httpd /var/run/httpd
+ln -s /var/run/httpd /opt/rh/httpd24/root/var/run/httpd
+
+rm -rf /var/www
+mv /opt/rh/httpd24/root/var/www /var/www
+ln -s /var/www /opt/rh/httpd24/root/var/www
+
 mkdir -p ${HTTPD_CONFIGURATION_PATH}
 chmod -R a+rwx ${HTTPD_MAIN_CONF_PATH}
 chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH}
@@ -12,6 +23,8 @@ chmod -R a+r   /etc/pki/tls/private/localhost.key
 chmod -R a+rwx ${HTTPD_APP_ROOT}/etc
 chmod -R a+rwx ${HTTPD_VAR_RUN}
 chown -R 1001:0 ${HTTPD_APP_ROOT}
+chown -R 1001:0 ${HTTPD_DATA_PATH}
+chown -R 1001:0 ${HTTPD_LOG_PATH}
 
 config_general
 

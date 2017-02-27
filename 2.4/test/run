@@ -121,7 +121,7 @@ function _run_invalid_log_volume_test() {
 
 function run_data_volume_test() {
   _run_data_volume_test old /opt/rh/httpd24/root/var/www
-#  _run_data_volume_test new /var/www
+  _run_data_volume_test new /var/www
 }
 
 function _run_data_volume_test() {

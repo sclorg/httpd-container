@@ -30,11 +30,12 @@ RUN yum install -y yum-utils gettext hostname && \
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_APP_ROOT=/opt/app-root \
     HTTPD_CONFIGURATION_PATH=${HTTPD_APP_ROOT}/etc/httpd.d \
-    HTTPD_MAIN_CONF_PATH=/opt/rh/httpd24/root/etc/httpd/conf \
-    HTTPD_MAIN_CONF_D_PATH=/opt/rh/httpd24/root/etc/httpd/conf.d \
-    HTTPD_VAR_RUN=/opt/rh/httpd24/root/var/run/httpd \
-    HTTPD_VAR_PATH=/opt/rh/httpd24/root/var \
-    HTTPD_DATA_PATH=/opt/rh/httpd24/root/var/www \
+    HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
+    HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
+    HTTPD_VAR_RUN=/var/run/httpd \
+    HTTPD_VAR_RUN=/var/run/httpd \
+    HTTPD_DATA_PATH=/var/www \
+    HTTPD_DATA_ORIG_PATH=/opt/rh/httpd24/root/var/www \
     HTTPD_LOG_PATH=/var/log/httpd24
 
 # When bash is started non-interactively, to run a shell script, for example it
