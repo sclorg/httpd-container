@@ -7,6 +7,11 @@ THISDIR=$(dirname ${BASH_SOURCE[0]})
 . ${THISDIR}/utils.sh
 test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
 
+function _container_is_scl() {
+  docker inspect --format='{{.Config.Env}}' "${1-$IMAGE_NAME}" | grep -q HTTPD_SCL
+  return $?
+}
+
 function create_container() {
     local name="$1" ; shift
     local image="${1-$IMAGE_NAME}"
@@ -57,15 +62,21 @@ function run() {
 }
 
 
+function _check_test_page() {
+  run "curl ${1}:8080 > output"
+  if ! run "fgrep -e 'Test Page for the Apache HTTP Server on' output" ; then
+    cat output
+    return 1
+  fi
+}
+
 function run_default_page_test() {
   # Check default page
   run "create_container test_default_page"
   sleep 2
   cip=$(get_container_ip 'test_default_page')
-  run "curl ${cip}:8080 > output"
-  run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output" || cat output
+  _check_test_page ${cip}
 }
-
 
 function run_as_root_test() {
   # Try running as root
@@ -74,15 +85,17 @@ function run_as_root_test() {
   DOCKER_ARGS=
   sleep 2
   cip=$(get_container_ip 'test_run_as_root')
-  run "curl ${cip}:8080 > output_root"
-  run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output" || cat output_root
+  _check_test_page ${cip}
 }
 
 
 function run_log_to_volume_test() {
   _run_invalid_log_volume_test
-  _run_log_to_volume_test old /var/log/httpd24
-  #_run_log_to_volume_test new /var/log/httpd
+  if _container_is_scl ; then
+    _run_log_to_volume_test old /var/log/httpd24
+  else
+    _run_log_to_volume_test new /var/log/httpd
+  fi
 }
 
 function _run_log_to_volume_test() {
@@ -120,8 +133,10 @@ function _run_invalid_log_volume_test() {
 
 
 function run_data_volume_test() {
-  _run_data_volume_test old /opt/rh/httpd24/root/var/www
-  _run_data_volume_test new /var/www
+  if _container_is_scl ; then
+     _run_data_volume_test old /opt/rh/httpd24/root/var/www
+  fi
+   _run_data_volume_test new /var/www
 }
 
 function _run_data_volume_test() {

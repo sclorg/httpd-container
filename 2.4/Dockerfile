@@ -1,18 +1,27 @@
 FROM centos/s2i-base-centos7
 
-# RHSCL httpd24 image.
+# Apache HTTP Server image.
 #
 # Volumes:
-#  * /opt/rh/httpd24/root/var/www - Datastore for httpd
+#  * /var/www - Datastore for httpd
 #  * /var/log/httpd24 - Storage for logs when $HTTPD_LOG_TO_VOLUME is set
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-# Labels consumed by Red Hat build service
-LABEL io.k8s.description="Platform for running Apache httpd or building httpd-based application" \
-      io.k8s.display-name="httpd 2.4.18" \
-      io.openshift.expose-services="8080:http" \
-      io.openshift.expose-services="8443:https" \
+ENV HTTPD_VERSION=2.4
+
+ENV SUMMARY="Platform for running Apache HTTP $HTTPD_VERSION Server or building httpd-based application" \
+    DESCRIPTION="Apache HTTP $HTTPD_VERSION available as docker container, is a powerful, efficient, \
+and extensible web server. Apache supports a variety of features, many implemented as compiled modules \
+which extend the core functionality. \
+These can range from server-side programming language support to authentication schemes. \
+Virtual hosting allows one Apache installation to serve many different Web sites."
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$SUMMARY" \
+      io.k8s.display-name="Apache HTTP $HTTPD_VERSION" \
+      io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="builder,httpd,httpd24"
 
 EXPOSE 80
@@ -33,10 +42,10 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
     HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
     HTTPD_VAR_RUN=/var/run/httpd \
-    HTTPD_VAR_RUN=/var/run/httpd \
     HTTPD_DATA_PATH=/var/www \
     HTTPD_DATA_ORIG_PATH=/opt/rh/httpd24/root/var/www \
-    HTTPD_LOG_PATH=/var/log/httpd24
+    HTTPD_LOG_PATH=/var/log/httpd24 \
+    HTTPD_SCL=httpd24
 
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
