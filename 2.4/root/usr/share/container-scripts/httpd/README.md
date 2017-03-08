@@ -44,7 +44,7 @@ $ docker run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z rhscl/httpd-24-
 This will create a container named `httpd` running Apache HTTP Server, serving data from
 `/wwwdata` directory. Port 8080 will be exposed and mapped to the host.
 
-If you want to create a new Docker layered image, use [Source-to-Image](https://github.com/openshift/source-to-image), a tool for building/building artifacts from source and injecting into docker images. To create a new Docker image named `httpd-app` using Source-to-Image, while using data available `/www/data` on the host, execute the following command:
+If you want to create a new Docker layered image, use [Source-to-Image](https://github.com/openshift/source-to-image), a tool for building/building artifacts from source and injecting into docker images. To create a new Docker image named `httpd-app` using Source-to-Image, while using data available in `/wwwdata` on the host, execute the following command:
 
 ```
 $ s2i build file:///wwwdata/html rhscl/httpd-24-rhel7 httpd-app
