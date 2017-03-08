@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 
+set -e
 IMAGE_NAME="${IMAGE_NAME:-rhscl/httpd-24-rhel7}"
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
 . ${THISDIR}/utils.sh
 test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
 
+function _container_is_scl() {
+  docker inspect --format='{{.Config.Env}}' "${1-$IMAGE_NAME}" | grep -q HTTPD_SCL
+  return $?
+}
+
 function create_container() {
     local name="$1" ; shift
-    local image="${1-$IMAGE_NAME}" ; shift
+    local image="${1-$IMAGE_NAME}"
+    [ -n "$1" ] && shift
     cidfile="$CIDFILE_DIR/$name"
     # create container with a cidfile in a directory for cleanup
     docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d $image || return 1
@@ -16,7 +23,7 @@ function create_container() {
     echo "Created container $(cat $cidfile)"
 }
 
-function update_overall {
+function update_overall() {
     res="$1"
     if [ "$res" != 0 ]; then
         overall="$res"
@@ -33,86 +40,200 @@ function get_container_ip() {
     docker inspect --format='{{.NetworkSettings.IPAddress}}' $(get_cid "$id")
 }
 
-function rm_container {
+function rm_container() {
     local name="$1"
     local cid="`get_cid $name`"
-    docker kill "$cid"
+    docker kill "$cid" || :
     docker rm "$cid"
     rm -f "$CIDFILE_DIR/$name"
 }
 
-function run {
+function run() {
     cmd="$1"
     expected_res="${2:-0}"
     msg="${3:-Running command '$cmd'}"
+    set +e
     run_command "$cmd" "$expected_res" "$msg"
     res=$?
+    set -e
+    test "$res" -eq "$expected_res" && res=0 || res=1
     update_overall $res
     return $res
 }
 
-tmpdir=`mktemp -d`
-pushd $tmpdir > /dev/null || exit 1
 
-CIDFILE_DIR=cid_files
+function _check_test_page() {
+  run "curl ${1}:8080 > output"
+  if ! run "fgrep -e 'Test Page for the Apache HTTP Server on' output" ; then
+    cat output
+    return 1
+  fi
+}
+
+function run_default_page_test() {
+  # Check default page
+  run "create_container test_default_page"
+  sleep 2
+  cip=$(get_container_ip 'test_default_page')
+  _check_test_page ${cip}
+}
+
+function run_as_root_test() {
+  # Try running as root
+  DOCKER_ARGS="-u 0"
+  run "create_container test_run_as_root"
+  DOCKER_ARGS=
+  sleep 2
+  cip=$(get_container_ip 'test_run_as_root')
+  _check_test_page ${cip}
+}
+
+
+function run_log_to_volume_test() {
+  _run_invalid_log_volume_test
+  if _container_is_scl ; then
+    _run_log_to_volume_test old /var/log/httpd24
+  else
+    _run_log_to_volume_test new /var/log/httpd
+  fi
+}
+
+function _run_log_to_volume_test() {
+  # Check the HTTP_LOG_TO_VOLUME env variable
+  local variant=${1}
+  local volume_dir=${2}
+  local logs_dir=$(mktemp -d /tmp/httpd-test-volume-XXXXXX)
+  run "ls -d ${logs_dir} || mkdir ${logs_dir}" 0 'Create log directory'
+  run "chown -R 1001:1001 ${logs_dir}"
+  run "chcon -Rvt svirt_sandbox_file_t ${logs_dir}" 0 'Change SELinux context on the log dir'
+  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 -u 0 -v ${logs_dir}:${volume_dir}"
+  run "create_container test_log_dir_${variant}"
+  DOCKER_ARGS=
+  sleep 2
+  cip=$(get_container_ip "test_log_dir_${variant}")
+  run "curl ${cip}:8080 > /dev/null"
+  ls ${logs_dir} > output
+  run "grep -e '^access_log$' output" 0 "Checking that file access_log exists"
+  run "grep -e '^error_log$' output" 0 "Checking that file error_log exists"
+  run "grep -e '^ssl_access_log$' output" 0 "Checking that file ssl_access_log exists"
+  run "grep -e '^ssl_error_log$' output" 0 "Checking that file ssl_error_log exists"
+  run "grep -e '^ssl_request_log$' output" 0 "Checking that file ssl_request_log exists"
+}
+
+function _run_invalid_log_volume_test() {
+  # Check wrong usage of the HTTP_LOG_TO_VOLUME env variable
+  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 -u 1001"
+  run "create_container test_log_dir_fail"
+  DOCKER_ARGS=
+  sleep 2
+  cid=$(get_cid "test_log_dir_fail")
+  exit_status=$(docker inspect -f '{{.State.ExitCode}}' ${cid})
+  run "test $exit_status == 1" 0 "Checking that setting HTTPD_LOG_TO_VOLUME is not allowed if UID is not 0"
+}
+
+
+function run_data_volume_test() {
+  if _container_is_scl ; then
+     _run_data_volume_test old /opt/rh/httpd24/root/var/www
+  fi
+   _run_data_volume_test new /var/www
+}
+
+function _run_data_volume_test() {
+  local variant=${1}
+  local volume_dir=${2}
+  # Test that docker volume for DocumentRoot works
+  datadir=$(mktemp -d /tmp/httpd-test-data-XXXXXX)
+  run "mkdir -p ${datadir}/html" 0 'Create document root'
+  run "echo hello > ${datadir}/html/index.html"
+  run "chown -R 1001:1001 ${datadir}"
+  run "chcon -Rvt svirt_sandbox_file_t ${datadir}/" 0 'Change SELinux context on the document root'
+  DOCKER_ARGS="-v ${datadir}:${volume_dir}"
+  run "create_container test_doc_root_${variant}"
+  DOCKER_ARGS=
+  sleep 2
+  cip=$(get_container_ip "test_doc_root_${variant}")
+  run "curl ${cip}:8080 > output"
+  run "grep -e '^hello$' output"
+}
+
+
+function run_s2i_test() {
+  # Test s2i use case
+  # Since we built the candidate image locally, we don't want S2I attempt to pull
+  # it from Docker hub
+  s2i_args="--force-pull=false"
+  run "s2i usage ${s2i_args} ${IMAGE_NAME}" 0 "Testing 's2i usage'"
+  run "s2i build ${s2i_args} file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp" 0 "Testing 's2i build'"
+  DOCKER_ARGS='-u 1000'
+  create_container testing-app-s2i ${IMAGE_NAME}-testapp
+  DOCKER_ARGS=
+  sleep 5
+  cip=$(get_container_ip 'testing-app-s2i')
+  run "curl ${cip}:8080 > output_s2i"
+  run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
+  # 0 "Checking page served by s2i feature"
+  sleep 2
+}
+
+
+function run_all_tests() {
+  for test_case in $TEST_LIST; do
+    : "Running test $test_case"
+    $test_case
+  done;
+}
+
+
+function cleanup() {
+  for cidfile in $CIDFILE_DIR/* ; do
+    CONTAINER=$(cat $cidfile)
+
+    echo "Stopping and removing container $CONTAINER..."
+    docker stop $CONTAINER
+    exit_status=$(docker inspect -f '{{.State.ExitCode}}' $CONTAINER)
+    if [ "$exit_status" != "0" ]; then
+      echo "Dumping logs for $CONTAINER"
+      docker logs $CONTAINER
+    fi
+    docker rm $CONTAINER
+    rm $cidfile
+    echo "Done."
+  done
+  if [ "$overall" -eq 0 ] ; then
+    print_result "pass" "All tests passed."
+  else
+    print_result "fail" "Tests failed."
+  fi
+  rmdir $CIDFILE_DIR
+  rm -Rf "$working_dir"
+  return "$overall"
+}
+trap cleanup EXIT
+
+
+working_dir=`mktemp -d`
+pushd $working_dir > /dev/null || exit 1
+
+CIDFILE_DIR=`pwd`/cid_files
 mkdir "$CIDFILE_DIR"
 
 overall=0
 
 run "docker inspect $IMAGE_NAME >/dev/null || docker pull $IMAGE_NAME" 0
 
-# Check default page
-run "create_container test_default_page"
-sleep 2
-run "curl $(get_container_ip 'test_default_page') > output"
-run "fgrep -e 'Test Page for the Apache HTTP Server on Red Hat Enterprise Linux' output"
-rm_container test_default_page
 
-# Check the HTTP_LOG_TO_VOLUME env variable
-run "ls -d /var/log/httpd24-logs || mkdir /var/log/httpd24-logs" 0 'Create log directory'
-run "chcon -Rvt svirt_sandbox_file_t /var/log/httpd24-logs" 0 'Change SELinux context on the log dir'
-DOCKER_ARGS='-e HTTPD_LOG_TO_VOLUME=1 -v /var/log/httpd24-logs:/var/log/httpd24'
-run "create_container test_log_dir"
-DOCKER_ARGS=
-sleep 2
-run "curl $(get_container_ip 'test_log_dir') > /dev/null"
-ls /var/log/httpd24-logs > output
-run "grep -e '^access_log$' output" 0 "Checking that file access_log exists"
-run "grep -e '^error_log$' output" 0 "Checking that file error_log exists"
-run "grep -e '^ssl_access_log$' output" 0 "Checking that file ssl_access_log exists"
-run "grep -e '^ssl_error_log$' output" 0 "Checking that file ssl_error_log exists"
-run "grep -e '^ssl_request_log$' output" 0 "Checking that file ssl_request_log exists"
-rm_container test_log_dir
+TEST_LIST="\
+run_default_page_test
+run_as_root_test
+run_log_to_volume_test
+run_data_volume_test
+run_s2i_test"
 
-# Test that docker volume for DocumentRoot works
-run "ls -d /var/www/html/ || mkdir -p /var/www/html/" 0 'Create document root'
-run "echo hello > /var/www/html/index.html"
-run "chcon -Rvt svirt_sandbox_file_t /var/www/" 0 'Change SELinux context on the document root'
-DOCKER_ARGS='-v /var/www:/opt/rh/httpd24/root/var/www'
-run "create_container test_doc_root"
-DOCKER_ARGS=
-sleep 2
-run "curl $(get_container_ip 'test_doc_root') > output"
-run "grep -e '^hello$' output"
-rm_container test_doc_root
+test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
 
-# Test s2i use case
-# Since we built the candidate image locally, we don't want S2I attempt to pull
-# it from Docker hub
-s2i_args="--force-pull=false"
-run "s2i usage ${s2i_args} ${IMAGE_NAME}" 0 "Testing 's2i usage'"
-run "s2i build ${s2i_args} file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp" 0 "Testing 's2i build'"
-DOCKER_ARGS='-u 1000'
-create_container testing-app-s2i ${IMAGE_NAME}-testapp
-DOCKER_ARGS=
-sleep 5
-run "curl $(get_container_ip 'testing-app-s2i'):8080 > output_s2i"
-run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
-# 0 "Checking page served by s2i feature"
-sleep 2
-rm_container "testing-app-s2i"
+TEST_LIST=${@:-$TEST_LIST} run_all_tests
 
 popd > /dev/null
-rm -Rf "$tmpdir"
 
 exit "$overall"

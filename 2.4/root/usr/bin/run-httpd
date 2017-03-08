@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -eu
+
+source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
+
+# Check whether we run as s2i
+if ! [ -v HTTPD_RUN_BY_S2I ] && runs_privileged ; then
+  config_privileged
+else
+  # We run as non-root or as s2i
+  config_non_privileged
+  generate_container_user
+fi
+
+exec httpd -D FOREGROUND $@
