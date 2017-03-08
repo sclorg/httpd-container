@@ -1,7 +1,7 @@
-Apache HTTP 2.4 Server
+Apache HTTP Server 2.4
 ======================
 
-This container image includes Apache HTTP 2.4 Server for OpenShift and general usage.
+This container image includes Apache HTTP Server 2.4 for OpenShift and general usage.
 Users can choose between RHEL, CentOS, and Fedora based images.
 The RHEL image is available in the [Red Hat Registry](https://access.redhat.com/containers)
 as registry.access.redhat.com/rhscl/httpd-24-rhel7.
@@ -12,7 +12,7 @@ as centos/httpd-24-centos7.
 DESCRIPTION
 -----------
 
-Apache HTTP 2.4 Server available as docker container, is a powerful, efficient,
+Apache HTTP Server 2.4 available as docker container, is a powerful, efficient,
 and extensible web server. Apache supports a variety of features, many implemented as compiled modules
 which extend the core functionality.
 These can range from server-side programming language support to authentication schemes.
