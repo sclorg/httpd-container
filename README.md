@@ -33,7 +33,7 @@ Choose either the CentOS7 or RHEL7 based image:
     subscribed RHEL machine.
 
     ```
-    $ git clone https://github.com/sclorg/httpd-container.git
+    $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
     $ make build TARGET=rhel7 VERSION=2.4
     ```
@@ -49,7 +49,7 @@ Choose either the CentOS7 or RHEL7 based image:
     To build a CentOS based Apache HTTP Server image from scratch run:
 
     ```
-    $ git clone https://github.com/sclorg/httpd-container.git
+    $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
     $ make build TARGET=centos7 VERSION=2.4
     ```
