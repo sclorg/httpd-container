@@ -22,13 +22,11 @@ LABEL summary="$SUMMARY" \
       io.k8s.description="$SUMMARY" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd24"
-
-LABEL name="rhscl/httpd-24-rhel7" \
+      io.openshift.tags="builder,httpd,httpd24" \
+      name="rhscl/httpd-24-rhel7" \
       version="$HTTPD_VERSION" \
       release="32" \
-      com.redhat.component="httpd24-docker" \
-      architecture="x86_64"
+      com.redhat.component="httpd24-docker"
 
 EXPOSE 80
 EXPOSE 443

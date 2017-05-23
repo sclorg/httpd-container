@@ -8,7 +8,11 @@ FROM 25/s2i-base
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd
 
-ENV HTTPD_VERSION=2.4
+ENV HTTPD_VERSION=2.4 \
+    NAME=httpd \
+    VERSION=$HTTPD_VERSION \
+    RELEASE=1 \
+    ARCH=x86_64
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
     DESCRIPTION="Apache httpd $HTTPD_VERSION available as docker container, is a powerful, efficient, \
@@ -22,14 +26,8 @@ LABEL summary="$SUMMARY" \
       io.k8s.description="$SUMMARY" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd24"
-
-ENV NAME=httpd \
-    VERSION=$HTTPD_VERSION \
-    RELEASE=1 \
-    ARCH=x86_64
-
-LABEL com.redhat.component="$NAME" \
+      io.openshift.tags="builder,httpd,httpd24" \
+      com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$VERSION" \
       release="$RELEASE.$DISTTAG" \
