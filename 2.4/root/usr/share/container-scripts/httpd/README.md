@@ -1,15 +1,15 @@
-Apache HTTP Server 2.4
+Apache HTTP Server 2.4 Docker image
 ======================
 
 This container image includes Apache HTTP Server 2.4 for OpenShift and general usage.
-Users can choose between RHEL, CentOS, and Fedora based images.
-The RHEL image is available in the [Red Hat Registry](https://access.redhat.com/containers)
+Users can choose between RHEL, CentOS and Fedora based images.
+The RHEL image is available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/httpd-24-rhel7)
 as registry.access.redhat.com/rhscl/httpd-24-rhel7.
 The CentOS image is then available on [Docker Hub](https://hub.docker.com/r/centos/httpd-24-centos7/)
 as centos/httpd-24-centos7.
 
 
-DESCRIPTION
+Description
 -----------
 
 Apache HTTP Server 2.4 available as docker container, is a powerful, efficient,
@@ -19,10 +19,11 @@ These can range from server-side programming language support to authentication 
 Virtual hosting allows one Apache installation to serve many different Web sites."
 
 
-USAGE
+Usage
 -----
 
-For this, we will assume that you are using the `rhscl/httpd-24-rhel7` image.
+For this, we will assume that you are using the Apache HTTP Server 2.4 container image from the
+Red Hat Container Catalog called `rhscl/httpd-24-rhel7`.
 The image can be used as a base image for other applications based on Apache HTTP web server.
 
 An example of the data on the host for both the examples above, that will be served by
@@ -57,8 +58,8 @@ $ docker run -d --name httpd -p 8080:8080 httpd-app
 ```
 
 
-CONFIGURATION
--------------
+Environment variables and volumes
+---------------------------------
 
 The Apache HTTP Server container image supports the following configuration variable, which can be set by using the `-e` option with the docker run command:
 
@@ -74,10 +75,6 @@ as a docker volume, execute the following command:
 $ docker run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/httpd24:Z rhscl/httpd-24-rhel7
 ```
 
-
-VOLUMES
--------
-
 You can also set the following mount points by passing the `-v /host:/container` flag to Docker.
 
 |  Volume mount point      | Description                                                            |
@@ -90,7 +87,7 @@ directory has the appropriate permissions and that the owner and group of the di
 matches the user UID or name which is running inside the container.**
 
 
-DEFAULT USER
+Default user
 ------------
 
 By default, Apache HTTP Server container runs as UID 1001. That means the volume mounted directories for the files (if mounted using `-v` option) need to be prepared properly, so the UID 1001 can read them.
@@ -104,18 +101,16 @@ docker run -d -u 1234 rhscl/httpd-24-rhel7
 To log into a volume mounted directory, the container needs to be run as UID 0 (see above).
 
 
-
-TROUBLESHOOTING
+Troubleshooting
 ---------------
 The httpd deamon in the container logs to the standard output by default, so the log is available in the container log. The log can be examined by running:
 
     docker logs <container>
 
 
-SEE ALSO
+See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/httpd-container.
 In that repository, Dockerfile for CentOS is called Dockerfile, Dockerfile
-for RHEL is called Dockerfile.rhel7.
-
+for RHEL is called Dockerfile.rhel7 and Dockerfile for Fedora is called Dockerfile.fedora.
