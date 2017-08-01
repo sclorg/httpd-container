@@ -35,7 +35,7 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
-    $ make build TARGET=rhel7 VERSION=2.4
+    $ make build TARGET=rhel7 VERSIONS=2.4
     ```
 
 *  **CentOS7 based image**
@@ -51,13 +51,13 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
-    $ make build TARGET=centos7 VERSION=2.4
+    $ make build TARGET=centos7 VERSIONS=2.4
     ```
 
 For using other versions of Apache HTTP Server, just replace the `2.4` value by particular version
 in the commands above.
 
-**Notice: By omitting the `VERSION` parameter, the build/test action will be performed
+**Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
 on all provided versions of Apache HTTP Server, which must be specified in  `VERSIONS` variable.
 This variable must be set to a list with possible versions (subdirectories).**
 
@@ -84,20 +84,20 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS im
 
     ```
     $ cd httpd-container
-    $ make test TARGET=rhel7 VERSION=2.4
+    $ make test TARGET=rhel7 VERSIONS=2.4
     ```
 
 *  **CentOS based image**
 
     ```
     $ cd httpd-container
-    $ make test TARGET=centos7 VERSION=2.4
+    $ make test TARGET=centos7 VERSIONS=2.4
     ```
 
 For using other versions of Apache HTTP Server, just replace the `2.4` value by particular version
 in the commands above.
 
-**Notice: By omitting the `VERSION` parameter, the build/test action will be performed
+**Notice: By omitting the `VERSIONS` parameter, the build/test action will be performed
 on all provided versions of Apache HTTP Server, which must be specified in  `VERSIONS` variable.
 This variable must be set to a list with possible versions (subdirectories).**
 
