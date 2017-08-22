@@ -28,8 +28,6 @@ LABEL summary="$SUMMARY" \
       release="1" \
       com.redhat.component="httpd24-docker"
 
-EXPOSE 80
-EXPOSE 443
 EXPOSE 8080
 EXPOSE 8443
 
