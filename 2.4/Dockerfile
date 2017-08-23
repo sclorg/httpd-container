@@ -1,4 +1,4 @@
-FROM centos/s2i-base-centos7
+FROM centos/s2i-core-centos7
 
 # Apache HTTP Server image.
 #
@@ -33,9 +33,9 @@ EXPOSE 443
 EXPOSE 8080
 EXPOSE 8443
 
-RUN yum install -y yum-utils gettext hostname && \
+RUN yum install -y yum-utils && \
     yum install -y centos-release-scl epel-release && \
-    INSTALL_PKGS="nss_wrapper bind-utils httpd24 httpd24-mod_ssl" && \
+    INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd24 httpd24-mod_ssl" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum clean all
