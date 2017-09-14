@@ -4,6 +4,11 @@ Apache HTTP Server Docker Images
 This repository contains Dockerfiles for Apache HTTP Server images for OpenShift and general usage.
 Users can choose between RHEL and CentOS based images.
 
+For more information about contributing, see
+[the Contribution Guidelines](https://github.com/sclorg/welcome/blob/master/contribution.md).
+For more information about concepts used in these docker images, see the
+[Landing page](https://github.com/sclorg/welcome).
+
 
 Versions
 ---------------
@@ -35,6 +40,7 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
+    $ git submodule update --init
     $ make build TARGET=rhel7 VERSIONS=2.4
     ```
 
@@ -51,6 +57,7 @@ Choose either the CentOS7 or RHEL7 based image:
     ```
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
+    $ git submodule update --init
     $ make build TARGET=centos7 VERSIONS=2.4
     ```
 
@@ -84,6 +91,7 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS im
 
     ```
     $ cd httpd-container
+    $ git submodule update --init
     $ make test TARGET=rhel7 VERSIONS=2.4
     ```
 
@@ -91,6 +99,7 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS im
 
     ```
     $ cd httpd-container
+    $ git submodule update --init
     $ make test TARGET=centos7 VERSIONS=2.4
     ```
 
