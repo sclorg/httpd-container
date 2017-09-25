@@ -13,4 +13,6 @@ else
   generate_container_user
 fi
 
+process_extending_files ${HTTPD_APP_ROOT}/src/httpd-pre-init/ ${HTTPD_CONTAINER_SCRIPTS_PATH}/pre-init/
+
 exec httpd -D FOREGROUND $@
