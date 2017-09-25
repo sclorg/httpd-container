@@ -57,6 +57,13 @@ To run such a new image, execute the following command:
 $ docker run -d --name httpd -p 8080:8080 httpd-app
 ```
 
+The structure of httpd-app can look like this:
+
+| Folder name       | Description                |
+|-------------------|----------------------------|
+| `./httpd-cfg`     | Can contain additional Apache configuration files (`*.cfg`)|
+| `./httpd-pre-init`| Can contain shell scripts (`*.sh`) that are sourced before `httpd` is started|
+| `./`              | Application source code |
 
 Environment variables and volumes
 ---------------------------------

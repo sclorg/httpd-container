@@ -176,6 +176,22 @@ function run_s2i_test() {
   sleep 2
 }
 
+function run_pre_init_test() {
+  # Test s2i use case #2 - testing pre-init script
+  # Since we built the candidate image locally, we don't want S2I attempt to pull
+  # it from Docker hub
+  s2i_args="--force-pull=false"
+  run "s2i build ${s2i_args} file://${test_dir}/pre-init-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp2" 0 "Testing 's2i build' with pre-init script"
+  DOCKER_ARGS='-u 1000'
+  create_container testing-app-pre-init ${IMAGE_NAME}-testapp2
+  DOCKER_ARGS=
+  sleep 5
+  cip=$(get_container_ip 'testing-app-pre-init')
+  run "curl ${cip}:8080 > output_pre_init"
+  run "fgrep -e 'This content was replaced by pre-init script.' output_pre_init"
+  # 0 "Checking page served by s2i feature and edited by pre-init script"
+  sleep 2
+}
 
 function run_all_tests() {
   for test_case in $TEST_LIST; do
@@ -228,7 +244,8 @@ run_default_page_test
 run_as_root_test
 run_log_to_volume_test
 run_data_volume_test
-run_s2i_test"
+run_s2i_test
+run_pre_init_test"
 
 test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
 
