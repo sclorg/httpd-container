@@ -25,7 +25,6 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="builder,httpd,httpd24" \
       name="centos/httpd-24-centos7" \
       version="$HTTPD_VERSION" \
-      release="1" \
       com.redhat.component="httpd24-docker"
 
 EXPOSE 8080
@@ -59,7 +58,8 @@ ENV BASH_ENV=${HTTPD_APP_ROOT}/scl_enable \
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./root /
 
-RUN /usr/libexec/httpd-prepare
+# Reset permissions of filesystem to default values
+RUN /usr/libexec/httpd-prepare && rpm-file-permissions
 
 USER 1001
 
