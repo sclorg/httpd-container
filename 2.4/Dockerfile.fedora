@@ -32,7 +32,8 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       release="$RELEASE.$DISTTAG" \
       architecture="$ARCH" \
-      run="docker run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z $FGC/$NAME:latest"
+      run="docker run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z $FGC/$NAME:latest" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
 EXPOSE 8443
