@@ -162,7 +162,7 @@ function run_s2i_test() {
   # Test s2i use case
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
-  s2i_args="--force-pull=false"
+  s2i_args="--pull-policy=never"
   run "s2i usage ${s2i_args} ${IMAGE_NAME}" 0 "Testing 's2i usage'"
   run "s2i build ${s2i_args} file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp" 0 "Testing 's2i build'"
   DOCKER_ARGS='-u 1000'
@@ -180,7 +180,7 @@ function run_pre_init_test() {
   # Test s2i use case #2 - testing pre-init script
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
-  s2i_args="--force-pull=false"
+  s2i_args="--pull-policy=never"
   run "s2i build ${s2i_args} file://${test_dir}/pre-init-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp2" 0 "Testing 's2i build' with pre-init script"
   DOCKER_ARGS='-u 1000'
   create_container testing-app-pre-init ${IMAGE_NAME}-testapp2
