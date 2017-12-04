@@ -193,6 +193,26 @@ function run_pre_init_test() {
   sleep 2
 }
 
+function run_self_cert_test() {
+  # Test s2i use case #3 - using own ssl certs
+  # Since we built the candidate image locally, we don't want S2I attempt to pull
+  # it from Docker hub
+  s2i_args="--pull-policy=never"
+  run "s2i build ${s2i_args} file://${test_dir}/self-signed-ssl ${IMAGE_NAME} ${IMAGE_NAME}-self-signed" 0 "Testing 's2i build' with self-signed cert"
+  DOCKER_ARGS='-u 1000'
+  create_container testing-self-signed ${IMAGE_NAME}-self-signed
+  DOCKER_ARGS=
+  sleep 5
+  cip=$(get_container_ip 'testing-self-signed')
+  run "curl -k https://${cip}:8443 > output_ssl_cert"
+  run "fgrep -e 'SSL test works' output_ssl_cert"
+  echo | openssl s_client -showcerts -servername ${cip} -connect ${cip}:8443 2>/dev/null | openssl x509 -inform pem -noout -text >./servercert
+  openssl x509 -in ${test_dir}/self-signed-ssl/httpd-ssl/certs/server-cert-selfsigned.pem -inform pem -noout -text >./configcert
+  run "diff ./configcert ./servercert"
+  run "diff ./configcert ./servercert >cert.diff"
+  sleep 2
+}
+
 function run_all_tests() {
   for test_case in $TEST_LIST; do
     : "Running test $test_case"
@@ -240,6 +260,7 @@ run "docker inspect $IMAGE_NAME >/dev/null || docker pull $IMAGE_NAME" 0
 
 
 TEST_LIST="\
+run_self_cert_test
 run_default_page_test
 run_as_root_test
 run_log_to_volume_test

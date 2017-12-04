@@ -61,8 +61,9 @@ The structure of httpd-app can look like this:
 
 | Folder name       | Description                |
 |-------------------|----------------------------|
-| `./httpd-cfg`     | Can contain additional Apache configuration files (`*.cfg`)|
+| `./httpd-cfg`     | Can contain additional Apache configuration files (`*.conf`)|
 | `./httpd-pre-init`| Can contain shell scripts (`*.sh`) that are sourced before `httpd` is started|
+| `./httpd-ssl`     | Can contain own SSL certificate (in certs/ subdirectory) and key (in private/ subdirectory)|
 | `./`              | Application source code |
 
 Environment variables and volumes
@@ -92,6 +93,16 @@ You can also set the following mount points by passing the `-v /host:/container`
 **Notice: When mouting a directory from the host into the container, ensure that the mounted
 directory has the appropriate permissions and that the owner and group of the directory
 matches the user UID or name which is running inside the container.**
+
+
+Using own SSL certificates
+--------------------------
+In order to provide own SSL certificates for securing the connection with SSL, use the extending feature described above. In particular, put the SSL certificates into a separate directory inside your application:
+
+    ./httpd-ssl/certs/server-cert-selfsigned.pem
+    ./httpd-ssl/private/server-key.pem
+
+The default behaviour is to look for the certificate and the private key in subdirectories certs/ and private/; those files will be used for the ssl settings in the httpd.
 
 
 Default user
