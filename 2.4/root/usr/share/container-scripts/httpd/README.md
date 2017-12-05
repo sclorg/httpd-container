@@ -63,7 +63,7 @@ The structure of httpd-app can look like this:
 |-------------------|----------------------------|
 | `./httpd-cfg`     | Can contain additional Apache configuration files (`*.conf`)|
 | `./httpd-pre-init`| Can contain shell scripts (`*.sh`) that are sourced before `httpd` is started|
-| `./httpd-ssl`     | Can contain own SSL certificate (in certs/ subdirectory) and key (in private/ subdirectory)|
+| `./httpd-ssl`     | Can contain own SSL certificate (in `certs/` subdirectory) and key (in `private/` subdirectory)|
 | `./`              | Application source code |
 
 Environment variables and volumes
