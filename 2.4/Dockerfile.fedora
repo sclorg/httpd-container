@@ -61,7 +61,9 @@ RUN /usr/libexec/httpd-prepare
 
 USER 1001
 
-VOLUME ["${HTTPD_DATA_PATH}"]
-VOLUME ["${HTTPD_LOG_PATH}"]
+# Not using VOLUME statement since it's not working in OpenShift Online:
+# https://github.com/sclorg/httpd-container/issues/30
+# VOLUME ["${HTTPD_DATA_PATH}"]
+# VOLUME ["${HTTPD_LOG_PATH}"]
 
 CMD ["/usr/bin/run-httpd"]
