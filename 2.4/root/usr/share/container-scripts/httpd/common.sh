@@ -131,7 +131,6 @@ process_ssl_certs() {
         sed -i '/^SSLCertificateKeyFile .*/d'  ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
       fi
     fi
-    fi
     rm -rf ${dir}/httpd-ssl
   fi
 }
