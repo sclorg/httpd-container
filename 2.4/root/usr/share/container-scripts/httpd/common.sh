@@ -90,3 +90,48 @@ generate_container_user() {
   export NSS_WRAPPER_GROUP=/etc/group
 }
 
+# Copy config files from application to the location where httd expects them
+# Param sets the directory where to look for files
+process_config_files() {
+  local dir=${1:-.}
+  if [ -d ${dir}/httpd-cfg ]; then
+    echo "---> Copying httpd configuration files..."
+    if [ "$(ls -A ${dir}/httpd-cfg/*.conf)" ]; then
+      cp -v ${dir}/httpd-cfg/*.conf "${HTTPD_CONFIGURATION_PATH}"
+      rm -rf ${dir}/httpd-cfg
+    fi
+  else
+    if [ -d ${dir}/cfg ]; then
+      echo "---> Copying httpd configuration files from deprecated './cfg' directory, use './httpd-cfg' instead..."
+      if [ "$(ls -A ${dir}/cfg/*.conf)" ]; then
+        cp -v ${dir}/cfg/*.conf "${HTTPD_CONFIGURATION_PATH}"
+        rm -rf ${dir}/cfg
+      fi
+    fi
+  fi
+}
+
+# Copy SSL files provided in application source
+process_ssl_certs() {
+  local dir=${1:-.}
+  if [ -d ${dir}/httpd-ssl/private ] && [ -d ${dir}/httpd-ssl/certs ]; then
+    echo "---> Looking for SSL certs for httpd..."
+    cp -r ${dir}/httpd-ssl ${HTTPD_APP_ROOT}
+    local ssl_cert="$(ls -A ${HTTPD_APP_ROOT}/httpd-ssl/certs/*.pem | head -n 1)"
+    local ssl_private="$(ls -A ${HTTPD_APP_ROOT}/httpd-ssl/private/*.pem | head -n 1)"
+    if [ -f "${ssl_cert}" ] ; then
+      # do sed for SSLCertificateFile and SSLCertificateKeyFile
+      echo "---> Setting SSL cert file for httpd..."
+      sed -i -e "s|^SSLCertificateFile .*$|SSLCertificateFile ${ssl_cert}|" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+      if [ -f "${ssl_private}" ]; then
+        echo "---> Setting SSL key file for httpd..."
+        sed -i -e "s|^SSLCertificateKeyFile .*$|SSLCertificateKeyFile ${ssl_private}|" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+      else
+        echo "---> Removing SSL key file settings for httpd..."
+        sed -i '/^SSLCertificateKeyFile .*/d'  ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+      fi
+    fi
+    rm -rf ${dir}/httpd-ssl
+  fi
+}
+
