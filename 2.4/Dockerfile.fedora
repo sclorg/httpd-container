@@ -32,7 +32,7 @@ LABEL summary="$SUMMARY" \
       version="$VERSION" \
       release="$RELEASE.$DISTTAG" \
       architecture="$ARCH" \
-      run="docker run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z $FGC/$NAME:latest" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ $FGC/$NAME sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080

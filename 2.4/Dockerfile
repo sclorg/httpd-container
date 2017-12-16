@@ -26,6 +26,7 @@ LABEL summary="$SUMMARY" \
       name="centos/httpd-24-centos7" \
       version="$HTTPD_VERSION" \
       com.redhat.component="httpd24-docker" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ centos/httpd-24-centos7 sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
