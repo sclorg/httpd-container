@@ -59,21 +59,30 @@ $ docker run -d --name httpd -p 8080:8080 httpd-app
 
 The structure of httpd-app can look like this:
 
-| Folder name       | Description                |
-|-------------------|----------------------------|
-| `./httpd-cfg`     | Can contain additional Apache configuration files (`*.conf`)|
-| `./httpd-pre-init`| Can contain shell scripts (`*.sh`) that are sourced before `httpd` is started|
-| `./httpd-ssl`     | Can contain own SSL certificate (in `certs/` subdirectory) and key (in `private/` subdirectory)|
-| `./`              | Application source code |
+**`Folder name`**  
+       Description
+
+**`./httpd-cfg`**  
+       Can contain additional Apache configuration files (`*.conf`)
+
+**`./httpd-pre-init`**  
+       Can contain shell scripts (`*.sh`) that are sourced before `httpd` is started
+
+**`./httpd-ssl`**  
+       Can contain own SSL certificate (in `certs/` subdirectory) and key (in `private/` subdirectory)
+
+**`./`**  
+       Application source code
+
 
 Environment variables and volumes
 ---------------------------------
 
 The Apache HTTP Server container image supports the following configuration variable, which can be set by using the `-e` option with the docker run command:
 
-|    Variable name        |    Description                            |
-| :---------------------- | ----------------------------------------- |
-|  `HTTPD_LOG_TO_VOLUME` | By default, httpd logs into standard output, so the logs are accessible by using the docker logs command. When `HTTPD_LOG_TO_VOLUME` is set, httpd logs into `/var/log/httpd24`, which can be mounted to host system using the Docker volumes. This option is only allowed when container is run as UID 0. |
+**`HTTPD_LOG_TO_VOLUME`**  
+       By default, httpd logs into standard output, so the logs are accessible by using the docker logs command. When `HTTPD_LOG_TO_VOLUME` is set, httpd logs into `/var/log/httpd24`, which can be mounted to host system using the Docker volumes. This option is only allowed when container is run as UID 0.
+
 
 
 If you want to run the image and mount the log files into `/wwwlogs` on the host
@@ -85,10 +94,12 @@ $ docker run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/
 
 You can also set the following mount points by passing the `-v /host:/container` flag to Docker.
 
-|  Volume mount point      | Description                                                            |
-| :----------------------- | ---------------------------------------------------------------------- |
-|  `/var/www`              | Apache HTTP Server data directory                                      |
-|  `/var/log/httpd24`      | Apache HTTP Server log directory (available only when running as root, path `/var/log/httpd` is used in case of Fedora based image) |
+**`/var/www`**  
+       Apache HTTP Server data directory
+
+**`/var/log/httpd24`**  
+       Apache HTTP Server log directory (available only when running as root, path `/var/log/httpd` is used in case of Fedora based image)
+
 
 **Notice: When mouting a directory from the host into the container, ensure that the mounted
 directory has the appropriate permissions and that the owner and group of the directory
