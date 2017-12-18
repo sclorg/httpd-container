@@ -59,9 +59,6 @@ $ docker run -d --name httpd -p 8080:8080 httpd-app
 
 The structure of httpd-app can look like this:
 
-**`Folder name`**  
-       Description
-
 **`./httpd-cfg`**  
        Can contain additional Apache configuration files (`*.conf`)
 
