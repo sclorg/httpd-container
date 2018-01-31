@@ -33,10 +33,7 @@ EXPOSE 8080
 EXPOSE 8443
 
 RUN yum install -y yum-utils && \
-    yum-config-manager --disable \* &> /dev/null && \
-    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
-    yum-config-manager --enable rhel-7-server-rpms && \
-    yum-config-manager --enable rhel-7-server-optional-rpms && \
+    prepare-yum-repositories rhel-server-rhscl-7-rpms && \
     INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd24 httpd24-mod_ssl" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
