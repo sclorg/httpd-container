@@ -1,4 +1,4 @@
-Apache HTTP Server 2.4 Docker image
+Apache HTTP Server 2.4 Container Image
 ======================
 
 This container image includes Apache HTTP Server 2.4 for OpenShift and general usage.
@@ -12,7 +12,7 @@ as centos/httpd-24-centos7.
 Description
 -----------
 
-Apache HTTP Server 2.4 available as docker container, is a powerful, efficient,
+Apache HTTP Server 2.4 available as container, is a powerful, efficient,
 and extensible web server. Apache supports a variety of features, many implemented as compiled modules
 which extend the core functionality.
 These can range from server-side programming language support to authentication schemes.
@@ -36,7 +36,7 @@ $ ls -lZ /wwwdata/html
 ```
 
 If you want to run the image and mount the static pages available in `/wwwdata` on the host
-as a docker volume, execute the following command:
+as a container volume, execute the following command:
 
 ```
 $ docker run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z rhscl/httpd-24-rhel7
@@ -45,7 +45,7 @@ $ docker run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z rhscl/httpd-24-
 This will create a container named `httpd` running Apache HTTP Server, serving data from
 `/wwwdata` directory. Port 8080 will be exposed and mapped to the host.
 
-If you want to create a new Docker layered image, use [Source-to-Image](https://github.com/openshift/source-to-image), a tool for building/building artifacts from source and injecting into docker images. To create a new Docker image named `httpd-app` using Source-to-Image, while using data available in `/wwwdata` on the host, execute the following command:
+If you want to create a new container layered image, use [Source-to-Image](https://github.com/openshift/source-to-image), a tool for building/building artifacts from source and injecting into container images. To create a new container image named `httpd-app` using Source-to-Image, while using data available in `/wwwdata` on the host, execute the following command:
 
 ```
 $ s2i build file:///wwwdata/html rhscl/httpd-24-rhel7 httpd-app
@@ -78,12 +78,12 @@ Environment variables and volumes
 The Apache HTTP Server container image supports the following configuration variable, which can be set by using the `-e` option with the docker run command:
 
 **`HTTPD_LOG_TO_VOLUME`**  
-       By default, httpd logs into standard output, so the logs are accessible by using the docker logs command. When `HTTPD_LOG_TO_VOLUME` is set, httpd logs into `/var/log/httpd24`, which can be mounted to host system using the Docker volumes. This option is only allowed when container is run as UID 0.
+       By default, httpd logs into standard output, so the logs are accessible by using the docker logs command. When `HTTPD_LOG_TO_VOLUME` is set, httpd logs into `/var/log/httpd24`, which can be mounted to host system using the container volumes. This option is only allowed when container is run as UID 0.
 
 
 
 If you want to run the image and mount the log files into `/wwwlogs` on the host
-as a docker volume, execute the following command:
+as a container volume, execute the following command:
 
 ```
 $ docker run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/httpd24:Z rhscl/httpd-24-rhel7

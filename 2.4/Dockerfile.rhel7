@@ -11,7 +11,7 @@ FROM rhscl/s2i-core-rhel7:1
 ENV HTTPD_VERSION=2.4
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
-    DESCRIPTION="Apache httpd $HTTPD_VERSION available as docker container, is a powerful, efficient, \
+    DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
 and extensible web server. Apache supports a variety of features, many implemented as compiled modules \
 which extend the core functionality. \
 These can range from server-side programming language support to authentication schemes. \
