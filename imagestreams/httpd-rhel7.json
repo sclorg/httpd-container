@@ -23,6 +23,9 @@
           "kind": "ImageStreamTag",
           "name": "2.4"
         },
+        "referencePolicy": {
+          "type": "Local"
+        },
         "name": "latest"
       },
       {
@@ -39,6 +42,9 @@
         "from": {
           "kind": "DockerImage",
           "name": "registry.access.redhat.com/rhscl/httpd-24-rhel7"
+        },
+        "referencePolicy": {
+          "type": "Local"
         },
         "name": "2.4"
       }
