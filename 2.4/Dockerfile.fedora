@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f29/s2i-core:latest
+FROM registry.fedoraproject.org/f33/s2i-core:latest
 
 # Apache HTTP Server image.
 #
@@ -57,7 +57,8 @@ COPY ./root /
 
 # Generate SSL certs and reset permissions of filesystem to default values
 # Reset permissions of filesystem to default values
-RUN /usr/libexec/httpd-prepare && rpm-file-permissions
+RUN /usr/libexec/httpd-ssl-gencerts && \
+    /usr/libexec/httpd-prepare && rpm-file-permissions
 
 USER 1001
 
