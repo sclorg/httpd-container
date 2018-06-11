@@ -114,8 +114,11 @@ process_config_files() {
 process_ssl_certs() {
   local dir=${1:-.}
   if [ -d ${dir}/httpd-ssl/private ] && [ -d ${dir}/httpd-ssl/certs ]; then
+    echo "---> Moving the httpd-ssl directory included in the source to a directory that isn't exposed by httpd..."
+    mv ${dir}/httpd-ssl ${HTTPD_APP_ROOT}
+  fi
+  if [ -d ${HTTPD_APP_ROOT}/httpd-ssl/private ] && [ -d ${HTTPD_APP_ROOT}/httpd-ssl/certs ]; then
     echo "---> Looking for SSL certs for httpd..."
-    cp -r ${dir}/httpd-ssl ${HTTPD_APP_ROOT}
     local ssl_cert="$(ls -A ${HTTPD_APP_ROOT}/httpd-ssl/certs/*.pem | head -n 1)"
     local ssl_private="$(ls -A ${HTTPD_APP_ROOT}/httpd-ssl/private/*.pem | head -n 1)"
     if [ -f "${ssl_cert}" ] ; then
@@ -130,7 +133,6 @@ process_ssl_certs() {
         sed -i '/^SSLCertificateKeyFile .*/d'  ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
       fi
     fi
-    rm -rf ${dir}/httpd-ssl
   fi
 }
 
