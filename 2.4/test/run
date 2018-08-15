@@ -157,6 +157,22 @@ function _run_data_volume_test() {
   run "grep -e '^hello$' output"
 }
 
+function _run_mpm_config_test() {
+  local mpm=$1
+  # Check worker MPM can be configured
+  DOCKER_ARGS="-e HTTPD_MPM=$mpm -u 1001"
+  run "create_container test_mpm_${mpm}"
+  DOCKER_ARGS=
+  sleep 2
+  cid=$(get_cid "test_mpm_$mpm")
+  run "docker logs $cid | grep -s mpm_${mpm}':notice.*resuming normal operations'"
+}
+
+function run_mpm_config_test() {
+  for m in worker event prefork; do
+    _run_mpm_config_test $m
+  done
+}
 
 function run_s2i_test() {
   # Test s2i use case
@@ -266,7 +282,9 @@ run_as_root_test
 run_log_to_volume_test
 run_data_volume_test
 run_s2i_test
-run_pre_init_test"
+run_pre_init_test
+run_mpm_config_test
+"
 
 test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
 

@@ -23,6 +23,7 @@ fi
 mkdir -p ${HTTPD_CONFIGURATION_PATH}
 chmod -R a+rwx ${HTTPD_MAIN_CONF_PATH}
 chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH}
+chmod -R a+rwx ${HTTPD_MAIN_CONF_MODULES_D_PATH}
 chmod -R a+r   /etc/pki/tls/certs/localhost.crt
 chmod -R a+r   /etc/pki/tls/private/localhost.key
 mkdir -p ${HTTPD_APP_ROOT}/etc
