@@ -80,6 +80,8 @@ The Apache HTTP Server container image supports the following configuration vari
 **`HTTPD_LOG_TO_VOLUME`**  
        By default, httpd logs into standard output, so the logs are accessible by using the docker logs command. When `HTTPD_LOG_TO_VOLUME` is set, httpd logs into `/var/log/httpd24`, which can be mounted to host system using the container volumes. This option is only allowed when container is run as UID 0.
 
+**`HTTPD_MPM`**
+       The variable `HTTPD_MPM` can be set to change the default Multi-Processing Module (MPM) from the package default MPM.
 
 
 If you want to run the image and mount the log files into `/wwwlogs` on the host
@@ -87,6 +89,12 @@ as a container volume, execute the following command:
 
 ```
 $ docker run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/httpd24:Z rhscl/httpd-24-rhel7
+```
+
+To run an image using the `event` MPM (rather than the default `prefork`), execute the following command:
+
+```
+$ docker run -d -e HTTPD_MPM=event --name httpd rhscl/httpd-24-rhel7
 ```
 
 You can also set the following mount points by passing the `-v /host:/container` flag to Docker.

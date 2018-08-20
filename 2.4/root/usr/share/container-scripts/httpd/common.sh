@@ -23,6 +23,8 @@ config_privileged() {
   chmod 755 ${HTTPD_MAIN_CONF_PATH} && \
   chmod 644 ${HTTPD_MAIN_CONF_D_PATH}/* && \
   chmod 755 ${HTTPD_MAIN_CONF_D_PATH} && \
+  chmod 644 ${HTTPD_MAIN_CONF_MODULES_D_PATH}/* && \
+  chmod 755 ${HTTPD_MAIN_CONF_MODULES_D_PATH} && \
   chmod 600 /etc/pki/tls/certs/localhost.crt && \
   chmod 600 /etc/pki/tls/private/localhost.key && \
   chmod 710 ${HTTPD_VAR_RUN}
@@ -46,6 +48,15 @@ config_non_privileged() {
   if [ -v HTTPD_LOG_TO_VOLUME ] ; then
     echo "Error: Option HTTPD_LOG_TO_VOLUME is only valid for privileged runs (as UID 0)."
     return 1
+  fi
+}
+
+config_mpm() {
+  if [ -v HTTPD_MPM -a -f ${HTTPD_MAIN_CONF_MODULES_D_PATH}/00-mpm.conf ]; then
+    local mpmconf=${HTTPD_MAIN_CONF_MODULES_D_PATH}/00-mpm.conf
+    sed -i -e 's,^LoadModule,#LoadModule,' ${mpmconf}
+    sed -i -e "/LoadModule mpm_${HTTPD_MPM}/s,^#LoadModule,LoadModule," ${mpmconf}
+    echo "---> Set MPM to ${HTTPD_MPM} in ${mpmconf}"
   fi
 }
 
