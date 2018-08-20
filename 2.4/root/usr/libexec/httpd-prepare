@@ -4,10 +4,6 @@ set -e
 
 source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
 
-# Fedora httpd-mod_ssl package generates certificates on service start,
-# so they need to be generated manually
-test -f /etc/pki/tls/certs/localhost.crt || /usr/libexec/httpd-ssl-gencerts
-
 # compatibility symlinks so we hide SCL paths
 if [ -v HTTPD_SCL ] ; then
   # /opt/rh/httpd24/root/etc/httpd will be symlink to /etc/httpd
