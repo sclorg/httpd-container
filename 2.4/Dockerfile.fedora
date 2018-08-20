@@ -57,7 +57,9 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./root /
 
-RUN /usr/libexec/httpd-prepare
+# Generate SSL certs and reset permissions of filesystem to default values
+RUN /usr/libexec/httpd-ssl-gencerts && \
+    /usr/libexec/httpd-prepare && rpm-file-permissions
 
 USER 1001
 
