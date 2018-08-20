@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f25/s2i-base:latest
+FROM registry.fedoraproject.org/f28/s2i-base:latest
 
 # Apache HTTP Server image.
 #
@@ -10,7 +10,6 @@ FROM registry.fedoraproject.org/f25/s2i-base:latest
 
 ENV HTTPD_VERSION=2.4 \
     NAME=httpd \
-    VERSION=$HTTPD_VERSION \
     RELEASE=1 \
     ARCH=x86_64
 
@@ -29,7 +28,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="builder,httpd,httpd24" \
       com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
-      version="$VERSION" \
+      version="$HTTPD_VERSION" \
       release="$RELEASE.$DISTTAG" \
       architecture="$ARCH" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ $FGC/$NAME sample-server" \
