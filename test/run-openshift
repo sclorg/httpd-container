@@ -31,5 +31,5 @@ ct_os_test_template_app "${IMAGE_NAME}" \
                         "https://raw.githubusercontent.com/openshift/httpd-ex/${BRANCH_TO_TEST}/openshift/templates/httpd.json" \
                         httpd \
                         'Welcome to your static httpd application on OpenShift' \
-                        8080 http 200 "-p SOURCE_REPOSITORY_REF=${BRANCH_TO_TEST}"
+                        8080 http 200 "-p SOURCE_REPOSITORY_REF=${BRANCH_TO_TEST} -p NAME=httpd-testing"
 
