@@ -7,6 +7,8 @@ THISDIR=$(dirname ${BASH_SOURCE[0]})
 . ${THISDIR}/utils.sh
 test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
 
+. "$test_dir/test-lib.sh"
+
 function _container_is_scl() {
   docker inspect --format='{{.Config.Env}}' "${1-$IMAGE_NAME}" | grep -q HTTPD_SCL
   return $?
@@ -80,7 +82,7 @@ function run_default_page_test() {
 
 function run_as_root_test() {
   # Try running as root
-  DOCKER_ARGS="-u 0"
+  DOCKER_ARGS="--user 0"
   run "create_container test_run_as_root"
   DOCKER_ARGS=
   sleep 2
@@ -106,7 +108,7 @@ function _run_log_to_volume_test() {
   run "ls -d ${logs_dir} || mkdir ${logs_dir}" 0 'Create log directory'
   run "chown -R 1001:1001 ${logs_dir}"
   run "chcon -Rvt svirt_sandbox_file_t ${logs_dir}" 0 'Change SELinux context on the log dir'
-  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 -u 0 -v ${logs_dir}:${volume_dir}"
+  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 0 -v ${logs_dir}:${volume_dir}"
   run "create_container test_log_dir_${variant}"
   DOCKER_ARGS=
   sleep 2
@@ -122,7 +124,7 @@ function _run_log_to_volume_test() {
 
 function _run_invalid_log_volume_test() {
   # Check wrong usage of the HTTP_LOG_TO_VOLUME env variable
-  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 -u 1001"
+  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 1001"
   run "create_container test_log_dir_fail"
   DOCKER_ARGS=
   sleep 2
@@ -160,7 +162,7 @@ function _run_data_volume_test() {
 function _run_mpm_config_test() {
   local mpm=$1
   # Check worker MPM can be configured
-  DOCKER_ARGS="-e HTTPD_MPM=$mpm -u 1001"
+  DOCKER_ARGS="-e HTTPD_MPM=$mpm --user 1001"
   run "create_container test_mpm_${mpm}"
   DOCKER_ARGS=
   sleep 2
@@ -179,9 +181,9 @@ function run_s2i_test() {
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
   s2i_args="--pull-policy=never"
-  run "s2i usage ${s2i_args} ${IMAGE_NAME}" 0 "Testing 's2i usage'"
-  run "s2i build ${s2i_args} file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp" 0 "Testing 's2i build'"
-  DOCKER_ARGS='-u 1000'
+  run "ct_s2i_usage ${IMAGE_NAME} ${s2i_args}" 0 "Testing 's2i usage'"
+  run "ct_s2i_build_as_df file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp ${s2i_args}" 0 "Testing 's2i build'"
+  DOCKER_ARGS='--user 1000'
   create_container testing-app-s2i ${IMAGE_NAME}-testapp
   DOCKER_ARGS=
   sleep 5
@@ -197,8 +199,8 @@ function run_pre_init_test() {
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
   s2i_args="--pull-policy=never"
-  run "s2i build ${s2i_args} file://${test_dir}/pre-init-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp2" 0 "Testing 's2i build' with pre-init script"
-  DOCKER_ARGS='-u 1000'
+  run "ct_s2i_build_as_df file://${test_dir}/pre-init-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp2 ${s2i_args}" 0 "Testing 's2i build' with pre-init script"
+  DOCKER_ARGS='--user 1000'
   create_container testing-app-pre-init ${IMAGE_NAME}-testapp2
   DOCKER_ARGS=
   sleep 5
@@ -214,8 +216,8 @@ function run_self_cert_test() {
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
   s2i_args="--pull-policy=never"
-  run "s2i build ${s2i_args} file://${test_dir}/self-signed-ssl ${IMAGE_NAME} ${IMAGE_NAME}-self-signed" 0 "Testing 's2i build' with self-signed cert"
-  DOCKER_ARGS='-u 1000'
+  run "ct_s2i_build_as_df file://${test_dir}/self-signed-ssl ${IMAGE_NAME} ${IMAGE_NAME}-self-signed ${s2i_args}" 0 "Testing 's2i build' with self-signed cert"
+  DOCKER_ARGS='--user 1000'
   create_container testing-self-signed ${IMAGE_NAME}-self-signed
   DOCKER_ARGS=
   sleep 5
