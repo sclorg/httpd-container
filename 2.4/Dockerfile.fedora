@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f28/s2i-base:latest
+FROM registry.fedoraproject.org/f29/s2i-core:latest
 
 # Apache HTTP Server image.
 #
@@ -10,7 +10,6 @@ FROM registry.fedoraproject.org/f28/s2i-base:latest
 
 ENV HTTPD_VERSION=2.4 \
     NAME=httpd \
-    RELEASE=1 \
     ARCH=x86_64
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
@@ -29,8 +28,6 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$HTTPD_VERSION" \
-      release="$RELEASE.$DISTTAG" \
-      architecture="$ARCH" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ $FGC/$NAME sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
@@ -58,6 +55,7 @@ COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./root /
 
 # Generate SSL certs and reset permissions of filesystem to default values
+# Reset permissions of filesystem to default values
 RUN /usr/libexec/httpd-ssl-gencerts && \
     /usr/libexec/httpd-prepare && rpm-file-permissions
 
