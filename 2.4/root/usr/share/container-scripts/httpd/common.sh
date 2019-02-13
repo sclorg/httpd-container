@@ -1,8 +1,14 @@
 # Set of functions used in other scripts
 
+if head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8"; then
+  HTTPCONF_LINENO=154
+else
+  HTTPCONF_LINENO=151
+fi
+
 config_general() {
   sed -i -e 's/^Listen 80/Listen 0.0.0.0:8080/' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
-  sed -i -e '151s%AllowOverride None%AllowOverride All%' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
+  sed -i -e ${HTTPCONF_LINENO}'s%AllowOverride None%AllowOverride All%' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   sed -i -e 's/^Listen 443/Listen 0.0.0.0:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
   sed -i -e 's/_default_:443/_default_:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
 }
@@ -38,7 +44,7 @@ config_s2i() {
   sed -i -e "s%^DocumentRoot \"${HTTPD_DATA_ORIG_PATH}/html\"%DocumentRoot \"${HTTPD_APP_ROOT}/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
   sed -i -e "s%^<Directory \"${HTTPD_DATA_ORIG_PATH}/html\"%<Directory \"${HTTPD_APP_ROOT}/src\"%" ${HTTPD_MAIN_CONF_PATH}/httpd.conf
   echo "IncludeOptional ${HTTPD_CONFIGURATION_PATH}/*.conf" >> ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
-  head -n151 ${HTTPD_MAIN_CONF_PATH}/httpd.conf | tail -n1 | grep "AllowOverride All" || exit
+  head -n${HTTPCONF_LINENO} ${HTTPD_MAIN_CONF_PATH}/httpd.conf | tail -n1 | grep "AllowOverride All" || exit
 }
 
 config_non_privileged() {
