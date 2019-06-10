@@ -13,5 +13,5 @@ Sample invocation:
 s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ ${NAMESPACE}/httpd-24-${DISTRO}7 httpd-sample-app
 
 You can then run the resulting image via:
-docker run -p 8080:8080 httpd-sample-app
+podman run -p 8080:8080 httpd-sample-app
 EOF
