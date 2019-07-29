@@ -183,10 +183,10 @@ function run_s2i_test() {
   s2i_args="--pull-policy=never"
   run "ct_s2i_usage ${IMAGE_NAME} ${s2i_args}" 0 "Testing 's2i usage'"
   run "ct_s2i_build_as_df file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp ${s2i_args}" 0 "Testing 's2i build'"
-  DOCKER_ARGS='--user 1000'
+  DOCKER_ARGS='--user 1001'
   create_container testing-app-s2i ${IMAGE_NAME}-testapp
   DOCKER_ARGS=
-  sleep 5
+  sleep 20
   cip=$(get_container_ip 'testing-app-s2i')
   run "curl ${cip}:8080 > output_s2i"
   run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
@@ -200,7 +200,7 @@ function run_pre_init_test() {
   # it from Docker hub
   s2i_args="--pull-policy=never"
   run "ct_s2i_build_as_df file://${test_dir}/pre-init-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp2 ${s2i_args}" 0 "Testing 's2i build' with pre-init script"
-  DOCKER_ARGS='--user 1000'
+  DOCKER_ARGS='--user 1001'
   create_container testing-app-pre-init ${IMAGE_NAME}-testapp2
   DOCKER_ARGS=
   sleep 5
@@ -217,10 +217,10 @@ function run_self_cert_test() {
   # it from Docker hub
   s2i_args="--pull-policy=never"
   run "ct_s2i_build_as_df file://${test_dir}/self-signed-ssl ${IMAGE_NAME} ${IMAGE_NAME}-self-signed ${s2i_args}" 0 "Testing 's2i build' with self-signed cert"
-  DOCKER_ARGS='--user 1000'
+  DOCKER_ARGS='--user 1001'
   create_container testing-self-signed ${IMAGE_NAME}-self-signed
   DOCKER_ARGS=
-  sleep 5
+  sleep 20
   cip=$(get_container_ip 'testing-self-signed')
   run "curl -k https://${cip}:8443 > output_ssl_cert"
   run "fgrep -e 'SSL test works' output_ssl_cert"
