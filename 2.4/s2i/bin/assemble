@@ -9,7 +9,10 @@ echo "---> Enabling s2i support in httpd24 image"
 config_s2i
 
 echo "---> Installing application source"
-cp -Rf /tmp/src/. ./
+cp -af /tmp/src/. ./
+
+# Fix source directory permissions
+fix-permissions ./
 
 process_extending_files ${HTTPD_APP_ROOT}/src/httpd-post-assemble/ ${HTTPD_CONTAINER_SCRIPTS_PATH}/post-assemble/
 
