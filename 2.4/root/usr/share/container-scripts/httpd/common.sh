@@ -6,11 +6,48 @@ else
   HTTPCONF_LINENO=151
 fi
 
+gen_ssl_certs() {
+  local sslcert=$HTTPD_TLS_CERT_PATH/localhost.crt
+  local sslkey=$HTTPD_TLS_CERT_PATH/localhost.key
+
+  if [ -f ${sslcert} -o -f ${sslkey} ]; then
+    return 0
+  fi
+
+
+  openssl genrsa -rand /proc/apm:/proc/cpuinfo:/proc/dma:/proc/filesystems:/proc/interrupts:/proc/ioports:/proc/pci:/proc/rtc:/proc/uptime 2048 > ${sslkey} 2> /dev/null
+
+  local fqdn=`hostname`
+  # A >59 char FQDN means "root@FQDN" exceeds 64-char max length for emailAddress
+  if [ "x${fqdn}" = "x" -o ${#fqdn} -gt 59 ]; then
+    FQDN=localhost.localdomain
+  fi
+
+  cat << EOF | openssl req -new -key ${sslkey} \
+            -x509 -sha256 -days 365 -set_serial $RANDOM -extensions v3_req \
+            -out ${sslcert} 2>/dev/null
+--
+SomeState
+SomeCity
+SomeOrganization
+SomeOrganizationalUnit
+${fqdn}
+root@${fqdn}
+EOF
+
+   chmod 644 ${sslcert}
+   chmod 644 ${sslkey}
+}
+
 config_general() {
   sed -i -e 's/^Listen 80/Listen 0.0.0.0:8080/' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   sed -i -e ${HTTPCONF_LINENO}'s%AllowOverride None%AllowOverride All%' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   sed -i -e 's/^Listen 443/Listen 0.0.0.0:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
   sed -i -e 's/_default_:443/_default_:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+
+  # do sed for SSLCertificateFile and SSLCertificateKeyFile
+  sed -i -e "s|^SSLCertificateFile .*$|SSLCertificateFile ${HTTPD_TLS_CERT_PATH}/localhost.crt|" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+  sed -i -e "s|^SSLCertificateKeyFile .*$|SSLCertificateKeyFile ${HTTPD_TLS_CERT_PATH}/localhost.key|" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
 }
 
 config_log_to_stdout() {

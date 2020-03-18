@@ -4,6 +4,9 @@ set -eu
 
 source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
 
+# Generate TLS cert/key pair, if they dont exist
+gen_ssl_certs
+
 # Check whether we run as s2i
 if ! [ -v HTTPD_RUN_BY_S2I ] && runs_privileged ; then
   config_privileged
