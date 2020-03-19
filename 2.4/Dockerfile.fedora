@@ -35,7 +35,7 @@ EXPOSE 8080
 EXPOSE 8443
 
 RUN dnf install -y yum-utils gettext hostname && \
-    INSTALL_PKGS="nss_wrapper bind-utils httpd mod_ssl openssl" && \
+    INSTALL_PKGS="nss_wrapper bind-utils httpd mod_ssl openssl sscg" && \
     dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     dnf clean all
@@ -57,8 +57,7 @@ COPY ./root /
 
 # Generate SSL certs and reset permissions of filesystem to default values
 # Reset permissions of filesystem to default values
-RUN /usr/libexec/httpd-ssl-gencerts && \
-    /usr/libexec/httpd-prepare && rpm-file-permissions
+RUN /usr/libexec/httpd-prepare && rpm-file-permissions
 
 USER 1001
 
