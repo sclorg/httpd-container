@@ -20,7 +20,7 @@ gen_ssl_certs() {
     return 0
   fi
 
-  if [ -f "/etc/fedora-release" ] || ( [ -f "/etc/redhat-release" ] && [ head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8" ] ); then
+  if [ -f "/etc/fedora-release" ] || ( [ -f "/etc/redhat-release" ] && head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8" ); then
     sscg -q                                                           \
        --cert-file           $sslcert                                 \
        --cert-key-file       $sslkey                                  \
