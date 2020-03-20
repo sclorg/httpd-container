@@ -20,7 +20,7 @@ gen_ssl_certs() {
     return 0
   fi
 
-  if [ -f "/etc/fedora-release" ] || ( [ -f "/etc/redhat-release" ] && head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8" ); then
+  if [ -x "/usr/bin/sscg" ]; then
     sscg -q                                                           \
        --cert-file           $sslcert                                 \
        --cert-key-file       $sslkey                                  \
@@ -77,8 +77,8 @@ config_privileged() {
   chmod 755 ${HTTPD_MAIN_CONF_D_PATH} && \
   chmod 644 ${HTTPD_MAIN_CONF_MODULES_D_PATH}/* && \
   chmod 755 ${HTTPD_MAIN_CONF_MODULES_D_PATH} && \
-  chmod 600 /etc/pki/tls/certs/localhost.crt && \
-  chmod 600 /etc/pki/tls/private/localhost.key && \
+  chmod 600 ${HTTPD_TLS_CERT_PATH}/localhost.crt && \
+  chmod 600 ${HTTPD_TLS_CERT_PATH}/localhost.key && \
   chmod 710 ${HTTPD_VAR_RUN}
 
   if ! [ -v HTTPD_LOG_TO_VOLUME ] ; then
