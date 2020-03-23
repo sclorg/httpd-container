@@ -20,6 +20,7 @@ gen_ssl_certs() {
     return 0
   fi
 
+  echo "---> Generating SSL key pair for httpd..."
   if [ -x "/usr/bin/sscg" ]; then
     sscg -q                                                           \
        --cert-file           $sslcert                                 \
@@ -195,7 +196,12 @@ process_ssl_certs() {
         echo "---> Removing SSL key file settings for httpd..."
         sed -i '/^SSLCertificateKeyFile .*/d'  ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
       fi
+    else
+      # Generate TLS key pair if no SSL cert was found
+      gen_ssl_certs
     fi
+  else
+    gen_ssl_certs
   fi
 }
 

@@ -34,7 +34,7 @@ EXPOSE 8080
 EXPOSE 8443
 
 RUN yum -y module enable httpd:$HTTPD_VERSION && \
-    INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd mod_ssl mod_auth_mellon openssl sscg" && \
+    INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd mod_ssl mod_auth_mellon sscg" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*'

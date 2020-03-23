@@ -35,7 +35,7 @@ EXPOSE 8080
 EXPOSE 8443
 
 RUN dnf install -y yum-utils gettext hostname && \
-    INSTALL_PKGS="nss_wrapper bind-utils httpd mod_ssl openssl sscg" && \
+    INSTALL_PKGS="nss_wrapper bind-utils httpd mod_ssl sscg" && \
     dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     dnf clean all
