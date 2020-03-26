@@ -20,16 +20,10 @@ if [ -v HTTPD_SCL ] ; then
   ln -s /var/www /opt/rh/httpd24/root/var/www
 fi
 
-if head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8"; then
-    /usr/libexec/httpd-ssl-gencerts
-fi
-
 mkdir -p ${HTTPD_CONFIGURATION_PATH}
 chmod -R a+rwx ${HTTPD_MAIN_CONF_PATH}
 chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH}
 chmod -R a+rwx ${HTTPD_MAIN_CONF_MODULES_D_PATH}
-chmod -R a+r   /etc/pki/tls/certs/localhost.crt
-chmod -R a+r   /etc/pki/tls/private/localhost.key
 mkdir -p ${HTTPD_APP_ROOT}/etc
 chmod -R a+rwx ${HTTPD_APP_ROOT}/etc
 chmod -R a+rwx ${HTTPD_VAR_RUN}
@@ -37,6 +31,12 @@ chown -R 1001:0 ${HTTPD_APP_ROOT}
 chown -R 1001:0 ${HTTPD_DATA_PATH}
 chmod -R g+rwx ${HTTPD_LOG_PATH}
 chown -R 1001:0 ${HTTPD_LOG_PATH}
+
+# remove bundled key pair and create new dir, where we store it
+rm -f /etc/pki/tls/certs/localhost.crt 
+rm -f /etc/pki/tls/private/localhost.key
+mkdir -p $HTTPD_TLS_CERT_PATH
+chmod -R a+rwx $HTTPD_TLS_CERT_PATH
 
 mkdir -p ${HTTPD_CONTAINER_SCRIPTS_PATH}/pre-init
 

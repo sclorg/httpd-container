@@ -6,11 +6,58 @@ else
   HTTPCONF_LINENO=151
 fi
 
+gen_ssl_certs() {
+  local sslcert=$HTTPD_TLS_CERT_PATH/localhost.crt
+  local sslkey=$HTTPD_TLS_CERT_PATH/localhost.key
+  local fqdn=`hostname`
+
+  # A >59 char FQDN means "root@FQDN" exceeds 64-char max length for emailAddress
+  if [ "x${fqdn}" = "x" -o ${#fqdn} -gt 59 ]; then
+    fqdn=localhost.localdomain
+  fi
+
+  if [ -f ${sslcert} -o -f ${sslkey} ]; then
+    return 0
+  fi
+
+  echo "---> Generating SSL key pair for httpd..."
+  if [ -x "/usr/bin/sscg" ]; then
+    sscg -q                                                           \
+       --cert-file           $sslcert                                 \
+       --cert-key-file       $sslkey                                  \
+       --ca-file             $sslcert                                 \
+       --lifetime            365                                      \
+       --hostname            $fqdn                                    \
+       --email               root@$fqdn
+  else
+    openssl genrsa -rand /proc/apm:/proc/cpuinfo:/proc/dma:/proc/filesystems:/proc/interrupts:/proc/ioports:/proc/pci:/proc/rtc:/proc/uptime 2048 > ${sslkey} 2> /dev/null
+
+    cat << EOF | openssl req -new -key ${sslkey} \
+              -x509 -sha256 -days 365 -set_serial $RANDOM -extensions v3_req \
+              -out ${sslcert} 2>/dev/null
+--
+SomeState
+SomeCity
+SomeOrganization
+SomeOrganizationalUnit
+${fqdn}
+root@${fqdn}
+EOF
+   fi
+
+   chmod 644 ${sslcert}
+   chmod 644 ${sslkey}
+}
+
 config_general() {
   sed -i -e 's/^Listen 80/Listen 0.0.0.0:8080/' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   sed -i -e ${HTTPCONF_LINENO}'s%AllowOverride None%AllowOverride All%' ${HTTPD_MAIN_CONF_PATH}/httpd.conf && \
   sed -i -e 's/^Listen 443/Listen 0.0.0.0:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
   sed -i -e 's/_default_:443/_default_:8443/' ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+
+  # do sed for SSLCertificateFile and SSLCertificateKeyFile
+  sed -i -e "s|^SSLCertificateFile .*$|SSLCertificateFile ${HTTPD_TLS_CERT_PATH}/localhost.crt|" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
+  sed -i -e "s|^SSLCertificateKeyFile .*$|SSLCertificateKeyFile ${HTTPD_TLS_CERT_PATH}/localhost.key|" ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
 }
 
 config_log_to_stdout() {
@@ -31,8 +78,8 @@ config_privileged() {
   chmod 755 ${HTTPD_MAIN_CONF_D_PATH} && \
   chmod 644 ${HTTPD_MAIN_CONF_MODULES_D_PATH}/* && \
   chmod 755 ${HTTPD_MAIN_CONF_MODULES_D_PATH} && \
-  chmod 600 /etc/pki/tls/certs/localhost.crt && \
-  chmod 600 /etc/pki/tls/private/localhost.key && \
+  chmod 600 ${HTTPD_TLS_CERT_PATH}/localhost.crt && \
+  chmod 600 ${HTTPD_TLS_CERT_PATH}/localhost.key && \
   chmod 710 ${HTTPD_VAR_RUN}
 
   if ! [ -v HTTPD_LOG_TO_VOLUME ] ; then
@@ -149,7 +196,12 @@ process_ssl_certs() {
         echo "---> Removing SSL key file settings for httpd..."
         sed -i '/^SSLCertificateKeyFile .*/d'  ${HTTPD_MAIN_CONF_D_PATH}/ssl.conf
       fi
+    else
+      # Generate TLS key pair if no SSL cert was found
+      gen_ssl_certs
     fi
+  else
+    gen_ssl_certs
   fi
 }
 

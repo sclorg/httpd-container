@@ -34,7 +34,7 @@ EXPOSE 8443
 
 RUN yum install -y yum-utils && \
     yum install -y centos-release-scl epel-release && \
-    INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd24 httpd24-mod_ssl httpd24-mod_auth_mellon httpd24-mod_security" && \
+    INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd24 httpd24-mod_ssl httpd24-mod_auth_mellon httpd24-mod_security openssl" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum -y clean all --enablerepo='*'
@@ -45,6 +45,7 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
     HTTPD_MAIN_CONF_MODULES_D_PATH=/etc/httpd/conf.modules.d \
     HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
+    HTTPD_TLS_CERT_PATH=/etc/httpd/tls \
     HTTPD_VAR_RUN=/var/run/httpd \
     HTTPD_DATA_PATH=/var/www \
     HTTPD_DATA_ORIG_PATH=/opt/rh/httpd24/root/var/www \

@@ -111,6 +111,14 @@ You can also set the following mount points by passing the `-v /host:/container`
 directory has the appropriate permissions and that the owner and group of the directory
 matches the user UID or name which is running inside the container.**
 
+Default SSL certificates
+------------------------
+
+Default SSL certificates are generated when Apache HTTP server container is started for the first time or own SSL certificates were not provided (see bolow how to provide them). SSL certificates are not stored in the base image but generated, so each container will have unique default SSL key pair. SSL certificate/key are stored in /etc/httpd/tls directory:
+
+    /etc/httpd/tls/localhost.key
+    /etc/httpd/tls/localhost.crt
+
 
 Using own SSL certificates
 --------------------------
