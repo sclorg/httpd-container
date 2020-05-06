@@ -14,40 +14,11 @@ function _container_is_scl() {
   return $?
 }
 
-function create_container() {
-    local name="$1" ; shift
-    local image="${1-$IMAGE_NAME}"
-    [ -n "$1" ] && shift
-    cidfile="$CIDFILE_DIR/$name"
-    # create container with a cidfile in a directory for cleanup
-    docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d $image || return 1
-    echo docker run ${DOCKER_ARGS:-} --cidfile $cidfile -d $image
-    echo "Created container $(cat $cidfile)"
-}
-
 function update_overall() {
     res="$1"
     if [ "$res" != 0 ]; then
         overall="$res"
     fi
-}
-
-function get_cid() {
-  local id="$1" ; shift || return 1
-  echo $(cat "$CIDFILE_DIR/$id")
-}
-
-function get_container_ip() {
-    local id="$1" ; shift
-    docker inspect --format='{{.NetworkSettings.IPAddress}}' $(get_cid "$id")
-}
-
-function rm_container() {
-    local name="$1"
-    local cid="`get_cid $name`"
-    docker kill "$cid" || :
-    docker rm "$cid"
-    rm -f "$CIDFILE_DIR/$name"
 }
 
 function run() {
@@ -63,31 +34,18 @@ function run() {
     return $res
 }
 
-
-function _check_test_page() {
-  run "curl ${1}:8080 > output"
-  if ! run "fgrep -e 'Test Page for the Apache HTTP Server on' output" ; then
-    cat output
-    return 1
-  fi
-}
-
 function run_default_page_test() {
   # Check default page
-  run "create_container test_default_page"
-  sleep 2
-  cip=$(get_container_ip 'test_default_page')
-  _check_test_page ${cip}
+  run "ct_create_container test_default_page"
+  cip=$(ct_get_cip 'test_default_page')
+  run "ct_test_response '${cip}':8080 403 'Test Page for the Apache HTTP Server on' 50"
 }
 
 function run_as_root_test() {
   # Try running as root
-  DOCKER_ARGS="--user 0"
-  run "create_container test_run_as_root"
-  DOCKER_ARGS=
-  sleep 2
-  cip=$(get_container_ip 'test_run_as_root')
-  _check_test_page ${cip}
+  CONTAINER_ARGS="--user 0" run "ct_create_container test_run_as_root"
+  cip=$(ct_get_cip 'test_run_as_root')
+  run "ct_test_response '${cip}':8080 403 'Test Page for the Apache HTTP Server on'"
 }
 
 
@@ -108,12 +66,9 @@ function _run_log_to_volume_test() {
   run "ls -d ${logs_dir} || mkdir ${logs_dir}" 0 'Create log directory'
   run "chown -R 1001:1001 ${logs_dir}"
   run "chcon -Rvt svirt_sandbox_file_t ${logs_dir}" 0 'Change SELinux context on the log dir'
-  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 0 -v ${logs_dir}:${volume_dir}"
-  run "create_container test_log_dir_${variant}"
-  DOCKER_ARGS=
-  sleep 2
-  cip=$(get_container_ip "test_log_dir_${variant}")
-  run "curl ${cip}:8080 > /dev/null"
+  CONTAINER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 0 -v ${logs_dir}:${volume_dir}" run "ct_create_container test_log_dir_${variant}"
+  cip=$(ct_get_cip "test_log_dir_${variant}")
+  run "ct_test_response '${cip}':8080 403 '.*' > /dev/null"
   ls ${logs_dir} > output
   run "grep -e '^access_log$' output" 0 "Checking that file access_log exists"
   run "grep -e '^error_log$' output" 0 "Checking that file error_log exists"
@@ -124,11 +79,9 @@ function _run_log_to_volume_test() {
 
 function _run_invalid_log_volume_test() {
   # Check wrong usage of the HTTP_LOG_TO_VOLUME env variable
-  DOCKER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 1001"
-  run "create_container test_log_dir_fail"
-  DOCKER_ARGS=
-  sleep 2
-  cid=$(get_cid "test_log_dir_fail")
+  CONTAINER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 1001" run "ct_create_container test_log_dir_fail"
+  sleep 3
+  cid=$(ct_get_cid "test_log_dir_fail")
   exit_status=$(docker inspect -f '{{.State.ExitCode}}' ${cid})
   run "test $exit_status == 1" 0 "Checking that setting HTTPD_LOG_TO_VOLUME is not allowed if UID is not 0"
 }
@@ -150,23 +103,18 @@ function _run_data_volume_test() {
   run "echo hello > ${datadir}/html/index.html"
   run "chown -R 1001:1001 ${datadir}"
   run "chcon -Rvt svirt_sandbox_file_t ${datadir}/" 0 'Change SELinux context on the document root'
-  DOCKER_ARGS="-v ${datadir}:${volume_dir}"
-  run "create_container test_doc_root_${variant}"
-  DOCKER_ARGS=
-  sleep 2
-  cip=$(get_container_ip "test_doc_root_${variant}")
-  run "curl ${cip}:8080 > output"
-  run "grep -e '^hello$' output"
+  CONTAINER_ARGS="-v ${datadir}:${volume_dir}" run "ct_create_container test_doc_root_${variant}"
+  cip=$(ct_get_cip "test_doc_root_${variant}")
+  run "ct_test_response '${cip}:8080' 200 '^hello$'"
 }
 
 function _run_mpm_config_test() {
   local mpm=$1
   # Check worker MPM can be configured
-  DOCKER_ARGS="-e HTTPD_MPM=$mpm --user 1001"
-  run "create_container test_mpm_${mpm}"
-  DOCKER_ARGS=
-  sleep 2
-  cid=$(get_cid "test_mpm_$mpm")
+  CONTAINER_ARGS="-e HTTPD_MPM=$mpm --user 1001" run "ct_create_container test_mpm_${mpm}"
+  cid=$(ct_get_cid "test_mpm_$mpm")
+  cip=$(ct_get_cip "test_mpm_$mpm")
+  run "ct_test_response '${cip}:8080' 403 '.*'"
   run "docker logs $cid | grep -s mpm_${mpm}':notice.*resuming normal operations'"
 }
 
@@ -180,55 +128,37 @@ function run_s2i_test() {
   # Test s2i use case
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
-  s2i_args="--pull-policy=never"
   run "ct_s2i_usage ${IMAGE_NAME} ${s2i_args}" 0 "Testing 's2i usage'"
   run "ct_s2i_build_as_df file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp ${s2i_args}" 0 "Testing 's2i build'"
-  DOCKER_ARGS='--user 1000'
-  create_container testing-app-s2i ${IMAGE_NAME}-testapp
-  DOCKER_ARGS=
-  sleep 5
-  cip=$(get_container_ip 'testing-app-s2i')
-  run "curl ${cip}:8080 > output_s2i"
-  run "fgrep -e 'This is a sample s2i application with static content.' output_s2i"
-  # 0 "Checking page served by s2i feature"
-  sleep 2
+  CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-testapp ct_create_container testing-app-s2i
+  cip=$(ct_get_cip 'testing-app-s2i')
+  run "ct_test_response '${cip}:8080' 200 'This is a sample s2i application with static content.'"
 }
 
 function run_pre_init_test() {
   # Test s2i use case #2 - testing pre-init script
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
-  s2i_args="--pull-policy=never"
   run "ct_s2i_build_as_df file://${test_dir}/pre-init-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp2 ${s2i_args}" 0 "Testing 's2i build' with pre-init script"
-  DOCKER_ARGS='--user 1000'
-  create_container testing-app-pre-init ${IMAGE_NAME}-testapp2
-  DOCKER_ARGS=
-  sleep 5
-  cip=$(get_container_ip 'testing-app-pre-init')
-  run "curl ${cip}:8080 > output_pre_init"
-  run "fgrep -e 'This content was replaced by pre-init script.' output_pre_init"
-  # 0 "Checking page served by s2i feature and edited by pre-init script"
-  sleep 2
+  CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-testapp2 ct_create_container testing-app-pre-init
+  cip=$(ct_get_cip 'testing-app-pre-init')
+  run "ct_test_response '${cip}:8080' 200 'This content was replaced by pre-init script.'"
 }
 
 function run_self_cert_test() {
   # Test s2i use case #3 - using own ssl certs
   # Since we built the candidate image locally, we don't want S2I attempt to pull
   # it from Docker hub
-  s2i_args="--pull-policy=never"
   run "ct_s2i_build_as_df file://${test_dir}/self-signed-ssl ${IMAGE_NAME} ${IMAGE_NAME}-self-signed ${s2i_args}" 0 "Testing 's2i build' with self-signed cert"
-  DOCKER_ARGS='--user 1000'
-  create_container testing-self-signed ${IMAGE_NAME}-self-signed
-  DOCKER_ARGS=
-  sleep 5
-  cip=$(get_container_ip 'testing-self-signed')
+  CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-self-signed ct_create_container testing-self-signed
+  cip=$(ct_get_cip 'testing-self-signed')
+  run "ct_test_response '${cip}:8080' 200 '.*'"
   run "curl -k https://${cip}:8443 > output_ssl_cert"
   run "fgrep -e 'SSL test works' output_ssl_cert"
   echo | openssl s_client -showcerts -servername ${cip} -connect ${cip}:8443 2>/dev/null | openssl x509 -inform pem -noout -text >./servercert
   openssl x509 -in ${test_dir}/self-signed-ssl/httpd-ssl/certs/server-cert-selfsigned.pem -inform pem -noout -text >./configcert
   run "diff ./configcert ./servercert"
   run "diff ./configcert ./servercert >cert.diff"
-  sleep 2
 }
 
 function run_all_tests() {
@@ -238,39 +168,14 @@ function run_all_tests() {
   done;
 }
 
-
-function cleanup() {
-  for cidfile in $CIDFILE_DIR/* ; do
-    CONTAINER=$(cat $cidfile)
-
-    echo "Stopping and removing container $CONTAINER..."
-    docker stop $CONTAINER
-    exit_status=$(docker inspect -f '{{.State.ExitCode}}' $CONTAINER)
-    if [ "$exit_status" != "0" ]; then
-      echo "Dumping logs for $CONTAINER"
-      docker logs $CONTAINER
-    fi
-    docker rm $CONTAINER
-    rm $cidfile
-    echo "Done."
-  done
-  if [ "$overall" -eq 0 ] ; then
-    print_result "pass" "All tests passed."
-  else
-    print_result "fail" "Tests failed."
-  fi
-  rmdir $CIDFILE_DIR
-  rm -Rf "$working_dir"
-  return "$overall"
-}
-trap cleanup EXIT
-
+ct_enable_cleanup
 
 working_dir=`mktemp -d`
 pushd $working_dir > /dev/null || exit 1
 
-CIDFILE_DIR=`pwd`/cid_files
-mkdir "$CIDFILE_DIR"
+CID_FILE_DIR=$(mktemp --suffix=httpd_test_cidfiles -d)
+
+s2i_args="--pull-policy=never"
 
 overall=0
 
