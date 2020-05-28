@@ -24,7 +24,12 @@ export CT_SKIP_NEW_PROJECT=true
 export CT_SKIP_UPLOAD_IMAGE=true
 export CT_NAMESPACE=openshift
 
-test_httpd_integration httpd ${VERSION} "${IMAGE_NAME}"
+test_httpd_integration "${IMAGE_NAME}" ${VERSION} httpd
+
+# Check the imagestream
+test_httpd_imagestream
 
 OS_TESTSUITE_RESULT=0
+
+# vim: set tabstop=2:shiftwidth=2:expandtab:
 
