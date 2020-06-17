@@ -168,6 +168,14 @@ function run_all_tests() {
   done;
 }
 
+function run_test_latest_imagestreams() {
+  local result=1
+  # Switch to root directory of a container
+  run "pushd ${test_dir}/../.. >/dev/null" 0
+  run "ct_check_latest_imagestreams" 0
+  run "popd >/dev/null" 0
+}
+
 ct_enable_cleanup
 
 working_dir=`mktemp -d`
@@ -191,6 +199,7 @@ run_data_volume_test
 run_s2i_test
 run_pre_init_test
 run_mpm_config_test
+run_test_latest_imagestreams
 "
 
 test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
