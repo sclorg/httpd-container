@@ -10,7 +10,7 @@ test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
 . "$test_dir/test-lib.sh"
 
 function _container_is_scl() {
-  docker inspect --format='{{.ContainerConfig.Env}}' "${1-$IMAGE_NAME}" | grep -q HTTPD_SCL
+  docker inspect --format='{{.Config.Env}}' "${1-$IMAGE_NAME}" | grep -q HTTPD_SCL
   return $?
 }
 
