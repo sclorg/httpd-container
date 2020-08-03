@@ -20,45 +20,35 @@ These can range from server-side programming language support to authentication 
 Virtual hosting allows one Apache installation to serve many different Web sites."
 
 
-Usage
------
-
-For this, we will assume that you are using the Apache HTTP Server 2.4 container image from the
-Red Hat Container Catalog called `rhscl/httpd-24-rhel7` available via `httpd:2.4` imagestream tag in Openshift.
-The image can be used as a base image for other applications based on Apache HTTP web server.
-
-An example of the data on the host for both the examples above, that will be served by
-Apache HTTP web server:
+Usage in OpenShift
+---------------------
+For this, we will assume that you are using the `rhel8/httpd-24` image, available via `httpd:24` imagestream tag in Openshift.
+Building a simple [httpd-sample-app](https://github.com/sclorg/httpd-ex.git) application
+in Openshift can be achieved with the following step:
 
 ```
-$ ls -lZ /wwwdata/html
--rw-r--r--. 1 1001 1001 54321 Jan 01 12:34 index.html
--rw-r--r--. 1 1001 1001  5678 Jan 01 12:34 page.html
+oc new-app httpd:24~https://github.com/sclorg/httpd-ex.git
 ```
 
-If you want to run the image and mount the static pages available in `/wwwdata` on the host
-as a container volume, execute the following command:
-
+**Accessing the application:**
 ```
-$ podman run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z rhscl/httpd-24-rhel7
-```
-
-This will create a container named `httpd` running Apache HTTP Server, serving data from
-`/wwwdata` directory. Port 8080 will be exposed and mapped to the host.
-
-If you want to create a new container layered image, you can use the Source build feature of Openshift. To create a new httpd application in Openshift, while using data available in `/wwwdata/html` on the host, execute the following command:
-
-```
-oc new-app httpd:2.4~/wwwdata/html --name httpd-app
+$ oc get pods
+$ oc exec <pod> -- curl 127.0.0.1:8080
 ```
 
-The same application can also be built using the standalone [S2I](https://github.com/openshift/source-to-image) application on systems that have it available
+Source-to-Image framework and scripts
+---------------------
+This image supports the [Source-to-Image](https://docs.openshift.com/container-platform/3.11/creating_images/s2i.html)
+(S2I) strategy in OpenShift. The Source-to-Image is an OpenShift framework
+that makes it easy to write images that take application source code as
+an input, use a builder image like this Node.js container image, and produce
+a new image that runs the assembled application as output.
 
-```
-$ s2i build file:///wwwdata/html rhscl/httpd-24-rhel7 httpd-app
-```
+In order to support the Source-to-Image framework, there are some important scripts inside the builder image:
 
-The structure of httpd-app can look like this:
+* The `/usr/libexec/s2i/run` script is set as a default command in the resulting container image (the new image with the application artifacts).
+
+* The `/usr/libexec/s2i/assemble` script inside the image is run in order to produce a new image with the application artifacts. The script takes sources of a given application and places them into appropriate directories inside the image. The structure of httpd-app can look like this:
 
 **`./httpd-cfg`**  
        Can contain additional Apache configuration files (`*.conf`)
@@ -71,6 +61,105 @@ The structure of httpd-app can look like this:
 
 **`./`**  
        Application source code
+
+
+Build an application using a Dockerfile
+---------------------
+Compared to the Source-to-Image strategy, using a Dockerfile is a more
+flexible way to build an Node.js container image with an application.
+Use it when the Source-to-Image is not flexible enough for you or
+when you build the image outside of the OpenShift environment.
+
+In order to use this image in a Dockerfile, follow these steps:
+
+#### 1. Pull a base builder image to build on
+
+```
+podman pull rhel8/httpd-24
+```
+
+#### 2. Pull an application code
+
+An example application available at https://github.com/sclorg/httpd-ex.git is used here. Feel free to clone the repository for further experiments.
+
+```
+git clone https://github.com/sclorg/httpd-ex.git app-src
+```
+
+#### 3. Prepare an application inside a container
+
+This step usually consists of at least these parts:
+
+* putting the application source into the container
+* alternatively move certificates to a correct place (if available in the application source code)
+* setting the default command in the resulting image
+
+For all these three parts, users can either setup all manually and use commands `httpd` or `run-httpd` explicitly in the Dockerfile ([3.1.](#31-to-use-own-setup-create-a-dockerfile-with-this-content)), or users can use the Source-to-Image scripts inside the image ([3.2.](#32-to-use-the-source-to-image-scripts-and-build-an-image-using-a-dockerfile-create-a-dockerfile-with-this-content); see more about these scripts in the section "Source-to-Image framework and scripts" above), that already know how to set-up and run the HTTPD daemon.
+
+##### 3.1. To use own setup, create a Dockerfile with this content:
+```
+FROM registry.redhat.io/rhel8/httpd-24
+
+# Add application sources
+ADD app-src/index.html ./index.html
+
+# Run script uses standard ways to run the application
+CMD run-httpd
+```
+
+##### 3.2. To use the Source-to-Image scripts and build an image using a Dockerfile, create a Dockerfile with this content:
+```
+FROM registry.redhat.io/rhel8/httpd-24
+
+# Add application sources to a directory that the assemble script expects them
+# and set permissions so that the container runs without root access
+USER 0
+ADD app-src/index.html /tmp/src/index.html
+RUN chown -R 1001:0 /tmp/src
+USER 1001
+
+# Let the assemble script to install the dependencies
+RUN /usr/libexec/s2i/assemble
+
+# Run script uses standard ways to run the application
+CMD /usr/libexec/s2i/run
+```
+
+#### 4. Then, build a new image from a Dockerfile prepared in the previous step
+
+```
+podman build -t httpd-app .
+```
+
+#### 5. And finally, run the resulting image with the final application
+
+```
+podman run -d httpd-app
+```
+
+
+Direct usage with a mounted directory
+-----
+
+An example of the data on the host for both the examples above, that will be served by
+Apache HTTP web server:
+
+```
+$ ls -lZ /wwwdata/html
+-rw-r--r--. 1 1001 1001 54321 Jan 01 12:34 index.html
+-rw-r--r--. 1 1001 1001  5678 Jan 01 12:34 page.html
+```
+
+If you want to run the image directly and mount the static pages available in `/wwwdata` on the host
+as a container volume, execute the following command:
+
+```
+$ podman run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z rhel8/httpd-24
+```
+
+This will create a container named `httpd` running Apache HTTP Server, serving data from
+`/wwwdata` directory. Port 8080 will be exposed and mapped to the host.
+
 
 
 Environment variables and volumes
@@ -89,16 +178,16 @@ If you want to run the image and mount the log files into `/wwwlogs` on the host
 as a container volume, execute the following command:
 
 ```
-$ podman run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/httpd24:Z rhscl/httpd-24-rhel7
+$ podman run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/httpd24:Z rhel8/httpd-24
 ```
 
 To run an image using the `event` MPM (rather than the default `prefork`), execute the following command:
 
 ```
-$ podman run -d -e HTTPD_MPM=event --name httpd rhscl/httpd-24-rhel7
+$ podman run -d -e HTTPD_MPM=event --name httpd rhel8/httpd-24
 ```
 
-You can also set the following mount points by passing the `-v /host:/container` flag to Docker.
+You can also set the following mount points by passing the `-v /host:/container` flag to podman.
 
 **`/var/www`**  
        Apache HTTP Server data directory
@@ -138,7 +227,7 @@ By default, Apache HTTP Server container runs as UID 1001. That means the volume
 To run the container as a different UID, use `-u` option. For example if you want to run the container as UID 1234, execute the following command:
 
 ```
-podman run -d -u 1234 rhscl/httpd-24-rhel7
+podman run -d -u 1234 rhel8/httpd-24
 ```
 
 To log into a volume mounted directory, the container needs to be run as UID 0 (see above).
