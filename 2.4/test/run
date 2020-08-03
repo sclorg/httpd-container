@@ -176,10 +176,18 @@ function run_test_latest_imagestreams() {
   run "popd >/dev/null" 0
 }
 
+function run_dockerfiles_test() {
+  run "ct_test_app_dockerfile examples/Dockerfile 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
+  run "ct_test_app_dockerfile examples/Dockerfile.s2i 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
+}
+
 ct_enable_cleanup
 
 working_dir=`mktemp -d`
-pushd $working_dir > /dev/null || exit 1
+# copy example files that we need for run_dockerfiles_test
+mkdir "$working_dir/examples"
+cp -r "${THISDIR}"/examples/* "$working_dir"/examples
+pushd "$working_dir" > /dev/null || exit 1
 
 CID_FILE_DIR=$(mktemp --suffix=httpd_test_cidfiles -d)
 
@@ -200,6 +208,7 @@ run_s2i_test
 run_pre_init_test
 run_mpm_config_test
 run_test_latest_imagestreams
+run_dockerfiles_test
 "
 
 test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
