@@ -47,4 +47,4 @@ curl http://127.0.0.1:8080
 curl --insecure https://127.0.0.1:8443
 ```
 
-Note: The use of `--insecure` option is caused by using self-signed certificates for HTTPS by default.
+Note: The use of the `--insecure` option is caused by using self-signed certificates for HTTPS by default.
