@@ -21,7 +21,7 @@
         },
         "from": {
           "kind": "ImageStreamTag",
-          "name": "2.4"
+          "name": "2.4-el7"
         },
         "referencePolicy": {
           "type": "Local"
@@ -32,11 +32,31 @@
         "annotations": {
           "description": "Build and serve static content via Apache HTTP Server (httpd) 2.4 on CentOS 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/httpd-container/blob/master/2.4/README.md.",
           "iconClass": "icon-apache",
-          "openshift.io/display-name": "Apache HTTP Server 2.4",
+          "openshift.io/display-name": "Apache HTTP Server 2.4 (CentOS 7)",
           "openshift.io/provider-display-name": "Red Hat, Inc.",
           "sampleRepo": "https://github.com/sclorg/httpd-ex.git",
           "supports": "httpd",
           "tags": "builder,httpd",
+          "version": "2.4"
+        },
+        "from": {
+          "kind": "DockerImage",
+          "name": "docker.io/centos/httpd-24-centos7:latest"
+        },
+        "referencePolicy": {
+          "type": "Local"
+        },
+        "name": "2.4-el7"
+      },
+      {
+        "annotations": {
+          "description": "Build and serve static content via Apache HTTP Server (httpd) 2.4 on CentOS 7. For more information about using this builder image, including OpenShift considerations, see https://github.com/sclorg/httpd-container/blob/master/2.4/README.md.",
+          "iconClass": "icon-apache",
+          "openshift.io/display-name": "Apache HTTP Server 2.4",
+          "openshift.io/provider-display-name": "Red Hat, Inc.",
+          "sampleRepo": "https://github.com/sclorg/httpd-ex.git",
+          "supports": "httpd",
+          "tags": "builder,httpd,hidden",
           "version": "2.4"
         },
         "from": {
