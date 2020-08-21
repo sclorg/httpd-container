@@ -1,6 +1,6 @@
 # Set of functions used in other scripts
 
-if head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8"; then
+if [ "$(source /etc/os-release ; echo "$VERSION_ID")" -eq 8 ] ; then
   HTTPCONF_LINENO=154
 else
   HTTPCONF_LINENO=151
