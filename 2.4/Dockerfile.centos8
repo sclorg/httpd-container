@@ -54,6 +54,9 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./root /
 
+# Without this, chineese welcome page was shown by default
+RUN cp /usr/share/httpd/noindex/index.html.en-US /usr/share/httpd/noindex/index.html
+
 # Reset permissions of filesystem to default values
 RUN /usr/libexec/httpd-prepare && rpm-file-permissions
 
