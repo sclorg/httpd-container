@@ -26,7 +26,7 @@ function test_httpd_imagestream() {
     *) echo "Imagestream testing not supported for $OS environment." ; return 0 ;;
   esac
 
-  ct_os_test_image_stream_s2i "${THISDIR}/imagestreams/httpd-${OS}.json" "${IMAGE_NAME}" \
+  ct_os_test_image_stream_s2i "${THISDIR}/imagestreams/httpd-${OS%[0-9]*}.json" "${IMAGE_NAME}" \
                               "https://github.com/sclorg/httpd-container.git" \
                               "examples/sample-test-app" \
                               "This is a sample s2i application with static content"
