@@ -1,0 +1,25 @@
+FROM registry.redhat.io/rhel8/httpd-24
+
+# This image supports the Source-to-Image
+# (see more at https://docs.openshift.com/container-platform/3.11/creating_images/s2i.html).
+# In order to support the Source-to-Image framework, there are some interesting
+# scripts inside the builder image, that can be run in a Dockerfile directly as well:
+# * The `/usr/libexec/s2i/assemble` script inside the image is run in order
+#   to produce a new image with the application artifacts.
+#   The script takes sources of a given application and places them into
+#   appropriate directories inside the image.
+# * The `/usr/libexec/s2i/run` script executes the application and is set as
+#   a default command in the resulting container image.
+
+# Add application sources to a directory that the assemble script expects them
+# and set permissions so that the container runs without root access
+USER 0
+ADD app-src/index.html /tmp/src/index.html
+RUN chown -R 1001:0 /tmp/src
+USER 1001
+
+# Let the assemble script to install the dependencies
+RUN /usr/libexec/s2i/assemble
+
+# Run script uses standard ways to run the application
+CMD /usr/libexec/s2i/run
