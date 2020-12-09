@@ -168,14 +168,6 @@ function run_all_tests() {
   done;
 }
 
-function run_test_latest_imagestreams() {
-  local result=1
-  # Switch to root directory of a container
-  run "pushd ${test_dir}/../.. >/dev/null" 0
-  run "ct_check_latest_imagestreams" 0
-  run "popd >/dev/null" 0
-}
-
 function run_dockerfiles_test() {
   run "ct_test_app_dockerfile examples/Dockerfile 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
   run "ct_test_app_dockerfile examples/Dockerfile.s2i 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
@@ -207,7 +199,6 @@ run_data_volume_test
 run_s2i_test
 run_pre_init_test
 run_mpm_config_test
-run_test_latest_imagestreams
 run_dockerfiles_test
 "
 
