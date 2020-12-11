@@ -1,5 +1,6 @@
 Apache HTTP Server Container Images
-================================
+===================================
+[![Docker Repository on Quay](https://quay.io/repository/centos7/httpd-24-centos7/status "Docker Repository on Quay")](https://quay.io/repository/centos7/httpd-24-centos7)
 
 This repository contains Dockerfiles for Apache HTTP Server images for OpenShift and general usage.
 Users can choose between RHEL and CentOS based images.
@@ -11,7 +12,7 @@ For more information about concepts used in these container images, see the
 
 
 Versions
----------------
+--------
 Apache HTTPD versions currently provided are:
 * [httpd-2.4](2.4)
 
@@ -23,7 +24,7 @@ CentOS versions currently supported are:
 
 
 Installation
-----------------------
+------------
 Choose either the CentOS7 or RHEL7 based image:
 
 *  **RHEL7 based image**
@@ -50,7 +51,7 @@ Choose either the CentOS7 or RHEL7 based image:
     This image is available on DockerHub. To download it run:
 
     ```
-    $ podman pull centos/httpd-24-centos7
+    $ podman pull quay.io/centos7/httpd-24-centos7
     ```
 
     To build a CentOS based Apache HTTP Server image from scratch run:
@@ -73,14 +74,14 @@ This variable must be set to a list with possible versions (subdirectories).**
 
 
 Usage
----------------------------------
+-----
 
 For information about usage of Dockerfile for Apache HTTP Server 2.4,
 see [usage documentation](2.4).
 
 
 Test
----------------------------------
+----
 
 This repository also provides a test framework, which checks basic functionality
 of the Apache HTTP Server image.

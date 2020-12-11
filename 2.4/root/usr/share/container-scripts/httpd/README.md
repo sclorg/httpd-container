@@ -1,10 +1,10 @@
 Apache HTTP Server 2.4 Container Image
-======================
+======================================
 
 This container image includes Apache HTTP Server 2.4 for OpenShift and general usage.
 Users can choose between RHEL, CentOS and Fedora based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
-the CentOS images are available on [Docker Hub](https://hub.docker.com/r/centos/),
+the CentOS images are available on [Quay.io](https://quay.io/organization/centos7),
 and the Fedora images are available in [Fedora Registry](https://registry.fedoraproject.org/).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
@@ -21,7 +21,7 @@ Virtual hosting allows one Apache installation to serve many different Web sites
 
 
 Usage in OpenShift
----------------------
+------------------
 In this example, we assume that you are using the `rhel8/httpd-24` image, available through the `httpd:24` imagestream tag in Openshift.
 To build a simple [httpd-sample-app](https://github.com/sclorg/httpd-ex.git) application in Openshift:
 
@@ -36,7 +36,7 @@ $ oc exec <pod> -- curl 127.0.0.1:8080
 ```
 
 Source-to-Image framework and scripts
----------------------
+-------------------------------------
 This image supports the [Source-to-Image](https://docs.openshift.com/container-platform/3.11/creating_images/s2i.html)
 (S2I) strategy in OpenShift. The Source-to-Image is an OpenShift framework
 which makes it easy to write images that take application source code as
@@ -63,7 +63,7 @@ To support the Source-to-Image framework, important scripts are included in the 
 
 
 Build an application using a Dockerfile
----------------------
+---------------------------------------
 Compared to the Source-to-Image strategy, using a Dockerfile is a more
 flexible way to build an httpd container image with an application.
 Use a Dockerfile when Source-to-Image is not sufficiently flexible for you or
@@ -138,7 +138,7 @@ podman run -d httpd-app
 
 
 Direct usage with a mounted directory
------
+-------------------------------------
 
 An example of the data on the host for both the examples above, which is served by
 The Apache HTTP web server:
@@ -243,6 +243,6 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/httpd-container.
-In that repository, the Dockerfile for CentOS is called Dockerfile, the Dockerfile
+In that repository, the Dockerfile for CentOS7 is called Dockerfile, the Dockerfile
 for RHEL7 is called Dockerfile.rhel7, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
 and the Dockerfile for Fedora is called Dockerfile.fedora.
