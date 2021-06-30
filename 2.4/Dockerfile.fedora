@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f29/s2i-core:latest
+FROM registry.fedoraproject.org/f34/s2i-core:latest
 
 # Apache HTTP Server image.
 #
