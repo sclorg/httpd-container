@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f29/s2i-core:latest
+FROM registry.fedoraproject.org/f34/s2i-core:latest
 
 # Apache HTTP Server image.
 #
@@ -34,7 +34,7 @@ LABEL summary="$SUMMARY" \
 EXPOSE 8080
 EXPOSE 8443
 
-RUN dnf install -y yum-utils gettext hostname && \
+RUN dnf install -y gettext hostname && \
     INSTALL_PKGS="nss_wrapper bind-utils httpd mod_ssl mod_ldap mod_session mod_security sscg" && \
     dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
