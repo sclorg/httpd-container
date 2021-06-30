@@ -155,17 +155,19 @@ jobs:
           cat job.json
           state=$(jq -r .state job.json)
           result=$(jq -r .result.overall job.json)
+          new_state="success"
+          infra_error=" "
+          echo "State is $state and result is: $result"
           if [ "$state" == "complete" ]; then
-            if [ "$result" == "passed" ]; then
-              new_state="success"
-            else
+            if [ "$result" != "passed" ]; then
               new_state="failure"
             fi
-            infra_error=""
           else
             infra_error=" - Infra problems"
             new_state="failure"
           fi
+          echo "New State is: $new_state"
+          echo "Infra state is: $infra_error"
           echo "::set-output name=FINAL_STATE::$new_state"
           echo "::set-output name=INFRA_STATE::$infra_error"
 
