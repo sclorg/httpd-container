@@ -171,7 +171,7 @@ jobs:
 
       - name: Switch to final state of Testing Farm request
         run: |
-          cat << EOF > running.json
+          cat << EOF > final.json
           {
             "sha": "${{needs.running.outputs.SHA}}",
             "state": "${{steps.final_state.outputs.FINAL_STATE}}",
@@ -180,6 +180,7 @@ jobs:
             "target_url": "http://artifacts.dev.testing-farm.io/${{ needs.running.outputs.REQ_ID }}/"
           }
           EOF
+          cat final.json
           curl -X POST -H "Authorization: Bearer ${{secrets.GITHUB_TOKEN}}" -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/${{needs.running.outputs.SHA}} \
-            --data @running.json
+            --data @final.json
