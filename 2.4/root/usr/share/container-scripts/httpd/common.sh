@@ -2,6 +2,8 @@
 
 if head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8"; then
   HTTPCONF_LINENO=154
+#elif head "/etc/redhat-release" | grep -q "^Fedora"; then
+#  HTTPCONF_LINENO=151
 else
   HTTPCONF_LINENO=151
 fi
