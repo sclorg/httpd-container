@@ -120,7 +120,7 @@ function get_matched_files() {
   default_dir="$2"
   files_matched="$3"
   find "$default_dir" -maxdepth 1 -type f -name "$files_matched" -printf "%f\n"
-  [ -d "$custom_dir" ] && find "$custom_dir" -maxdepth 1 -type f -name "$files_matched" -printf "%f\n"
+  [ -d "$custom_dir" ] && find "$custom_dir" -maxdepth 5 -type f -name "$files_matched" -printf "%p\n"
 }
 
 # process_extending_files process extending files in $1 and $2 directories
@@ -133,8 +133,8 @@ function process_extending_files() {
   while read filename ; do
     echo "=> sourcing $filename ..."
     # Custom file is prefered
-    if [ -f $custom_dir/$filename ]; then
-      source $custom_dir/$filename
+    if [ -f $filename ]; then
+      source $filename
     elif [ -f $default_dir/$filename ]; then 
       source $default_dir/$filename
     fi
