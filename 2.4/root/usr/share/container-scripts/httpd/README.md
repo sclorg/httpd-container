@@ -22,11 +22,11 @@ Virtual hosting allows one Apache installation to serve many different Web sites
 
 Usage in OpenShift
 ------------------
-In this example, we assume that you are using the `rhel8/httpd-24` image, available through the `httpd:24` imagestream tag in Openshift.
+In this example, we assume that you are using the `rhel8/httpd-24` image, available through the `openshift/httpd:2.4-el8` imagestream tag in Openshift.
 To build a simple [httpd-sample-app](https://github.com/sclorg/httpd-ex.git) application in Openshift:
 
 ```
-oc new-app httpd:24~https://github.com/sclorg/httpd-ex.git
+oc new-app openshift/httpd:2.4-el8~https://github.com/sclorg/httpd-ex.git
 ```
 
 To access the application:
