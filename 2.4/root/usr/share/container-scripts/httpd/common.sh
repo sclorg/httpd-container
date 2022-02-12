@@ -2,6 +2,8 @@
 
 if head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8"; then
   HTTPCONF_LINENO=154
+elif [ "x$PLATFORM" == "xel9" ]; then
+  HTTPCONF_LINENO=156
 else
   HTTPCONF_LINENO=151
 fi
