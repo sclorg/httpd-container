@@ -5,7 +5,7 @@ IMAGE_NAME="${IMAGE_NAME:-rhscl/httpd-24-rhel7}"
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
 . ${THISDIR}/utils.sh
-test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
+test_dir="$(readlink -f $(dirname "${BASH_SOURCE[0]}"))"
 
 . "$test_dir/test-lib.sh"
 
