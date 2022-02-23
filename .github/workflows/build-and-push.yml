@@ -6,16 +6,19 @@ on:
 
 jobs:
   build-and-push:
+    # To not run in forks
+    if: github.repository_owner == 'sclorg'  
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        version: "2.4"
         include:
-          - dockerfile: "Dockerfile"
+          - version: "2.4"
+            dockerfile: "Dockerfile"
             registry_namespace: "centos7"
             tag: "centos7"
-          - dockerfile: "Dockerfile.c9s"
+          - version: "2.4"
+            dockerfile: "Dockerfile.c9s"
             registry_namespace: "sclorg"
             tag: "c9s"
 
