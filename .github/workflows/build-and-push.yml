@@ -78,7 +78,7 @@ jobs:
           password: ${{ secrets.QUAY_IMAGE_BUILDER_TOKEN }}
 
       - name: Push image to Quay.io/${{ matrix.registry_namespace }} namespace
-        if: ${{ steps.check_exclude_file.outputs.files_exists == 'false' && ${{ matrix.registry_namespace != 'centos7' }}
+        if: ${{ steps.check_exclude_file.outputs.files_exists == 'false' && matrix.registry_namespace != 'centos7' }}
         id: push-to-quay-sclorg
         uses: redhat-actions/push-to-registry@v2.2
         with:
