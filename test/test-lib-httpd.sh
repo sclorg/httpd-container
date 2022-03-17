@@ -12,8 +12,7 @@ source ${THISDIR}/test-lib.sh
 source ${THISDIR}/test-lib-openshift.sh
 
 function test_httpd_integration() {
-  local image_name=$1
-  ct_os_test_s2i_app "${image_name}" \
+  ct_os_test_s2i_app "${IMAGE_NAME}" \
                      "https://github.com/sclorg/httpd-container.git" \
                      "examples/sample-test-app" \
                      "This is a sample s2i application with static content"
