@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
+
+export HTTPD_RUN_BY_S2I=1
+
+exec run-httpd $@

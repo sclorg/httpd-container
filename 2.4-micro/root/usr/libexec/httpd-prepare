@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+source ${HTTPD_CONTAINER_SCRIPTS_PATH}/common.sh
+
+# compatibility symlinks so we hide SCL paths
+if [ -v HTTPD_SCL ] ; then
+  # /opt/rh/httpd24/root/etc/httpd will be symlink to /etc/httpd
+  mv /opt/rh/httpd24/root/etc/httpd /etc/httpd
+  ln -s /etc/httpd /opt/rh/httpd24/root/etc/httpd
+
+  # /opt/rh/httpd24/root/var/run/httpd will be symlink to /var/run/httpd
+  mv /opt/rh/httpd24/root/var/run/httpd /var/run/httpd
+  ln -s /var/run/httpd /opt/rh/httpd24/root/var/run/httpd
+
+  # /opt/rh/httpd24/root/var/www will be symlink to /var/www
+  rm -rf /var/www
+  mv /opt/rh/httpd24/root/var/www /var/www
+  ln -s /var/www /opt/rh/httpd24/root/var/www
+fi
+
+mkdir -p ${HTTPD_CONFIGURATION_PATH}
+chmod -R a+rwx ${HTTPD_MAIN_CONF_PATH}
+chmod -R a+rwx ${HTTPD_MAIN_CONF_D_PATH}
+chmod -R a+rwx ${HTTPD_MAIN_CONF_MODULES_D_PATH}
+mkdir -p ${HTTPD_APP_ROOT}/etc
+chmod -R a+rwx ${HTTPD_APP_ROOT}/etc
+chmod -R a+rwx ${HTTPD_VAR_RUN}
+chown -R 1001:0 ${HTTPD_APP_ROOT}
+chown -R 1001:0 ${HTTPD_DATA_PATH}
+chmod -R g+rwx ${HTTPD_LOG_PATH}
+chown -R 1001:0 ${HTTPD_LOG_PATH}
+
+# remove bundled key pair and create new dir, where we store it
+rm -f /etc/pki/tls/certs/localhost.crt 
+rm -f /etc/pki/tls/private/localhost.key
+mkdir -p $HTTPD_TLS_CERT_PATH
+chmod -R a+rwx $HTTPD_TLS_CERT_PATH
+
+mkdir -p ${HTTPD_CONTAINER_SCRIPTS_PATH}/pre-init
+
+config_general
+

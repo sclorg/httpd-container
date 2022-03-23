@@ -1,0 +1,17 @@
+#!/bin/sh
+
+DISTRO=`cat /etc/*-release | grep ^ID= | grep -Po '".*?"' | tr -d '"'`
+NAMESPACE=centos
+[[ $DISTRO =~ rhel* ]] && NAMESPACE=rhscl
+
+cat <<EOF
+This is a S2I ${IMAGE_DESCRIPTION} ${DISTRO} base image:
+To use it, install S2I: https://github.com/openshift/source-to-image
+
+Sample invocation:
+
+s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ ${NAMESPACE}/httpd-24-${DISTRO}7 httpd-sample-app
+
+You can then run the resulting image via:
+podman run -p 8080:8080 httpd-sample-app
+EOF
