@@ -141,6 +141,10 @@ function run_s2i_test() {
   CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-testapp ct_create_container testing-app-s2i
   cip=$(ct_get_cip 'testing-app-s2i')
   run "ct_test_response '${cip}:8080' 200 'This is a sample s2i application with static content.'"
+  run "curl -k https://${cip}:8443 >output_generated_ssl_cert"
+  run "fgrep -e 'This is a sample s2i application with static content.' output_generated_ssl_cert"
+  certificate_age_s=$(ct_get_certificate_age_s $(ct_get_cid testing-app-s2i) '$HTTPD_TLS_CERT_PATH/localhost.crt')
+  run "test '$certificate_age_s' -le 60" 0 "Testing whether the certificate was freshly generated (not older than a minute)"
 }
 
 function run_pre_init_test() {
