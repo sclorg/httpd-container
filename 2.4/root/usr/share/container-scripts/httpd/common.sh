@@ -57,8 +57,8 @@ root@${fqdn}
 EOF
    fi
 
-   chmod 640 ${sslcert}
-   chmod 640 ${sslkey}
+   chmod 640 "${sslcert}"
+   chmod 640 "${sslkey}"
 }
 
 config_general() {
