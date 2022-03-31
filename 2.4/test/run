@@ -141,10 +141,22 @@ function run_s2i_test() {
   CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-testapp ct_create_container testing-app-s2i
   cip=$(ct_get_cip 'testing-app-s2i')
   run "ct_test_response '${cip}:8080' 200 'This is a sample s2i application with static content.'"
+
+  # Let's see whether the automatically generated certificate works as expected
   run "curl -k https://${cip}:8443 >output_generated_ssl_cert"
   run "fgrep -e 'This is a sample s2i application with static content.' output_generated_ssl_cert"
+
+  # We also need to make sure the certificate is generated no sooner than in assemble phase,
+  # because shipping the same certs in the image would make it easy to exploit
+  # Let's see how old the certificate is (that it was generated within the last minute)
   certificate_age_s=$(ct_get_certificate_age_s $(ct_get_cid testing-app-s2i) '$HTTPD_TLS_CERT_PATH/localhost.crt')
   run "test '$certificate_age_s' -le 60" 0 "Testing whether the certificate was freshly generated (not older than a minute)"
+
+  # Let's also check whether the certificates are where we expect them and were not
+  # in the original production image
+  run "docker run --rm ${IMAGE_NAME} bash -c 'test -e \$HTTPD_TLS_CERT_PATH/localhost.crt'" 1 "Testing of not presence of a certificate in the production image"
+  run "docker exec $(ct_get_cid testing-app-s2i) bash -c 'ls -l \$HTTPD_TLS_CERT_PATH/localhost.crt'" 0 "Testing presence and permissions of the generated certificate"
+  run "docker exec $(ct_get_cid testing-app-s2i) bash -c 'ls -l \$HTTPD_TLS_CERT_PATH/localhost.key'" 0 "Testing presence and permissions of the generated certificate"
 }
 
 function run_pre_init_test() {
