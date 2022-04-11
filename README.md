@@ -1,5 +1,8 @@
 Apache HTTP Server Container Images
 ===================================
+
+[![Build and push images to Quay.io registry](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml)
+
 [![Docker Repository on Quay](https://quay.io/repository/centos7/httpd-24-centos7/status "Docker Repository on Quay")](https://quay.io/repository/centos7/httpd-24-centos7)
 
 This repository contains Dockerfiles for Apache HTTP Server images for OpenShift and general usage.
@@ -21,6 +24,8 @@ RHEL versions currently supported are:
 
 CentOS versions currently supported are:
 * CentOS 7
+* CentOS Stream 8
+* CentOS Stream 9
 
 
 Installation
