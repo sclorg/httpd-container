@@ -10,6 +10,7 @@ config_s2i
 
 echo "---> Installing application source"
 cp -af /tmp/src/. ./
+rm -rf ./.hg ./.git ./.svn
 
 # Fix source directory permissions
 fix-permissions ./
