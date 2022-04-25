@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/f29/s2i-core:latest
+FROM quay.io/fedora/s2i-core:35
 
 # Apache HTTP Server image.
 #
@@ -26,9 +26,9 @@ LABEL summary="$SUMMARY" \
       io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="builder,httpd,httpd24" \
       com.redhat.component="$NAME" \
-      name="$FGC/$NAME" \
+      name="fedora/$NAME-24" \
       version="$HTTPD_VERSION" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ $FGC/$NAME sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quya.io/fedora/$NAME-24 sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
