@@ -1,16 +1,14 @@
-FROM quay.io/fedora/s2i-core:35
+FROM quay.io/sclorg/s2i-core-c8s:c8s
 
 # Apache HTTP Server image.
 #
 # Volumes:
 #  * /var/www - Datastore for httpd
-#  * /var/log/httpd - Storage for logs when $HTTPD_LOG_TO_VOLUME is set
+#  * /var/log/httpd24 - Storage for logs when $HTTPD_LOG_TO_VOLUME is set
 # Environment:
-#  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd
+#  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-ENV HTTPD_VERSION=2.4 \
-    NAME=httpd \
-    ARCH=x86_64
+ENV HTTPD_VERSION=2.4
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
     DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
@@ -21,24 +19,24 @@ Virtual hosting allows one Apache installation to serve many different Web sites
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
-      io.k8s.description="$SUMMARY" \
+      io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd24" \
-      com.redhat.component="$NAME" \
-      name="fedora/$NAME-24" \
-      version="$HTTPD_VERSION" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quya.io/fedora/$NAME-24 sample-server" \
+      io.openshift.tags="builder,httpd,httpd-24" \
+      name="sclorg/httpd-24-c8s" \
+      version="1" \
+      com.redhat.component="httpd-24-container" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/httpd-242-c8s:c8s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
 EXPOSE 8443
 
-RUN dnf install -y gettext hostname && \
-    INSTALL_PKGS="nss_wrapper bind-utils httpd mod_ssl mod_ldap mod_session mod_security sscg" && \
-    dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+RUN yum -y module enable httpd:$HTTPD_VERSION && \
+    INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd mod_ssl mod_ldap mod_session mod_security mod_auth_mellon sscg" && \
+    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
-    dnf clean all
+    yum -y clean all --enablerepo='*'
 
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_APP_ROOT=${APP_ROOT} \
@@ -55,7 +53,6 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 COPY ./root /
 
-# Generate SSL certs and reset permissions of filesystem to default values
 # Reset permissions of filesystem to default values
 RUN /usr/libexec/httpd-prepare && rpm-file-permissions
 

@@ -1,0 +1,58 @@
+name: Build and push images to Quay.io registry
+on:
+  push:
+    branches:
+      - master
+  schedule:
+      - cron: '0 1 * * 3'
+
+jobs:
+  build-and-push:
+    # To not run in forks
+    if: github.repository_owner == 'sclorg'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile_path: "2.4"
+            dockerfile: "Dockerfile"
+            registry_namespace: "centos7"
+            tag: "centos7"
+            suffix: "centos7"
+            quayio_username: "QUAY_IMAGE_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_BUILDER_TOKEN"
+          - dockerfile_path: "2.4"
+            dockerfile: "Dockerfile.c9s"
+            registry_namespace: "sclorg"
+            tag: "c9s"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
+            suffix: "c9s"
+          - dockerfile_path: "2.4"
+            dockerfile: "Dockerfile.c8s"
+            registry_namespace: "sclorg"
+            tag: "c8s"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
+            suffix: "c8s"
+          - dockerfile_path: "2.4"
+            dockerfile: "Dockerfile.fedora"
+            registry_namespace: "fedora"
+            tag: "2.4"
+            quayio_username: "QUAY_IMAGE_FEDORA_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_FEDORA_BUILDER_TOKEN"
+
+    steps:
+      - name: Build and push to quay.io registry
+        uses: sclorg/build-and-push-action@v2
+        with:
+          registry: "quay.io"
+          registry_namespace: ${{ matrix.registry_namespace }}
+          registry_username: ${{ secrets[matrix.quayio_username] }}
+          registry_token: ${{ secrets[matrix.quayio_token] }}
+          dockerfile: ${{ matrix.dockerfile }}
+          docker_context: ${{ matrix.dockerfile_path }}
+          dockerfile_path: ${{ matrix.dockerfile_path }}
+          tag: ${{ matrix.tag }}
+          suffix: ${{ matrix.suffix }}

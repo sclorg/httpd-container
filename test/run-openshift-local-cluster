@@ -38,12 +38,15 @@ ct_os_test_s2i_app "${IMAGE_NAME}" "${THISDIR}/sample-test-app" . 'This is a sam
 # test remote example app
 ct_os_test_s2i_app "${IMAGE_NAME}" "https://github.com/sclorg/httpd-ex#${BRANCH_TO_TEST}" . 'Welcome to your static httpd application on OpenShift'
 
-# test template from the example app
-ct_os_test_template_app "${IMAGE_NAME}" \
-                        "https://raw.githubusercontent.com/openshift/httpd-ex/${BRANCH_TO_TEST}/openshift/templates/httpd.json" \
-                        httpd \
-                        'Welcome to your static httpd application on OpenShift' \
-                        8080 http 200 "-p SOURCE_REPOSITORY_REF=${BRANCH_TO_TEST} -p NAME=httpd-testing"
+if [ "${OS}" == "rhel8" ]; then
+  # test template from the example app
+  # Template was moved to RHEL8
+  ct_os_test_template_app "${IMAGE_NAME}" \
+                          "https://raw.githubusercontent.com/openshift/httpd-ex/${BRANCH_TO_TEST}/openshift/templates/httpd.json" \
+                          httpd \
+                          'Welcome to your static httpd application on OpenShift' \
+                          8080 http 200 "-p SOURCE_REPOSITORY_REF=${BRANCH_TO_TEST} -p NAME=httpd-testing"
+fi
 
 # Check the imagestream
 test_httpd_imagestream
