@@ -148,9 +148,10 @@ function run_s2i_test() {
 
   # We also need to make sure the certificate is generated no sooner than in assemble phase,
   # because shipping the same certs in the image would make it easy to exploit
-  # Let's see how old the certificate is (that it was generated within the last minute)
+  # Let's see how old the certificate is and compare with how old the image is
+  image_age_s=$(ct_get_image_age_s "${IMAGE_NAME}")
   certificate_age_s=$(ct_get_certificate_age_s $(ct_get_cid testing-app-s2i) '$HTTPD_TLS_CERT_PATH/localhost.crt')
-  run "test '$certificate_age_s' -le 60" 0 "Testing whether the certificate was freshly generated (not older than a minute)"
+  run "test '$certificate_age_s' -lt '$image_age_s'" 0 "Testing whether the certificate was freshly generated after the image"
 
   # Let's also check whether the certificates are where we expect them and were not
   # in the original production image
