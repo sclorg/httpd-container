@@ -1,0 +1,78 @@
+FROM quay.io/fedora/fedora:rawhide AS build
+
+RUN mkdir -p /mnt/rootfs
+RUN MICRO_PKGS="coreutils-single glibc-minimal-langpack" && \
+    INSTALL_PKGS="$MICRO_PKGS httpd-core mod_ssl findutils hostname nss_wrapper-libs" && \
+    dnf install --installroot /mnt/rootfs $INSTALL_PKGS --releasever 36 --setopt install_weak_deps=false --nodocs -y && \
+    dnf -y --installroot /mnt/rootfs clean all && \
+    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
+
+FROM scratch
+# Apache HTTP Server image.
+#
+# Volumes:
+#  * /var/www - Datastore for httpd
+#  * /var/log/httpd24 - Storage for logs when $HTTPD_LOG_TO_VOLUME is set
+# Environment:
+#  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
+
+ENV HTTPD_VERSION=2.4
+
+ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
+    DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
+and extensible web server. Apache supports a variety of features, many implemented as compiled modules \
+which extend the core functionality. \
+These can range from server-side programming language support to authentication schemes. \
+Virtual hosting allows one Apache installation to serve many different Web sites." \
+# The following variables are usually available from parent s2i images \
+    STI_SCRIPTS_PATH=/usr/libexec/s2i \
+    APP_ROOT=/opt/app-root \
+    HOME=/opt/app-root/src \
+    PLATFORM="el9"
+
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
+      io.openshift.expose-services="8080:http,8443:https" \
+      io.openshift.tags="builder,httpd,httpd-24" \
+      name="fedora/httpd-24-micro" \
+      version="1" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ fedora/httpd-24-micro sample-server" \
+      maintainer="SoftwareCollections.org <sclorg@redhat.com>"
+
+EXPOSE 8080
+EXPOSE 8443
+
+COPY --from=build /mnt/rootfs/ /
+# COPY --from=build /etc/yum.repos.d/ubi.repo /etc/yum.repos.d/ubi.repo
+
+ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
+    HTTPD_APP_ROOT=${APP_ROOT} \
+    HTTPD_CONFIGURATION_PATH=${APP_ROOT}/etc/httpd.d \
+    HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
+    HTTPD_MAIN_CONF_MODULES_D_PATH=/etc/httpd/conf.modules.d \
+    HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
+    HTTPD_TLS_CERT_PATH=/etc/httpd/tls \
+    HTTPD_VAR_RUN=/var/run/httpd \
+    HTTPD_DATA_PATH=/var/www \
+    HTTPD_DATA_ORIG_PATH=/var/www \
+    HTTPD_LOG_PATH=/var/log/httpd
+
+COPY 2.4-micro/s2i/bin/ $STI_SCRIPTS_PATH
+COPY 2.4-micro/root /
+COPY 2.4-micro/core-scripts/usr /usr
+
+WORKDIR ${HOME}
+
+# Reset permissions of filesystem to default values
+RUN /usr/libexec/httpd-prepare
+
+USER 1001
+
+# Not using VOLUME statement since it's not working in OpenShift Online:
+# https://github.com/sclorg/httpd-container/issues/30
+# VOLUME ["${HTTPD_DATA_PATH}"]
+# VOLUME ["${HTTPD_LOG_PATH}"]
+
+CMD ["/usr/bin/run-httpd"]
