@@ -25,7 +25,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="builder,httpd,httpd-24" \
       name="rhel9/httpd-24" \
       version="1" \
-      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       com.redhat.component="httpd-24-container" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ rhel9/httpd-24 sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
