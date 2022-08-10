@@ -17,7 +17,7 @@ function _container_is_scl() {
 function update_overall() {
     res="$1"
     if [ "$res" != 0 ]; then
-        overall="$res"
+        TESTSUITE_RESULT="$res"
     fi
 }
 
@@ -193,7 +193,7 @@ CID_FILE_DIR=$(mktemp --suffix=httpd_test_cidfiles -d)
 
 s2i_args="--pull-policy=never"
 
-overall=0
+TESTSUITE_RESULT=0
 
 run "docker inspect $IMAGE_NAME >/dev/null || docker pull $IMAGE_NAME" 0
 
@@ -216,4 +216,4 @@ TEST_LIST=${@:-$TEST_LIST} run_all_tests
 
 popd > /dev/null
 
-exit "$overall"
+exit "$TESTSUITE_RESULT"
