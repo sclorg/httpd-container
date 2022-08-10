@@ -5,8 +5,6 @@ Apache HTTP Server Container Images
 
 Images available on Quay are:
 * CentOS 7 [httpd-24](https://quay.io/repository/centos7/httpd-24-centos7)
-* CentOS Stream 8 [httpd-2.4](https://quay.io/repository/sclorg/httpd-24-c8s)
-* CentOS Stream 9 [httpd-2.4](https://quay.io/repository/sclorg/httpd-24-c9s)
 * Fedora [httpd-2.4](https://quay.io/repository/fedora/httpd-24)
 
 This repository contains Dockerfiles for Apache HTTP Server images for OpenShift and general usage.
@@ -30,8 +28,6 @@ RHEL versions currently supported are:
 
 CentOS versions currently supported are:
 * CentOS 7
-* CentOS Stream 8
-* CentOS Stream 9
 
 
 Installation
