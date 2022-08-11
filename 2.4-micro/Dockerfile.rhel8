@@ -3,7 +3,7 @@ FROM ubi8/ubi AS build
 RUN mkdir -p /mnt/rootfs
 RUN dnf -y module enable httpd:2.4 && \
     MICRO_PKGS="coreutils-single glibc-minimal-langpack" && \
-    INSTALL_PKGS="$MICRO_PKGS httpd mod_ssl findutils hostname nss_wrapper" && \
+    INSTALL_PKGS="$MICRO_PKGS httpd mod_ssl findutils hostname nss_wrapper redhat-logos-httpd" && \
     dnf install --installroot /mnt/rootfs $INSTALL_PKGS --releasever 8 --setopt install_weak_deps=false --nodocs -y && \
     dnf -y --installroot /mnt/rootfs clean all && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
@@ -68,8 +68,11 @@ COPY 2.4-micro/core-scripts/usr /usr
 
 WORKDIR ${HOME}
 
-# Reset permissions of filesystem to default values
-RUN /usr/libexec/httpd-prepare
+# Add default user and prepare httpd
+RUN useradd -u 1001 -r -g 0 -d ${HOME} -s /sbin/nologin \
+      -c "Default Application User" default && \
+  chown -R 1001:0 ${APP_ROOT} && \
+  /usr/libexec/httpd-prepare
 
 USER 1001
 
