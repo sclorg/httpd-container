@@ -28,7 +28,7 @@ Virtual hosting allows one Apache installation to serve many different Web sites
     STI_SCRIPTS_PATH=/usr/libexec/s2i \
     APP_ROOT=/opt/app-root \
     HOME=/opt/app-root/src \
-    PLATFORM="el9"
+    PLATFORM="fedora"
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
@@ -45,7 +45,6 @@ EXPOSE 8080
 EXPOSE 8443
 
 COPY --from=build /mnt/rootfs/ /
-# COPY --from=build /etc/yum.repos.d/ubi.repo /etc/yum.repos.d/ubi.repo
 
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_APP_ROOT=${APP_ROOT} \
