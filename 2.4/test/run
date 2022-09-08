@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
 IMAGE_NAME="${IMAGE_NAME:-rhscl/httpd-24-rhel7}"
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
@@ -25,10 +24,8 @@ function run() {
     cmd="$1"
     expected_res="${2:-0}"
     msg="${3:-Running command '$cmd'}"
-    set +e
     run_command "$cmd" "$expected_res" "$msg"
     res=$?
-    set -e
     test "$res" -eq "$expected_res" && res=0 || res=1
     update_overall $res
     return $res
@@ -169,31 +166,16 @@ function run_self_cert_test() {
   run "diff ./configcert ./servercert >cert.diff"
 }
 
-function run_all_tests() {
-  for test_case in $TEST_LIST; do
-    : "Running test $test_case"
-    $test_case
-  done;
-}
-
 function run_dockerfiles_test() {
-  run "ct_test_app_dockerfile examples/Dockerfile 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
-  run "ct_test_app_dockerfile examples/Dockerfile.s2i 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
+  run "ct_test_app_dockerfile test/examples/Dockerfile 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
+  run "ct_test_app_dockerfile test/examples/Dockerfile.s2i 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
 }
 
 ct_enable_cleanup
 
-working_dir=`mktemp -d`
-# copy example files that we need for run_dockerfiles_test
-mkdir "$working_dir/examples"
-cp -r "${THISDIR}"/examples/* "$working_dir"/examples
-pushd "$working_dir" > /dev/null || exit 1
-
 CID_FILE_DIR=$(mktemp --suffix=httpd_test_cidfiles -d)
 
 s2i_args="--pull-policy=never"
-
-TESTSUITE_RESULT=0
 
 run "docker inspect $IMAGE_NAME >/dev/null || docker pull $IMAGE_NAME" 0
 
@@ -212,8 +194,5 @@ run_dockerfiles_test
 
 test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
 
-TEST_LIST=${@:-$TEST_LIST} run_all_tests
-
-popd > /dev/null
-
-exit "$TESTSUITE_RESULT"
+TEST_SUMMARY=''
+TEST_SET=${TEST_LIST} ct_run_tests_from_testset "all"
