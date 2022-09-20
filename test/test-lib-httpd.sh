@@ -21,7 +21,7 @@ function test_httpd_integration() {
 # Check the imagestream
 function test_httpd_imagestream() {
   case ${OS} in
-    rhel7|centos7) ;;
+    rhel7|centos7|rhel8) ;;
     *) echo "Imagestream testing not supported for $OS environment." ; return 0 ;;
   esac
 
