@@ -26,6 +26,8 @@ ct_os_check_compulsory_vars
 
 ct_os_check_login | exit 1
 
+ct_os_tag_image_for_cvp "httpd"
+
 set -u
 
 # For testing on OpenShift 4 we use internal registry
