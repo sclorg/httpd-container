@@ -5,7 +5,7 @@ if head "/etc/redhat-release" | grep -q "^Red Hat Enterprise Linux release 8"; t
 elif [ "x$PLATFORM" == "xel9" ]; then
   HTTPCONF_LINENO=156
 else
-  HTTPCONF_LINENO=151
+  HTTPCONF_LINENO=156
 fi
 
 gen_ssl_certs() {
