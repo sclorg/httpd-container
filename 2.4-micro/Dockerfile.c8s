@@ -1,4 +1,4 @@
-FROM ubi8/ubi AS build
+FROM quay.io/centos/centos:stream8 AS build
 
 RUN mkdir -p /mnt/rootfs
 RUN dnf -y module enable httpd:2.4 && \
@@ -8,7 +8,7 @@ RUN dnf -y module enable httpd:2.4 && \
     dnf -y --installroot /mnt/rootfs clean all && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
-FROM ubi8/ubi-micro
+FROM scratch
 # Apache HTTP Server image.
 #
 # Volumes:
@@ -37,11 +37,9 @@ LABEL summary="$SUMMARY" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="builder,httpd,httpd-24" \
-      name="rhel8/httpd-24-micro" \
+      name="sclorg/httpd-24-micro-c8s" \
       version="1" \
-      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
-      com.redhat.component="httpd-24-container" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ rhel8/httpd-24 sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/httpd-24-micro-c8s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
