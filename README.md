@@ -20,6 +20,7 @@ Versions
 --------
 Apache HTTPD versions currently provided are:
 * [httpd-2.4](2.4)
+* [httpd-2.4-micro](2.4-micro)
 
 RHEL versions currently supported are:
 * RHEL 7
