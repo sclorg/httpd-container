@@ -1,5 +1,5 @@
 Apache HTTP Server 2.4 Micro Container Image
-======================================
+==========================================
 
 This container image includes Apache HTTP Server 2.4 for OpenShift and general usage.
 Users can choose between RHEL, CentOS and Fedora based images.
