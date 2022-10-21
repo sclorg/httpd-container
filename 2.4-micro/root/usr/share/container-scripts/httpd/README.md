@@ -19,6 +19,8 @@ which extend the core functionality.
 These can range from server-side programming language support to authentication schemes.
 Virtual hosting allows one Apache installation to serve many different Web sites."
 
+Do note that this micro-sized image is optimized for size. As a result of this there is no DNF, YUM, RPM, or any other package manager application.
+If you need to install packages inside the image, please use the full sized image instead.
 
 Usage in OpenShift
 ------------------
