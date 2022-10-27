@@ -33,15 +33,15 @@ jobs:
             registry_namespace: "sclorg"
             tag: "c9s"
             suffix: "c9s"
-            quayio_username: "QUAY_IMAGE_BUILDER_USERNAME"
-            quayio_token: "QUAY_IMAGE_BUILDER_TOKEN"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
           - dockerfile_path: "2.4-micro"
             dockerfile: "Dockerfile.c8s"
             registry_namespace: "sclorg"
             tag: "c8s"
             suffix: "c8s"
-            quayio_username: "QUAY_IMAGE_BUILDER_USERNAME"
-            quayio_token: "QUAY_IMAGE_BUILDER_TOKEN"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
           - dockerfile_path: "2.4-micro"
             dockerfile: "Dockerfile.fedora"
             registry_namespace: "fedora"
@@ -58,7 +58,6 @@ jobs:
           registry_username: ${{ secrets[matrix.quayio_username] }}
           registry_token: ${{ secrets[matrix.quayio_token] }}
           dockerfile: ${{ matrix.dockerfile }}
-          docker_context: .
           dockerfile_path: ${{ matrix.dockerfile_path }}
           tag: ${{ matrix.tag }}
           suffix: ${{ matrix.suffix }}
