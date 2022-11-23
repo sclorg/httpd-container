@@ -28,13 +28,19 @@ gen_ssl_certs() {
 
   echo "---> Generating SSL key pair for httpd..."
   if [ -x "/usr/bin/sscg" ]; then
+    if sscg --help | grep -q dhparams-file; then
+          # This is not used by mod_ssl but sscg now generates it
+          # See https://bugzilla.redhat.com/show_bug.cgi?id=2143206
+          dhparams=$HTTPD_TLS_CERT_PATH/dhparams.pem
+    fi
     sscg -q                                                           \
        --cert-file           $sslcert                                 \
        --cert-key-file       $sslkey                                  \
        --ca-file             $sslcert                                 \
        --lifetime            365                                      \
        --hostname            $fqdn                                    \
-       --email               root@$fqdn
+       --email               root@$fqdn                               \
+       ${dhparams+--dhparams-file $dhparams}
   else
     openssl genrsa -rand /proc/apm:/proc/cpuinfo:/proc/dma:/proc/filesystems:/proc/interrupts:/proc/ioports:/proc/pci:/proc/rtc:/proc/uptime 2048 > ${sslkey} 2> /dev/null
 
