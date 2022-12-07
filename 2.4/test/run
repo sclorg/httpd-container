@@ -171,9 +171,7 @@ function run_dockerfiles_test() {
   run "ct_test_app_dockerfile test/examples/Dockerfile.s2i 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
 }
 
-ct_enable_cleanup
-
-CID_FILE_DIR=$(mktemp --suffix=httpd_test_cidfiles -d)
+ct_init
 
 s2i_args="--pull-policy=never"
 
@@ -194,5 +192,4 @@ run_dockerfiles_test
 
 test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
 
-TEST_SUMMARY=''
 TEST_SET=${TEST_LIST} ct_run_tests_from_testset "all"
