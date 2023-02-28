@@ -13,13 +13,6 @@ function _container_is_scl() {
   return $?
 }
 
-function update_overall() {
-    res="$1"
-    if [ "$res" != 0 ]; then
-        TESTSUITE_RESULT="$res"
-    fi
-}
-
 function run() {
     cmd="$1"
     expected_res="${2:-0}"
@@ -27,7 +20,7 @@ function run() {
     run_command "$cmd" "$expected_res" "$msg"
     res=$?
     test "$res" -eq "$expected_res" && res=0 || res=1
-    update_overall $res
+    ct_check_testcase_result $res
     return $res
 }
 
