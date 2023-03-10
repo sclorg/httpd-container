@@ -5,19 +5,21 @@ on:
 jobs:
   openshift-tests:
     # This job only runs for '[test-all]' or '[test-openshift] pull request comments by owner, member
-    name: "OpenShift tests: ${{ matrix.version }} - ${{ matrix.os_test }}"
+    name: "${{ matrix.test_case }} tests: ${{ matrix.version }} - ${{ matrix.os_test }}"
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
         version: [ "2.4" ]
         os_test: [ "centos7", "rhel7", "rhel8", "rhel9"]
-        test_case: [ "openshift-4" ]
-        include:
-          - os_test: "centos7"
-            test_case: "openshift-3"
-          - os_test: "rhel7"
-            test_case: "openshift-3"
+        test_case: [ "openshift-3", "openshift-4" ]
+        exclude:
+          - test_case: "openshift-4"
+            os_test: "centos7"
+          - test_case: "openshift-3"
+            os_test: "rhel8"
+          - test_case: "openshift-3"
+            os_test: "rhel9"
 
     if: |
       github.event.issue.pull_request
