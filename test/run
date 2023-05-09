@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+
+IMAGE_NAME="${IMAGE_NAME:-rhscl/httpd-24-rhel7}"
+
+THISDIR=$(dirname ${BASH_SOURCE[0]})
+. ${THISDIR}/utils.sh
+test_dir="$(readlink -f $(dirname "${BASH_SOURCE[0]}"))"
+
+. "$test_dir/test-lib.sh"
+
+function _container_is_scl() {
+  docker inspect --format='{{.Config.Env}}' "${1-$IMAGE_NAME}" | grep -q HTTPD_SCL
+  return $?
+}
+
+function run() {
+    cmd="$1"
+    expected_res="${2:-0}"
+    msg="${3:-Running command '$cmd'}"
+    run_command "$cmd" "$expected_res" "$msg"
+    res=$?
+    test "$res" -eq "$expected_res" && res=0 || res=1
+    ct_check_testcase_result $res
+    return $res
+}
+
+function run_default_page_test() {
+  # Check default page
+  run "ct_create_container test_default_page"
+  cip=$(ct_get_cip 'test_default_page')
+  if [[ "${OS}" == "c9s" ]] || [[ "${OS}" == "c8s" ]]; then
+    run "ct_test_response '${cip}':8080 403 'HTTP Server Test Page' 50"
+  else
+    run "ct_test_response '${cip}':8080 403 'Test Page for the (Apache )?HTTP Server on' 50"
+  fi
+}
+
+function run_as_root_test() {
+  # Try running as root
+  CONTAINER_ARGS="--user 0" run "ct_create_container test_run_as_root"
+  cip=$(ct_get_cip 'test_run_as_root')
+  if [[ "${OS}" == "c9s" ]] || [[ "${OS}" == "c8s" ]]; then
+    run "ct_test_response '${cip}':8080 403 'HTTP Server Test Page'"
+  else
+    run "ct_test_response '${cip}':8080 403 'Test Page for the (Apache )?HTTP Server on'"
+  fi
+}
+
+
+function run_log_to_volume_test() {
+  _run_invalid_log_volume_test
+  if _container_is_scl ; then
+    _run_log_to_volume_test old /var/log/httpd24
+  else
+    _run_log_to_volume_test new /var/log/httpd
+  fi
+}
+
+function _run_log_to_volume_test() {
+  # Check the HTTP_LOG_TO_VOLUME env variable
+  local variant=${1}
+  local volume_dir=${2}
+  local logs_dir=$(mktemp -d /tmp/httpd-test-volume-XXXXXX)
+  run "ls -d ${logs_dir} || mkdir ${logs_dir}" 0 'Create log directory'
+  run "chown -R 1001:1001 ${logs_dir}"
+  run "chcon -Rvt svirt_sandbox_file_t ${logs_dir}" 0 'Change SELinux context on the log dir'
+  CONTAINER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 0 -v ${logs_dir}:${volume_dir}" run "ct_create_container test_log_dir_${variant}"
+  cip=$(ct_get_cip "test_log_dir_${variant}")
+  run "ct_test_response '${cip}':8080 403 '.*' > /dev/null"
+  ls ${logs_dir} > output
+  run "grep -e '^access_log$' output" 0 "Checking that file access_log exists"
+  run "grep -e '^error_log$' output" 0 "Checking that file error_log exists"
+  run "grep -e '^ssl_access_log$' output" 0 "Checking that file ssl_access_log exists"
+  run "grep -e '^ssl_error_log$' output" 0 "Checking that file ssl_error_log exists"
+  run "grep -e '^ssl_request_log$' output" 0 "Checking that file ssl_request_log exists"
+}
+
+function _run_invalid_log_volume_test() {
+  # Check wrong usage of the HTTP_LOG_TO_VOLUME env variable
+  CONTAINER_ARGS="-e HTTPD_LOG_TO_VOLUME=1 --user 1001" run "ct_create_container test_log_dir_fail"
+  sleep 3
+  cid=$(ct_get_cid "test_log_dir_fail")
+  exit_status=$(docker inspect -f '{{.State.ExitCode}}' ${cid})
+  run "test $exit_status == 1" 0 "Checking that setting HTTPD_LOG_TO_VOLUME is not allowed if UID is not 0"
+}
+
+
+function run_data_volume_test() {
+  if _container_is_scl ; then
+     _run_data_volume_test old /opt/rh/httpd24/root/var/www
+  fi
+   _run_data_volume_test new /var/www
+}
+
+function _run_data_volume_test() {
+  local variant=${1}
+  local volume_dir=${2}
+  # Test that docker volume for DocumentRoot works
+  datadir=$(mktemp -d /tmp/httpd-test-data-XXXXXX)
+  run "mkdir -p ${datadir}/html" 0 'Create document root'
+  run "echo hello > ${datadir}/html/index.html"
+  run "chown -R 1001:1001 ${datadir}"
+  run "chcon -Rvt svirt_sandbox_file_t ${datadir}/" 0 'Change SELinux context on the document root'
+  CONTAINER_ARGS="-v ${datadir}:${volume_dir}" run "ct_create_container test_doc_root_${variant}"
+  cip=$(ct_get_cip "test_doc_root_${variant}")
+  run "ct_test_response '${cip}:8080' 200 '^hello$'"
+}
+
+function _run_mpm_config_test() {
+  local mpm=$1
+  # Check worker MPM can be configured
+  CONTAINER_ARGS="-e HTTPD_MPM=$mpm --user 1001" run "ct_create_container test_mpm_${mpm}"
+  cid=$(ct_get_cid "test_mpm_$mpm")
+  cip=$(ct_get_cip "test_mpm_$mpm")
+  run "ct_test_response '${cip}:8080' 403 '.*'"
+  run "docker logs $cid | grep -s mpm_${mpm}':notice.*resuming normal operations'"
+}
+
+function run_mpm_config_test() {
+  for m in worker event prefork; do
+    _run_mpm_config_test $m
+  done
+}
+
+function run_s2i_test() {
+  # Test s2i use case
+  # Since we built the candidate image locally, we don't want S2I attempt to pull
+  # it from Docker hub
+  run "ct_s2i_usage ${IMAGE_NAME} ${s2i_args}" 0 "Testing 's2i usage'"
+  run "ct_s2i_build_as_df file://${test_dir}/sample-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp ${s2i_args}" 0 "Testing 's2i build'"
+  CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-testapp ct_create_container testing-app-s2i
+  cip=$(ct_get_cip 'testing-app-s2i')
+  run "ct_test_response '${cip}:8080' 200 'This is a sample s2i application with static content.'"
+}
+
+function run_pre_init_test() {
+  # Test s2i use case #2 - testing pre-init script
+  # Since we built the candidate image locally, we don't want S2I attempt to pull
+  # it from Docker hub
+  run "ct_s2i_build_as_df file://${test_dir}/pre-init-test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp2 ${s2i_args}" 0 "Testing 's2i build' with pre-init script"
+  CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-testapp2 ct_create_container testing-app-pre-init
+  cip=$(ct_get_cip 'testing-app-pre-init')
+  run "ct_test_response '${cip}:8080' 200 'This content was replaced by pre-init script.'"
+}
+
+function run_self_cert_test() {
+  # Test s2i use case #3 - using own ssl certs
+  # Since we built the candidate image locally, we don't want S2I attempt to pull
+  # it from Docker hub
+  run "ct_s2i_build_as_df file://${test_dir}/self-signed-ssl ${IMAGE_NAME} ${IMAGE_NAME}-self-signed ${s2i_args}" 0 "Testing 's2i build' with self-signed cert"
+  CONTAINER_ARGS='--user 1000' IMAGE_NAME=${IMAGE_NAME}-self-signed ct_create_container testing-self-signed
+  cip=$(ct_get_cip 'testing-self-signed')
+  run "ct_test_response '${cip}:8080' 200 '.*'"
+  run "curl -k https://${cip}:8443 > output_ssl_cert"
+  run "fgrep -e 'SSL test works' output_ssl_cert"
+  echo | openssl s_client -showcerts -servername ${cip} -connect ${cip}:8443 2>/dev/null | openssl x509 -inform pem -noout -text >./servercert
+  openssl x509 -in ${test_dir}/self-signed-ssl/httpd-ssl/certs/server-cert-selfsigned.pem -inform pem -noout -text >./configcert
+  run "diff ./configcert ./servercert"
+  run "diff ./configcert ./servercert >cert.diff"
+}
+
+function run_dockerfiles_test() {
+  run "ct_test_app_dockerfile test/examples/Dockerfile 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
+  run "ct_test_app_dockerfile test/examples/Dockerfile.s2i 'https://github.com/sclorg/httpd-ex.git' 'Welcome to your static httpd application on OpenShift' app-src" 0
+}
+
+ct_init
+
+s2i_args="--pull-policy=never"
+
+run "docker inspect $IMAGE_NAME >/dev/null || docker pull $IMAGE_NAME" 0
+
+
+TEST_LIST="\
+run_self_cert_test
+run_default_page_test
+run_as_root_test
+run_log_to_volume_test
+run_data_volume_test
+run_s2i_test
+run_pre_init_test
+run_mpm_config_test
+run_dockerfiles_test
+"
+
+test $# -eq 1 -a "${1-}" == --list && echo "$TEST_LIST" && exit 0
+
+TEST_SET=${TEST_LIST} ct_run_tests_from_testset "all"
