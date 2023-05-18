@@ -1,0 +1,1 @@
+--cap-add=CAP_SYS_CHROOT
