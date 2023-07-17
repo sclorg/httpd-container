@@ -15,12 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: "2.4/Dockerfile"
-            registry_namespace: "centos7"
-            tag: "centos7"
-            image_name: "httpd-24-centos7"
-            quayio_username: "QUAY_IMAGE_BUILDER_USERNAME"
-            quayio_token: "QUAY_IMAGE_BUILDER_TOKEN"
           - dockerfile: "2.4/Dockerfile.fedora"
             registry_namespace: "fedora"
             tag: "2.4"
