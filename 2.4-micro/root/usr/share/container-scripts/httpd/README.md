@@ -2,9 +2,9 @@ Apache HTTP Server 2.4 Micro Container Image
 ==========================================
 
 This container image includes Apache HTTP Server 2.4 for OpenShift and general usage.
-Users can choose between RHEL, CentOS and Fedora based images.
+Users can choose between RHEL, CentOS Stream and Fedora based images.
 The RHEL images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/),
-the CentOS images are available on [Quay.io](https://quay.io/organization/centos7),
+the CentOS Stream images are available on [Quay.io](https://quay.io/organization/sclorg),
 and the Fedora images are available in [Fedora Registry](https://registry.fedoraproject.org/).
 The resulting image can be run using [podman](https://github.com/containers/libpod).
 
@@ -245,6 +245,6 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/httpd-container.
-In that repository, the Dockerfile for CentOS7 is called Dockerfile, the Dockerfile
-for RHEL7 is called Dockerfile.rhel7, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
+In that repository, the Dockerfile for RHEL7 is called Dockerfile.rhel7,
+the Dockerfile for RHEL8 is called Dockerfile.rhel8,
 and the Dockerfile for Fedora is called Dockerfile.fedora.
