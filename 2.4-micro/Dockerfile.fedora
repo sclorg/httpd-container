@@ -3,7 +3,7 @@ FROM quay.io/fedora/fedora:rawhide AS build
 RUN mkdir -p /mnt/rootfs
 RUN MICRO_PKGS="coreutils-single glibc-minimal-langpack" && \
     INSTALL_PKGS="$MICRO_PKGS httpd-core mod_ssl findutils hostname nss_wrapper-libs fedora-logos-httpd" && \
-    dnf install --installroot /mnt/rootfs $INSTALL_PKGS --releasever 36 --setopt install_weak_deps=false --nodocs -y && \
+    dnf install --installroot /mnt/rootfs --use-host-config $INSTALL_PKGS --releasever 39 --setopt install_weak_deps=false --nodocs -y && \
     dnf -y --installroot /mnt/rootfs clean all && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
