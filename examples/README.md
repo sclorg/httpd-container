@@ -1,6 +1,6 @@
 # Examples of HTTPD container image usage
 =========================================
-This directory includes several examples of how to use the httpd container to serve static HTML content.
+This directory ONE includes several examples of how to use the httpd container to serve static HTML content.
 
 Building and deploying in OpenShift
 -------------------
