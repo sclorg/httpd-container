@@ -38,6 +38,7 @@ RUN dnf install -y yum-utils gettext hostname && \
     INSTALL_PKGS="nss_wrapper bind-utils httpd mod_ssl mod_ldap mod_session mod_security sscg" && \
     dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
+    httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
     dnf clean all
 
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
