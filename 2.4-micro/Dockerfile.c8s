@@ -66,8 +66,7 @@ COPY 2.4-micro/core-scripts/usr /usr
 WORKDIR ${HOME}
 
 # Add default user and prepare httpd
-RUN useradd -u 1001 -r -g 0 -d ${HOME} -s /sbin/nologin \
-      -c "Default Application User" default && \
+RUN useradd -u 1001 -r -g 0 -d ${HOME} -c "Default Application User" default && \
   chown -R 1001:0 ${APP_ROOT} && \
   httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
   /usr/libexec/httpd-prepare
