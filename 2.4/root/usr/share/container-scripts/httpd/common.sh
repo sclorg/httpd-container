@@ -160,7 +160,7 @@ generate_container_user() {
   export USER_ID=$(id -u)
   export GROUP_ID=$(id -g)
   cp ${HTTPD_CONTAINER_SCRIPTS_PATH}/passwd.template ${passwd_output_dir}/passwd
-  echo "default:x:${USER_ID}:${GROUP_ID}:Default Application User:${HOME}:/sbin/nologin" >> ${passwd_output_dir}/passwd
+  echo "default:x:${USER_ID}:${GROUP_ID}:Default Application User:${HOME}:/bin/bash" >> ${passwd_output_dir}/passwd
   export LD_PRELOAD=libnss_wrapper.so
   export NSS_WRAPPER_PASSWD=${passwd_output_dir}/passwd
   export NSS_WRAPPER_GROUP=/etc/group
