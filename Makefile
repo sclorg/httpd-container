@@ -1,6 +1,6 @@
 # Variables are documented in common/build.sh.
 BASE_IMAGE_NAME = httpd
-VERSIONS = 2.4 2.4-micro
+VERSIONS = 2.4-micro 2.4
 OPENSHIFT_NAMESPACES = 
 DOCKER_BUILD_CONTEXT = ..
 
