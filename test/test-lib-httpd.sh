@@ -31,4 +31,19 @@ function test_httpd_imagestream() {
                               "This is a sample s2i application with static content"
 }
 
+function test_httpd_example_repo {
+  BRANCH_TO_TEST=master
+  # test remote example app
+  ct_os_test_s2i_app "${IMAGE_NAME}" "https://github.com/sclorg/httpd-ex#${BRANCH_TO_TEST}" \
+                      "." \
+                      'Welcome to your static httpd application on OpenShift'
+}
+
+function test_latest_imagestreams() {
+  # Switch to root directory of a container
+  pushd ${THISDIR}/../.. >/dev/null
+  ct_check_latest_imagestreams
+  popd >/dev/null
+}
+
 # vim: set tabstop=2:shiftwidth=2:expandtab:
