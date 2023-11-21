@@ -19,13 +19,6 @@ set -eo nounset
 
 trap ct_os_cleanup EXIT SIGINT
 
-function test_latest_imagestreams() {
-  # Switch to root directory of a container
-  pushd ${test_dir}/../.. >/dev/null
-  ct_check_latest_imagestreams
-  popd >/dev/null
-}
-
 ct_os_check_compulsory_vars
 
 ct_os_enable_print_logs
