@@ -34,7 +34,7 @@ function test_httpd_imagestream() {
 function test_httpd_example_repo {
   BRANCH_TO_TEST=master
   # test remote example app
-  ct_os_test_s2i_app "${IMAGE_NAME}" "https://github.com/sclorg/httpd-ex#${BRANCH_TO_TEST}" \
+  ct_os_test_s2i_app "${IMAGE_NAME}" "https://github.com/phracek/httpd-ex#migrate_deployment" \
                       "." \
                       'Welcome to your static httpd application on OpenShift'
 }
