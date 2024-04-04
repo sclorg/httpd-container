@@ -1,0 +1,52 @@
+---
+- name: httpd
+  pretty_name: Apache HTTP Server
+  sample_repo: https://github.com/sclorg/httpd-ex.git
+  category: builder
+  description: >-
+    Build and serve static content via Apache HTTP Server (httpd) APP_VERSION on
+    DISTRO_NAME. For more information about using this builder image, including
+    OpenShift considerations, see
+    https://github.com/sclorg/httpd-container/blob/master/APP_VERSION/README.md.
+  imagestream_files:
+  - filename: httpd-centos.json
+    latest: "2.4-ubi9"
+    distros:
+      - name: UBI 8
+        app_versions: ["2.4"]
+
+      - name: UBI 9
+        app_versions: ["2.4"]
+
+      - name: CentOS Stream 8
+        app_versions: ["2.4-micro"]
+
+      - name: CentOS Stream 9
+        app_versions: ["2.4-micro"]
+
+  - filename: httpd-rhel.json
+    latest: "2.4-ubi8"
+    distros:
+      - name: UBI 8
+        app_versions: ["2.4"]
+
+      - name: UBI 9
+        app_versions: ["2.4"]
+
+      - name: RHEL 7
+        app_versions: ["2.4"]
+
+      - name: RHEL 8
+        app_versions: ["2.4"]
+
+  - filename: httpd-rhel-aarch64.json
+    latest: "2.4-ubi8"
+    distros:
+      - name: UBI 8
+        app_versions: ["2.4"]
+
+      - name: UBI 9
+        app_versions: ["2.4"]
+
+      - name: RHEL 8
+        app_versions: ["2.4"]
