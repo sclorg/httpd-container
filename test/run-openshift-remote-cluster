@@ -22,6 +22,9 @@ test_latest_imagestreams
 
 trap ct_os_cleanup EXIT SIGINT
 
+# For testing on shared OpenShift 4 cluster we use this variable
+export SHARED_CLUSTER=true
+
 ct_os_set_ocp4 || exit $OC_ERR
 
 ct_os_check_compulsory_vars || exit $OC_ERR
@@ -31,9 +34,6 @@ ct_os_check_login || exit $OC_ERR
 ct_os_tag_image_for_cvp "httpd"
 
 set -u
-
-# For testing on OpenShift 4 we use internal registry
-export CT_OCP4_TEST=true
 
 TEST_SUMMARY=''
 TEST_SET=${TESTS:-$TEST_LIST} ct_run_tests_from_testset "openshift-remote-cluster"
