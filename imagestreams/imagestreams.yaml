@@ -18,9 +18,6 @@
       - name: UBI 9
         app_versions: ["2.4"]
 
-      - name: CentOS Stream 8
-        app_versions: ["2.4-micro"]
-
       - name: CentOS Stream 9
         app_versions: ["2.4-micro"]
 
