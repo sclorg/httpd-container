@@ -16,6 +16,7 @@ jobs:
       matrix:
         include:
           - dockerfile: "2.4/Dockerfile.fedora"
+            docker_context: "2.4"
             registry_namespace: "fedora"
             tag: "2.4"
             quayio_username: "QUAY_IMAGE_FEDORA_BUILDER_USERNAME"
@@ -23,6 +24,7 @@ jobs:
             image_name: "httpd-24"
 
           - dockerfile: "2.4-micro/Dockerfile.c9s"
+            docker_context: "2.4-micro"
             registry_namespace: "sclorg"
             tag: "c9s"
             image_name: "httpd-24-micro-c9s"
@@ -30,6 +32,7 @@ jobs:
             quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
 
           - dockerfile: "2.4/Dockerfile.c9s"
+            docker_context: "2.4"
             registry_namespace: "sclorg"
             tag: "c9s"
             image_name: "httpd-24-c9s"
@@ -37,6 +40,7 @@ jobs:
             quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
 
           - dockerfile: "2.4-micro/Dockerfile.fedora"
+            docker_context: "2.4-micro"
             registry_namespace: "fedora"
             tag: "2.4"
             quayio_username: "QUAY_IMAGE_FEDORA_BUILDER_USERNAME"
@@ -54,3 +58,5 @@ jobs:
           dockerfile: ${{ matrix.dockerfile }}
           tag: ${{ matrix.tag }}
           image_name: ${{ matrix.image_name }}
+          readme: "${{ matrix.docker_context }}/README.md"
+          quay_application_token: ${{ secrets.QUAY_IMAGE_SCLORG_UPDATE_DESC }}
