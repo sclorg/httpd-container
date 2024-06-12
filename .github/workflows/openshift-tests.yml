@@ -29,7 +29,10 @@ jobs:
       matrix:
         version: [ "2.4" ]
         os_test: [ "rhel7", "rhel8", "rhel9"]
-        test_case: [ "openshift-4" ]
+        test_case: [ "openshift-4", "openshift-pytest" ]
+        exclude:
+          - test_case: "openshift-pytest"
+            os_test: "rhel7"
 
     steps:
       - uses: sclorg/tfaga-wrapper@main
