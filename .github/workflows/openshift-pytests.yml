@@ -10,26 +10,26 @@ jobs:
       statuses: write
     if: |
       github.event.issue.pull_request
-      && (contains(github.event.comment.body, '[test-openshift]') || contains(github.event.comment.body, '[test-all]'))
+      && (contains(github.event.comment.body, '[test-openshift-pytest]') || contains(github.event.comment.body, '[test-all]'))
       && contains(fromJson('["OWNER", "MEMBER"]'), github.event.comment.author_association)
     steps:
       - uses: sclorg/ci-scripts/ocp-stream-generator@master
         with:
           ref: "refs/pull/${{ github.event.issue.number }}/head"
 
-  openshift-tests:
-    name: "${{ matrix.test_case }} tests: ${{ matrix.version }} - ${{ matrix.os_test }}"
+  openshift-pytests:
+    name: "${{ matrix.test_case }} PyTests: ${{ matrix.version }} - ${{ matrix.os_test }}"
     runs-on: ubuntu-latest
     needs: check-imagestreams
     concurrency:
-      group: ocp-${{ github.event.issue.number }}-${{ matrix.version }}-${{ matrix.os_test }}
+      group: ocp-pytest-${{ github.event.issue.number }}-${{ matrix.version }}-${{ matrix.os_test }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
         version: [ "2.4" ]
-        os_test: [ "rhel7", "rhel8", "rhel9"]
-        test_case: [ "openshift-4" ]
+        os_test: [ "rhel8", "rhel9"]
+        test_case: [ "openshift-pytest" ]
 
     steps:
       - uses: sclorg/tfaga-wrapper@main
