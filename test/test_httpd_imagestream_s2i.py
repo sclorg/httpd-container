@@ -1,8 +1,7 @@
 import os
 import sys
-import pytest
 
-from pathlib import Path
+import pytest
 
 from container_ci_suite.openshift import OpenShiftAPI
 from container_ci_suite.utils import get_service_image, check_variables
@@ -27,8 +26,9 @@ class TestHTTPDImagestreamS2I:
         self.oc_api.delete_project()
 
     def test_inside_cluster(self):
+        os_name = ''.join(i for i in OS if not i.isdigit())
         assert self.oc_api.deploy_imagestream_s2i(
-            imagestream_file=f"imagestreams/httpd-{OS}.json",
+            imagestream_file=f"imagestreams/httpd-{os_name}.json",
             image_name=IMAGE_NAME,
             app="https://github.com/sclorg/httpd-container.git",
             context="examples/sample-test-app"

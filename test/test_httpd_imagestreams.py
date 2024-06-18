@@ -1,6 +1,5 @@
 import os
 import sys
-import pytest
 
 from pathlib import Path
 
@@ -17,7 +16,7 @@ if not check_variables():
 class TestLatestImagestreams:
 
     def setup_method(self):
-        self.isc = ImageStreamChecker(working_dir=TEST_DIR / ".." / "..")
+        self.isc = ImageStreamChecker(working_dir=TEST_DIR.parent.parent)
 
     def test_latest_imagestream(self):
         self.latest_version = self.isc.get_latest_version()
