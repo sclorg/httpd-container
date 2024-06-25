@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE_NAME="${IMAGE_NAME:-rhscl/httpd-24-rhel7}"
+IMAGE_NAME="${IMAGE_NAME:-rhel8/httpd-24}"
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
 . ${THISDIR}/utils.sh

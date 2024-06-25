@@ -30,15 +30,9 @@
       - name: UBI 9
         app_versions: ["2.4"]
 
-      - name: RHEL 7
-        app_versions: ["2.4"]
-
       - name: RHEL 8
         app_versions: ["2.4"]
-    custom_tags:
-      - name: "2.4"
-        distro: RHEL 7
-        app_version: "2.4"
+
 
   - filename: httpd-rhel-aarch64.json
     latest: "2.4-ubi8"
