@@ -4,7 +4,6 @@ Apache HTTP Server Container Images
 [![Build and push images to Quay.io registry](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml)
 
 Images available on Quay are:
-* CentOS 7 [httpd-24](https://quay.io/repository/centos7/httpd-24-centos7)
 * Fedora [httpd-2.4](https://quay.io/repository/fedora/httpd-24)
 
 This repository contains Dockerfiles for Apache HTTP Server images for OpenShift and general usage.
@@ -23,25 +22,24 @@ Apache HTTPD versions currently provided are:
 * [httpd-2.4-micro](2.4-micro)
 
 RHEL versions currently supported are:
-* RHEL 7
 * RHEL 8
 * RHEL 9
 
-CentOS versions currently supported are:
-* CentOS 7
+CentOS Stream versions currently supported are:
+* CentOS Stream 9
 
 
 Installation
 ------------
-Choose either the CentOS7 or RHEL7 based image:
+Choose either the CentOS Stream 9 or RHEL8 based image:
 
-*  **RHEL7 based image**
+*  **RHEL8 based image**
 
-    These images are available in the [Red Hat Container Catalog](https://access.redhat.com/containers/#/registry.access.redhat.com/rhscl/httpd-24-rhel7).
+    These images are available in the [Red Hat Container Catalog](https://catalog.redhat.com/software/containers/ubi8/httpd-24/6065b844aee24f523c207943?architecture=amd64&image=6660528072b80acc3c2193f3&container-tabs=overview).
     To download it run:
 
     ```
-    $ podman pull registry.access.redhat.com/rhscl/httpd-24-rhel7
+    $ podman pull registry.access.redhat.com/rhel8/httpd-24
     ```
 
     To build a RHEL7 based Apache HTTP Server image, you need to run Docker build on a properly
@@ -51,15 +49,15 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
     $ git submodule update --init
-    $ make build TARGET=rhel7 VERSIONS=2.4
+    $ make build TARGET=rhel8 VERSIONS=2.4
     ```
 
-*  **CentOS7 based image**
+*  **CentOS Stream 9 based image**
 
     This image is available on DockerHub. To download it run:
 
     ```
-    $ podman pull quay.io/centos7/httpd-24-centos7
+    $ podman pull quay.io/sclorg/httpd-24-c9s
     ```
 
     To build a CentOS based Apache HTTP Server image from scratch run:
@@ -68,7 +66,7 @@ Choose either the CentOS7 or RHEL7 based image:
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
     $ git submodule update --init
-    $ make build TARGET=centos7 VERSIONS=2.4
+    $ make build TARGET=c9s VERSIONS=2.4
     ```
 
 For using other versions of Apache HTTP Server, just replace the `2.4` value by particular version
@@ -98,13 +96,13 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS im
 
 *  **RHEL based image**
 
-    To test a RHEL7 based Apache HTTP Server image, you need to run the test on a properly
+    To test a RHEL8 based Apache HTTP Server image, you need to run the test on a properly
     subscribed RHEL machine.
 
     ```
     $ cd httpd-container
     $ git submodule update --init
-    $ make test TARGET=rhel7 VERSIONS=2.4
+    $ make test TARGET=rhel8 VERSIONS=2.4
     ```
 
 *  **CentOS based image**
@@ -112,7 +110,7 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS im
     ```
     $ cd httpd-container
     $ git submodule update --init
-    $ make test TARGET=centos7 VERSIONS=2.4
+    $ make test TARGET=c9s VERSIONS=2.4
     ```
 
 For using other versions of Apache HTTP Server, just replace the `2.4` value by particular version

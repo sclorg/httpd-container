@@ -11,7 +11,7 @@ oc new-app rhel8/httpd-24~https://github.com/sclorg/httpd-ex.git
 Building with s2i
 -------------------
 ```
-s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ centos/httpd-24-centos7 httpd-sample-app
+s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/httpd-24-c9s httpd-sample-app
 ```
 The `s2i` binary can be obtained from https://github.com/openshift/source-to-image.
 
