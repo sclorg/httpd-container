@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream9 AS build
+FROM quay.io/centos/centos:stream10-development AS build
 
 RUN mkdir -p /mnt/rootfs
 RUN MICRO_PKGS="coreutils-single glibc-minimal-langpack" && \
@@ -16,7 +16,9 @@ FROM scratch
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-ENV HTTPD_VERSION=2.4
+ENV HTTPD_VERSION=2.4 \
+    HTTPD_SHORT_VERSION=24 \
+    NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
     DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
@@ -28,17 +30,17 @@ Virtual hosting allows one Apache installation to serve many different Web sites
     STI_SCRIPTS_PATH=/usr/libexec/s2i \
     APP_ROOT=/opt/app-root \
     HOME=/opt/app-root/src \
-    PLATFORM="el9"
+    PLATFORM="el10"
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd-24" \
-      name="sclorg/httpd-24-micro-c9s" \
+      io.openshift.tags="builder,httpd,httpd-$HTTPD_SHORT_VERSION" \
+      name="sclorg/$NAME-$HTTPD_SHORT_VERSION-micro-c10s" \
       version="1" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/httpd-24-micro-c9s sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/$NAME-$HTTPD_SHORT_VERSION-micro-c10s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080

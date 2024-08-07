@@ -8,7 +8,9 @@ FROM ubi9/s2i-core:1
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-ENV HTTPD_VERSION=2.4
+ENV HTTPD_VERSION=2.4 \
+    HTTPD_SHORT_VERSION=24 \
+    NAME
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
     DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
@@ -22,12 +24,12 @@ LABEL summary="$SUMMARY" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd-24" \
-      name="rhel9/httpd-24" \
+      io.openshift.tags="builder,$NAME,$NAME-$HTTPD_SHORT_VERSION" \
+      name="rhel9/$NAME-$HTTPD_SHORT_VERSION" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
-      com.redhat.component="httpd-24-container" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ rhel9/httpd-24 sample-server" \
+      com.redhat.component="$NAME-$HTTPD_SHORT_VERSION-container" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ rhel9/$NAME-$HTTPD_SHORT_VERSION sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080

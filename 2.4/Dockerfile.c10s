@@ -1,4 +1,4 @@
-FROM quay.io/sclorg/s2i-core-c9s:c9s
+FROM quay.io/sclorg/s2i-core-c10s:c10s
 
 # Apache HTTP Server image.
 #
@@ -8,7 +8,9 @@ FROM quay.io/sclorg/s2i-core-c9s:c9s
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-ENV HTTPD_VERSION=2.4
+ENV HTTPD_VERSION=2.4 \
+    HTTPD_SHORT_VERSION=24 \
+    NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
     DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
@@ -22,18 +24,18 @@ LABEL summary="$SUMMARY" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd-24" \
-      name="sclorg/httpd-24-c9s" \
+      io.openshift.tags="builder,$NAME,$NAME-$HTTPD_SHORT_VERSION" \
+      name="sclorg/$NAME-$HTTPD_SHORT_VERSION-c10s" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
       com.redhat.component="httpd-24-container" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/httpd-24-c9s sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/$NAME-$HTTPD_SHORT_VERSION-c10s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
 EXPOSE 8443
 
-RUN INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd mod_ssl mod_ldap mod_session mod_security mod_auth_mellon sscg" && \
+RUN INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd mod_ssl mod_ldap mod_session sscg" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
