@@ -10,7 +10,7 @@ FROM ubi9/s2i-core:1
 
 ENV HTTPD_VERSION=2.4 \
     HTTPD_SHORT_VERSION=24 \
-    NAME
+    NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
     DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
