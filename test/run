@@ -28,7 +28,7 @@ function run_default_page_test() {
   # Check default page
   run "ct_create_container test_default_page"
   cip=$(ct_get_cip 'test_default_page')
-  if [[ "${OS}" == "c9s" ]] || [[ "${OS}" == "c8s" ]]; then
+  if [[ "${OS}" == "c9s" ]] || [[ "${OS}" == "c10s" ]]; then
     run "ct_test_response '${cip}':8080 403 'HTTP Server Test Page' 50"
   else
     run "ct_test_response '${cip}':8080 403 'Test Page for the (Apache )?HTTP Server on' 50"
@@ -39,7 +39,7 @@ function run_as_root_test() {
   # Try running as root
   CONTAINER_ARGS="--user 0" run "ct_create_container test_run_as_root"
   cip=$(ct_get_cip 'test_run_as_root')
-  if [[ "${OS}" == "c9s" ]] || [[ "${OS}" == "c8s" ]]; then
+  if [[ "${OS}" == "c9s" ]] || [[ "${OS}" == "c10s" ]]; then
     run "ct_test_response '${cip}':8080 403 'HTTP Server Test Page'"
   else
     run "ct_test_response '${cip}':8080 403 'Test Page for the (Apache )?HTTP Server on'"
