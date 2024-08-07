@@ -27,11 +27,12 @@ RHEL versions currently supported are:
 
 CentOS Stream versions currently supported are:
 * CentOS Stream 9
+* CentOS Stream 10
 
 
 Installation
 ------------
-Choose either the CentOS Stream 9 or RHEL8 based image:
+Choose either the CentOS Stream 9, CentOS Stream 10 or RHEL8 based image:
 
 *  **RHEL8 based image**
 
@@ -92,7 +93,7 @@ Test
 This repository also provides a test framework, which checks basic functionality
 of the Apache HTTP Server image.
 
-Users can choose between testing Apache HTTP Server based on a RHEL or CentOS image.
+Users can choose between testing Apache HTTP Server based on a RHEL or CentOS Stream image.
 
 *  **RHEL based image**
 
@@ -105,7 +106,7 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS im
     $ make test TARGET=rhel8 VERSIONS=2.4
     ```
 
-*  **CentOS based image**
+*  **CentOS Stream based image**
 
     ```
     $ cd httpd-container
