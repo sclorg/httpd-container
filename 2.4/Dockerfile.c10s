@@ -10,7 +10,8 @@ FROM quay.io/sclorg/s2i-core-c10s:c10s
 
 ENV HTTPD_VERSION=2.4 \
     HTTPD_SHORT_VERSION=24 \
-    NAME=httpd
+    NAME=httpd \
+    ARCH=x86_64
 
 ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
     DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
@@ -36,10 +37,10 @@ EXPOSE 8080
 EXPOSE 8443
 
 RUN INSTALL_PKGS="gettext hostname nss_wrapper bind-utils httpd mod_ssl mod_ldap mod_session sscg" && \
-    yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
-    yum -y clean all --enablerepo='*'
+    dnf -y clean all --enablerepo='*'
 
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_APP_ROOT=${APP_ROOT} \
