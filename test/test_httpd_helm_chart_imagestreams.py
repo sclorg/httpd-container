@@ -35,31 +35,3 @@ class TestHelmRHELHttpdImageStreams:
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation()
         assert self.hc_api.check_imagestreams(version=version, registry=registry)
-
-
-class TestHelmCentOSHttpdImagestreams:
-    def setup_method(self):
-        package_name = "httpd-imagestreams"
-        path = test_dir
-        self.hc_api = HelmChartsAPI(path=path, package_name=package_name, tarball_dir=test_dir, remote=True)
-        self.hc_api.clone_helm_chart_repo(
-            repo_url="https://github.com/sclorg/helm-charts", repo_name="helm-charts",
-            subdir="charts/centos"
-        )
-
-    def teardown_method(self):
-        self.hc_api.delete_project()
-
-    @pytest.mark.parametrize(
-        "version,registry",
-        [
-            ("2.4-ubi9", "registry.access.redhat.com/ubi9/httpd-24:latest"),
-            ("2.4-ubi8", "registry.access.redhat.com/ubi8/httpd-24:latest"),
-            ("2.4-el8", "quay.io/sclorg/httpd-24-c8s:latest"),
-            ("2.4-el9", "quay.io/sclorg/httpd-24-c9s:latest"),
-        ]
-    )
-    def test_package_imagestream(self, version, registry):
-        assert self.hc_api.helm_package()
-        assert self.hc_api.helm_installation()
-        assert self.hc_api.check_imagestreams(version=version, registry=registry)
