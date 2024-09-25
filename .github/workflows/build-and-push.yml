@@ -39,6 +39,22 @@ jobs:
             quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
             quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
 
+          - dockerfile: "2.4/Dockerfile.c10s"
+            docker_context: "2.4"
+            registry_namespace: "sclorg"
+            tag: "c10s"
+            image_name: "httpd-24-c10s"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
+
+          - dockerfile: "2.4-micro/Dockerfile.c10s"
+            docker_context: "2.4-micro"
+            registry_namespace: "sclorg"
+            tag: "c10s"
+            image_name: "httpd-24-micro-c10s"
+            quayio_username: "QUAY_IMAGE_SCLORG_BUILDER_USERNAME"
+            quayio_token: "QUAY_IMAGE_SCLORG_BUILDER_TOKEN"
+
           - dockerfile: "2.4-micro/Dockerfile.fedora"
             docker_context: "2.4-micro"
             registry_namespace: "fedora"
