@@ -25,7 +25,7 @@ class TestHelmHTTPDTemplate:
     def setup_method(self):
         package_name = "httpd-template"
         path = test_dir
-        self.hc_api = HelmChartsAPI(path=path, package_name=package_name, tarball_dir=test_dir, remote=True)
+        self.hc_api = HelmChartsAPI(path=path, package_name=package_name, tarball_dir=test_dir)
         self.hc_api.clone_helm_chart_repo(
             repo_url="https://github.com/sclorg/helm-charts", repo_name="helm-charts",
             subdir="charts/redhat"
