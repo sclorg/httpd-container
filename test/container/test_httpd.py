@@ -11,7 +11,7 @@ if not check_variables():
 
 VERSION = os.getenv("VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
-OS = os.getenv("TARGET")
+OS = os.getenv("OS")
 
 image_name = os.environ.get("IMAGE_NAME").split(":")[0]
 image_tag = os.environ.get("IMAGE_NAME").split(":")[1]
@@ -26,11 +26,10 @@ def app(request):
     # app_name = os.path.basename(request.param)
     yield app
     pass
-    #app.rmi()
+    app.cleanup_container()
 
 
 class TestHttpdAppContainer:
-
     def test_default_path(self, app):
         assert app.create_container(cid_file="test_default_page")
         cip = app.get_cip()
@@ -53,3 +52,22 @@ class TestHttpdAppContainer:
 
     def test_run_s2i_usage(self, app):
         assert app.s2i_usage() != ""
+
+    @pytest.mark.parametrize(
+        "dockerfile",
+        [
+            "Dockerfile",
+            "Dockerfile.s2i"
+        ]
+    )
+    def test_dockerfiles(self, app, dockerfile):
+        assert app.build_test_container(
+            dockerfile=f"test/examples/{dockerfile}", app_url="https://github.com/sclorg/httpd-ex.git",
+            app_dir="app-src"
+        )
+        assert app.test_run_app_dockerfile()
+        cip = app.get_app_cip()
+        assert cip
+        assert app.test_response(url=f"{cip}", expected_code=200, expected_output="Welcome to your static httpd application on OpenShift")
+        app.rmi_app()
+
