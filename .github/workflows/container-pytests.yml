@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         version: [ "2.4", "2.4-micro" ]
-        os_test: [ "fedora", "rhel8", "rhel9", "c9s", "c10s" ]
+        os_test: [ "fedora", "rhel8", "rhel9", "rhel10", "c9s", "c10s" ]
         test_case: [ "container-pytest" ]
 
     if: |
