@@ -24,6 +24,7 @@ Apache HTTPD versions currently provided are:
 RHEL versions currently supported are:
 * RHEL 8
 * RHEL 9
+* RHEL 10
 
 CentOS Stream versions currently supported are:
 * CentOS Stream 9
@@ -32,7 +33,7 @@ CentOS Stream versions currently supported are:
 
 Installation
 ------------
-Choose either the CentOS Stream 9, CentOS Stream 10 or RHEL8 based image:
+Choose either the CentOS Stream 9, CentOS Stream 10, RHEL8 based image, RHEL9 based image, or RHEL10 based image:
 
 *  **RHEL8 based image**
 
@@ -43,7 +44,7 @@ Choose either the CentOS Stream 9, CentOS Stream 10 or RHEL8 based image:
     $ podman pull registry.access.redhat.com/rhel8/httpd-24
     ```
 
-    To build a RHEL7 based Apache HTTP Server image, you need to run Docker build on a properly
+    To build a RHEL8 based Apache HTTP Server image, you need to run Docker build on a properly
     subscribed RHEL machine.
 
     ```
