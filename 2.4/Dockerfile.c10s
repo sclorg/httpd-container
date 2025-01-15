@@ -28,7 +28,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="builder,$NAME,$NAME-$HTTPD_SHORT_VERSION" \
       name="sclorg/$NAME-$HTTPD_SHORT_VERSION-c10s" \
       version="1" \
-      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       com.redhat.component="httpd-24-container" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/$NAME-$HTTPD_SHORT_VERSION-c10s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
