@@ -23,7 +23,7 @@ TAG = TAGS.get(OS, None)
 class TestHelmHTTPDTemplate:
 
     def setup_method(self):
-        package_name = "httpd-template"
+        package_name = "redhat-httpd-template"
         path = test_dir
         self.hc_api = HelmChartsAPI(path=path, package_name=package_name, tarball_dir=test_dir)
         self.hc_api.clone_helm_chart_repo(
@@ -40,10 +40,10 @@ class TestHelmHTTPDTemplate:
         new_version = VERSION
         if "micro" in VERSION:
             new_version = VERSION.replace("-micro", "")
-        self.hc_api.package_name = "httpd-imagestreams"
+        self.hc_api.package_name = "redhat-httpd-imagestreams"
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation()
-        self.hc_api.package_name = "httpd-template"
+        self.hc_api.package_name = "redhat-httpd-template"
         assert self.hc_api.helm_package()
         assert self.hc_api.helm_installation(
             values={
@@ -61,10 +61,10 @@ class TestHelmHTTPDTemplate:
         new_version = VERSION
         if "micro" in VERSION:
             new_version = VERSION.replace("-micro", "")
-        self.hc_api.package_name = "httpd-imagestreams"
+        self.hc_api.package_name = "redhat-httpd-imagestreams"
         self.hc_api.helm_package()
         assert self.hc_api.helm_installation()
-        self.hc_api.package_name = "httpd-template"
+        self.hc_api.package_name = "redhat-httpd-template"
         self.hc_api.helm_package()
         assert self.hc_api.helm_installation(
             values={
