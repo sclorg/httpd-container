@@ -52,9 +52,9 @@ class TestHelmHTTPDTemplate:
             }
         )
         assert self.hc_api.is_s2i_pod_running(pod_name_prefix="httpd-example")
-        assert self.hc_api.test_helm_curl_output(
-            route_name="httpd-example",
-            expected_str="Welcome to your static httpd application on OpenShift"
+        assert self.hc_api.oc_api.check_response_inside_cluster(
+            name_in_template="httpd-example",
+            expected_output="Welcome to your static httpd application on OpenShift"
         )
 
     def test_package_persistent_by_helm_chart_test(self):
