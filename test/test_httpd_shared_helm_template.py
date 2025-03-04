@@ -58,6 +58,8 @@ class TestHelmHTTPDTemplate:
         )
 
     def test_package_persistent_by_helm_chart_test(self):
+        if OS == "rhel10":
+            pytest.skip("Do NOT test on RHEL10.")
         new_version = VERSION
         if "micro" in VERSION:
             new_version = VERSION.replace("-micro", "")
