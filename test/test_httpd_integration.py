@@ -31,7 +31,7 @@ class TestHTTPDIntegrationTemplate:
             app=f"https://github.com/sclorg/httpd-container.git",
             context="examples/sample-test-app"
         )
-        assert self.oc_api.template_deployed(name_in_template=self.template_name)
+        assert self.oc_api.is_template_deployed(name_in_template=self.template_name)
         assert self.oc_api.check_response_inside_cluster(
             name_in_template=self.template_name, expected_output="This is a sample s2i application with static content"
         )
