@@ -18,16 +18,22 @@
       - name: UBI 9
         app_versions: ["2.4"]
 
+      - name: UBI 10
+        app_versions: ["2.4"]
+
       - name: CentOS Stream 9
         app_versions: ["2.4-micro"]
 
   - filename: httpd-rhel.json
-    latest: "2.4-ubi8"
+    latest: "2.4-ubi9"
     distros:
       - name: UBI 8
         app_versions: ["2.4"]
 
       - name: UBI 9
+        app_versions: ["2.4"]
+
+      - name: UBI 10
         app_versions: ["2.4"]
 
       - name: RHEL 8
@@ -41,6 +47,9 @@
         app_versions: ["2.4"]
 
       - name: UBI 9
+        app_versions: ["2.4"]
+
+      - name: UBI 10
         app_versions: ["2.4"]
 
       - name: RHEL 8
