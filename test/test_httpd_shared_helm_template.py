@@ -5,18 +5,15 @@ from pathlib import Path
 
 from container_ci_suite.helm import HelmChartsAPI
 
+from constants import TAGS, BRANCH_TO_MASTER
+
+
 test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = os.getenv("VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
-BRANCH_TO_TEST = "master"
+BRANCH_TO_TEST = BRANCH_TO_MASTER
 OS = os.getenv("OS")
-
-TAGS = {
-    "rhel8": "-el8",
-    "rhel9": "-el9",
-    "rhel10": "-el10"
-}
 
 TAG = TAGS.get(OS)
 

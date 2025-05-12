@@ -8,6 +8,7 @@ from pathlib import Path
 from container_ci_suite.openshift import OpenShiftAPI
 from container_ci_suite.utils import get_service_image, check_variables
 
+from constants import BRANCH_TO_MASTER
 TEST_DIR = Path(os.path.abspath(os.path.dirname(__file__)))
 
 if not check_variables():
@@ -16,7 +17,7 @@ if not check_variables():
 
 VERSION = os.getenv("VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
-BRANCH_TO_TEST = "master"
+BRANCH_TO_TEST = BRANCH_TO_MASTER
 
 
 class TestHTTPDExExampleRepo:
