@@ -13,23 +13,23 @@ ENV HTTPD_VERSION=2.4 \
     NAME=httpd \
     ARCH=x86_64
 
-ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
-    DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
+ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
+    DESCRIPTION="Apache httpd ${HTTPD_VERSION} available as container, is a powerful, efficient, \
 and extensible web server. Apache supports a variety of features, many implemented as compiled modules \
 which extend the core functionality. \
 These can range from server-side programming language support to authentication schemes. \
 Virtual hosting allows one Apache installation to serve many different Web sites."
 
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$SUMMARY" \
-      io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
+LABEL summary="${SUMMARY}" \
+      description="${DESCRIPTION}" \
+      io.k8s.description="${SUMMARY}" \
+      io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,$NAME,$NAME24" \
-      com.redhat.component="$NAME" \
-      name="fedora/$NAME-$HTTPD_SHORT_VERSION" \
-      version="$HTTPD_VERSION" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quya.io/fedora/$NAME-$HTTPD_SHORT_VERSION sample-server" \
+      io.openshift.tags="builder,${NAME},${NAME}24" \
+      com.redhat.component="${NAME}" \
+      name="fedora/${NAME}-${HTTPD_SHORT_VERSION}" \
+      version="${HTTPD_VERSION}" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quya.io/fedora/${NAME}-${HTTPD_SHORT_VERSION} sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
@@ -37,9 +37,9 @@ EXPOSE 8443
 
 RUN dnf install -y yum-utils gettext hostname && \
     INSTALL_PKGS="nss_wrapper-libs bind-utils httpd mod_ssl mod_ldap mod_session mod_security sscg" && \
-    dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
+    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
+    rpm -V ${INSTALL_PKGS} && \
+    httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
     dnf clean all
 
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
@@ -54,7 +54,7 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY 2.4/s2i/bin/ $STI_SCRIPTS_PATH
+COPY 2.4/s2i/bin/ ${STI_SCRIPTS_PATH}
 COPY 2.4/root /
 
 # Generate SSL certs and reset permissions of filesystem to default values
