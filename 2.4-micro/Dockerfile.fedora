@@ -2,8 +2,8 @@ FROM quay.io/fedora/fedora:38 AS build
 
 RUN mkdir -p /mnt/rootfs
 RUN MICRO_PKGS="coreutils-single glibc-minimal-langpack" && \
-    INSTALL_PKGS="$MICRO_PKGS httpd-core mod_ssl findutils hostname nss_wrapper-libs fedora-logos-httpd" && \
-    dnf install --installroot /mnt/rootfs $INSTALL_PKGS --releasever 38 --setopt install_weak_deps=false --nodocs -y && \
+    INSTALL_PKGS="${MICRO_PKGS} httpd-core mod_ssl findutils hostname nss_wrapper-libs fedora-logos-httpd" && \
+    dnf install --installroot /mnt/rootfs ${INSTALL_PKGS} --releasever 38 --setopt install_weak_deps=false --nodocs -y && \
     dnf -y --installroot /mnt/rootfs clean all && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
@@ -18,8 +18,8 @@ FROM scratch
 
 ENV HTTPD_VERSION=2.4
 
-ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
-    DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
+ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
+    DESCRIPTION="Apache httpd ${HTTPD_VERSION} available as container, is a powerful, efficient, \
 and extensible web server. Apache supports a variety of features, many implemented as compiled modules \
 which extend the core functionality. \
 These can range from server-side programming language support to authentication schemes. \
@@ -30,10 +30,10 @@ Virtual hosting allows one Apache installation to serve many different Web sites
     HOME=/opt/app-root/src \
     PLATFORM="fedora"
 
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
+LABEL summary="${SUMMARY}" \
+      description="${DESCRIPTION}" \
+      io.k8s.description="${DESCRIPTION}" \
+      io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="builder,httpd,httpd-24" \
       name="fedora/httpd-24-micro" \
@@ -58,7 +58,7 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY 2.4-micro/s2i/bin/ $STI_SCRIPTS_PATH
+COPY 2.4-micro/s2i/bin/ ${STI_SCRIPTS_PATH}
 COPY 2.4-micro/root /
 COPY 2.4-micro/core-scripts/usr /usr
 
@@ -67,7 +67,7 @@ WORKDIR ${HOME}
 # Add default user and prepare httpd
 RUN useradd -u 1001 -r -g 0 -d ${HOME} -c "Default Application User" default && \
   chown -R 1001:0 ${APP_ROOT} && \
-  httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
+  httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
   /usr/libexec/httpd-prepare
 
 USER 1001

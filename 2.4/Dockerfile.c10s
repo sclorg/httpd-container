@@ -13,33 +13,33 @@ ENV HTTPD_VERSION=2.4 \
     NAME=httpd \
     ARCH=x86_64
 
-ENV SUMMARY="Platform for running Apache httpd $HTTPD_VERSION or building httpd-based application" \
-    DESCRIPTION="Apache httpd $HTTPD_VERSION available as container, is a powerful, efficient, \
+ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
+    DESCRIPTION="Apache httpd ${HTTPD_VERSION} available as container, is a powerful, efficient, \
 and extensible web server. Apache supports a variety of features, many implemented as compiled modules \
 which extend the core functionality. \
 These can range from server-side programming language support to authentication schemes. \
 Virtual hosting allows one Apache installation to serve many different Web sites."
 
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="Apache httpd $HTTPD_VERSION" \
+LABEL summary="${SUMMARY}" \
+      description="${DESCRIPTION}" \
+      io.k8s.description="${DESCRIPTION}" \
+      io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,$NAME,$NAME-$HTTPD_SHORT_VERSION" \
-      name="sclorg/$NAME-$HTTPD_SHORT_VERSION-c10s" \
+      io.openshift.tags="builder,${NAME},${NAME}-${HTTPD_SHORT_VERSION}" \
+      name="sclorg/${NAME}-${HTTPD_SHORT_VERSION}-c10s" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       com.redhat.component="httpd-24-container" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/$NAME-$HTTPD_SHORT_VERSION-c10s sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/${NAME}-${HTTPD_SHORT_VERSION}-c10s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
 EXPOSE 8443
 
 RUN INSTALL_PKGS="gettext hostname nss_wrapper-libs bind-utils httpd mod_ssl mod_ldap mod_session sscg" && \
-    dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
+    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
+    rpm -V ${INSTALL_PKGS} && \
+    httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
     dnf -y clean all --enablerepo='*'
 
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
@@ -54,7 +54,7 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY 2.4/s2i/bin/ $STI_SCRIPTS_PATH
+COPY 2.4/s2i/bin/ ${STI_SCRIPTS_PATH}
 COPY 2.4/root /
 
 # Reset permissions of filesystem to default values
