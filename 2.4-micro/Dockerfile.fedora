@@ -16,7 +16,8 @@ FROM scratch
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-ENV HTTPD_VERSION=2.4
+ENV HTTPD_VERSION=2.4 \
+    NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
     DESCRIPTION="Apache httpd ${HTTPD_VERSION} available as container, is a powerful, efficient, \
@@ -35,10 +36,10 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd-24" \
-      name="fedora/httpd-24-micro" \
+      io.openshift.tags="builder,${NAME},${NAME}-24" \
+      name="fedora/${NAME}-24-micro" \
       version="1" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ fedora/httpd-24-micro sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ fedora/${NAME}-24-micro sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080

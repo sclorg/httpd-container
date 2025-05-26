@@ -8,7 +8,8 @@ FROM quay.io/sclorg/s2i-core-c9s:c9s
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-ENV HTTPD_VERSION=2.4
+ENV HTTPD_VERSION=2.4 \
+    NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
     DESCRIPTION="Apache httpd ${HTTPD_VERSION} available as container, is a powerful, efficient, \
@@ -22,12 +23,12 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd-24" \
-      name="sclorg/httpd-24-c9s" \
+      io.openshift.tags="builder,${NAME},${NAME}-24" \
+      name="sclorg/${NAME}-24-c9s" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#rhel" \
-      com.redhat.component="httpd-24-container" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/httpd-24-c9s sample-server" \
+      com.redhat.component="${NAME}-24-container" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/${NAME}-24-c9s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
