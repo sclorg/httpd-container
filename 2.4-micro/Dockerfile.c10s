@@ -37,7 +37,7 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,httpd,httpd-${HTTPD_SHORT_VERSION}" \
+      io.openshift.tags="builder,${NAME},${NAME}-${HTTPD_SHORT_VERSION}" \
       name="sclorg/${NAME}-${HTTPD_SHORT_VERSION}-micro-c10s" \
       version="1" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/${NAME}-${HTTPD_SHORT_VERSION}-micro-c10s sample-server" \
