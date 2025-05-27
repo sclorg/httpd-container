@@ -17,6 +17,7 @@ FROM scratch
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
 ENV HTTPD_VERSION=2.4 \
+    HTTPD_SHORT_VERSION=24 \
     NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
@@ -36,10 +37,10 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,${NAME},${NAME}-24" \
-      name="sclorg/${NAME}-24-micro-c9s" \
+      io.openshift.tags="builder,${NAME},${NAME}-${HTTPD_SHORT_VERSION}" \
+      name="sclorg/${NAME}-${HTTPD_SHORT_VERSION}-micro-c9s" \
       version="1" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/${NAME}-24-micro-c9s sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/${NAME}-${HTTPD_SHORT_VERSION}-micro-c9s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
@@ -59,9 +60,9 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY 2.4-micro/s2i/bin/ ${STI_SCRIPTS_PATH}
-COPY 2.4-micro/root /
-COPY 2.4-micro/core-scripts/usr /usr
+COPY ${HTTPD_VERSION}-micro/s2i/bin/ ${STI_SCRIPTS_PATH}
+COPY ${HTTPD_VERSION}-micro/root /
+COPY ${HTTPD_VERSION}-micro/core-scripts/usr /usr
 
 WORKDIR ${HOME}
 
