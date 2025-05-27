@@ -38,7 +38,6 @@ EXPOSE 8443
 
 RUN INSTALL_PKGS="gettext hostname nss_wrapper-libs bind-utils httpd mod_ssl mod_ldap mod_session sscg" && \
     dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
-    rpm -V ${INSTALL_PKGS} && \
     httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
     dnf -y clean all --enablerepo='*'
 
