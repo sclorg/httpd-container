@@ -29,7 +29,7 @@ LABEL summary="${SUMMARY}" \
       name="sclorg/${NAME}-${HTTPD_SHORT_VERSION}-c10s" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
-      com.redhat.component="${NAME}-24-container" \
+      com.redhat.component="${NAME}-${HTTPD_SHORT_VERSION}-container" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ quay.io/sclorg/${NAME}-${HTTPD_SHORT_VERSION}-c10s sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
@@ -54,8 +54,8 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY 2.4/s2i/bin/ ${STI_SCRIPTS_PATH}
-COPY 2.4/root /
+COPY ${HTTPD_VERSION}/s2i/bin/ ${STI_SCRIPTS_PATH}
+COPY ${HTTPD_VERSION}/root /
 
 # Reset permissions of filesystem to default values
 RUN /usr/libexec/httpd-prepare && rpm-file-permissions
