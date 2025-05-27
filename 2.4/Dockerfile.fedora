@@ -1,4 +1,4 @@
-FROM quay.io/fedora/s2i-core:40
+FROM quay.io/fedora/s2i-core:42
 
 # Apache HTTP Server image.
 #
