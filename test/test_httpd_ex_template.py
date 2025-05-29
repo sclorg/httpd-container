@@ -17,7 +17,6 @@ if not check_variables():
 
 VERSION = os.getenv("VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
-BRANCH_TO_TEST = BRANCH_TO_MASTER
 
 
 class TestHTTPDExExampleRepo:
@@ -32,7 +31,7 @@ class TestHTTPDExExampleRepo:
     def test_httpd_ex_template_inside_cluster(self):
         assert self.oc_api.deploy_s2i_app(
             image_name=IMAGE_NAME,
-            app=f"https://github.com/sclorg/httpd-ex#{BRANCH_TO_TEST}",
+            app=f"https://github.com/sclorg/httpd-ex#{BRANCH_TO_MASTER}",
             context="."
         )
         assert self.oc_api.is_template_deployed(name_in_template=self.template_name)

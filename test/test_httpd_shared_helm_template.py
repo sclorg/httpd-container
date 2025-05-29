@@ -12,7 +12,6 @@ test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
 
 VERSION = os.getenv("VERSION")
 IMAGE_NAME = os.getenv("IMAGE_NAME")
-BRANCH_TO_TEST = BRANCH_TO_MASTER
 OS = os.getenv("OS")
 
 TAG = TAGS.get(OS)

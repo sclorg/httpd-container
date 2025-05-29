@@ -6,14 +6,11 @@ import pytest
 from container_ci_suite.openshift import OpenShiftAPI
 from container_ci_suite.utils import get_service_image, check_variables
 
-from constants import BRANCH_TO_MASTER
-
 
 if not check_variables():
     print("At least one variable from IMAGE_NAME, OS, SINGLE_VERSION is missing.")
     sys.exit(1)
 
-BRANCH_TO_TEST = BRANCH_TO_MASTER
 IMAGE_NAME = os.getenv("IMAGE_NAME")
 OS = os.getenv("OS")
 VERSION = os.getenv("VERSION")
