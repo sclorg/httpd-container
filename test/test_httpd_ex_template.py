@@ -8,7 +8,6 @@ from pathlib import Path
 from container_ci_suite.openshift import OpenShiftAPI
 from container_ci_suite.utils import get_service_image, check_variables
 
-from constants import BRANCH_TO_MASTER
 TEST_DIR = Path(os.path.abspath(os.path.dirname(__file__)))
 
 if not check_variables():
@@ -31,7 +30,7 @@ class TestHTTPDExExampleRepo:
     def test_httpd_ex_template_inside_cluster(self):
         assert self.oc_api.deploy_s2i_app(
             image_name=IMAGE_NAME,
-            app=f"https://github.com/sclorg/httpd-ex#{BRANCH_TO_MASTER}",
+            app=f"https://github.com/sclorg/httpd-ex#master",
             context="."
         )
         assert self.oc_api.is_template_deployed(name_in_template=self.template_name)
