@@ -5,7 +5,7 @@ from pathlib import Path
 
 from container_ci_suite.helm import HelmChartsAPI
 
-from constants import TAGS, BRANCH_TO_MASTER
+from constants import TAGS
 
 
 test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
