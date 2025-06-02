@@ -25,10 +25,12 @@ class TestHelmRHELHttpdImageStreams:
     @pytest.mark.parametrize(
         "version,registry",
         [
+            ("2.4-ubi10", "registry.redhat.io/ubi10/httpd-24:latest"),
             ("2.4-ubi9", "registry.redhat.io/ubi9/httpd-24:latest"),
             ("2.4-ubi8", "registry.redhat.io/ubi8/httpd-24:latest"),
             ("2.4-el8", "registry.redhat.io/rhel8/httpd-24"),
             ("2.4-el9", "registry.redhat.io/rhel9/httpd-24"),
+            ("2.4-el10", "registry.redhat.io/rhel10/httpd-24"),
         ],
     )
     def test_package_imagestream(self, version, registry):

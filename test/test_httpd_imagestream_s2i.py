@@ -26,8 +26,6 @@ class TestHTTPDImagestreamS2I:
         self.oc_api.delete_project()
 
     def test_inside_cluster(self):
-        if VERSION == "rhel10":
-            pytest.skip("Do NOT test on RHEL10.")
         os_name = ''.join(i for i in OS if not i.isdigit())
         assert self.oc_api.deploy_imagestream_s2i(
             imagestream_file=f"imagestreams/httpd-{os_name}.json",
