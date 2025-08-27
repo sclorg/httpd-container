@@ -7,7 +7,7 @@ jobs:
     name: "Container PyTest: ${{ matrix.version }} - ${{ matrix.os_test }}"
     runs-on: ubuntu-latest
     concurrency:
-      group: container-${{ github.event.issue.number }}-${{ matrix.version }}-${{ matrix.os_test }}
+      group: container-pytest-${{ github.event.issue.number }}-${{ matrix.version }}-${{ matrix.os_test }}
       cancel-in-progress: true
     strategy:
       fail-fast: false
