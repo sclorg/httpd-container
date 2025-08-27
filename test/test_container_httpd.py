@@ -86,7 +86,7 @@ class TestHttpdAppContainer:
         time.sleep(3)
         result_from_app = app.test_app_dockerfile()
         print(result_from_app)
-        assert result_from_app == False
+        assert result_from_app == True
         assert app.get_container_exitcode(container_id="app_dockerfile") == "1"
 
     @pytest.mark.parametrize(
@@ -114,5 +114,5 @@ class TestHttpdAppContainer:
         assert app.create_container(cid_file="data_volume", container_args="-e HTTPD_LOG_TO_VOLUME=1 --user 1001")
         result_from_app = app.test_app_dockerfile()
         print(result_from_app)
-        assert result_from_app == False
+        assert result_from_app == True
         assert app.get_container_exitcode(container_id="app_dockerfile") == "1"

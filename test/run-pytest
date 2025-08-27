@@ -8,4 +8,8 @@
 
 THISDIR=$(dirname ${BASH_SOURCE[0]})
 
-cd "${THISDIR}" && python3.12 -m pytest -s -rA --showlocals -vv test_container_*.py
+PYTHON_VERSION="3.12"
+if [[ ! -f "/usr/bin/python$PYTHON_VERSION" ]]; then
+  PYTHON_VERSION="3.13"
+fi
+cd "${THISDIR}" && "python${PYTHON_VERSION}" -m pytest -s -rA --showlocals -vv test_container_*.py
