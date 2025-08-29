@@ -7,7 +7,7 @@ import pytest
 from pathlib import Path
 
 from container_ci_suite.container_lib import ContainerTestLib
-from container_ci_suite.utils import check_variables
+from container_ci_suite.utils import check_variables, ContainerTestLibUtils
 
 if not check_variables():
     print("At least one variable from OS, VERSION is missing.")
@@ -35,9 +35,12 @@ def app(request):
     # app_name = os.path.basename(request.param)
     yield app
     pass
+    app.clean_containers()
+    app.clean_app_images()
 
 
 class TestHttpdAppContainer:
+
     def test_default_path(self, app):
         assert app.create_container(cid_file="test_default_page")
         cip = app.get_cip("test_default_page")
@@ -81,14 +84,6 @@ class TestHttpdAppContainer:
         assert app.test_response(url=f"{cip}", expected_code=200, expected_output="Welcome to your static httpd application on OpenShift")
         # app.clean_app_images()
 
-    def test_invalid_log_volume(self, app):
-        assert app.create_container(cid_file="invalid_log_dir", container_args="-e HTTPD_LOG_TO_VOLUME=1 --user 1001")
-        time.sleep(3)
-        result_from_app = app.test_app_dockerfile()
-        print(result_from_app)
-        assert result_from_app == True
-        assert app.get_container_exitcode(container_id="app_dockerfile") == "1"
-
     @pytest.mark.parametrize(
         "mpm_config",
         [
@@ -104,15 +99,71 @@ class TestHttpdAppContainer:
         cip = app.get_cip(cid_name=cid_name)
         assert app.test_response(url=f"{cip}", port=8080, expected_code=403, expected_output=".*" )
         logs = app.get_logs(cid_name=cid_name)
-        assert app.check_regexp_output(
+        assert ContainerTestLibUtils.check_regexp_output(
             regexp_to_check=f"mpm_{mpm_config}:notice.*resuming normal operations",
             logs_to_check=logs
         )
 
-    def test_data_volume(self, app):
+    def test_log_to_data_volume(self, app):
+        logs_dir = ContainerTestLibUtils.create_local_temp_dir(
+            dir_name="/tmp/httpd-test_log_dir"
+        )
+        print(logs_dir)
+        ContainerTestLibUtils.commands_to_run(
+            commands_to_run = [
+                f"mkdir -p {logs_dir}",
+                f"chown -R 1001:1001 {logs_dir}",
+                f"chcon -Rvt svirt_sandbox_file_t {logs_dir}/"
+            ]
+        )
+        assert app.create_container(
+            cid_file="test_log_dir",
+            container_args=f"-e HTTPD_LOG_TO_VOLUME=1 --user 0 -v {logs_dir}:/var/log/httpd"
+        )
+        cip = app.get_cip(cid_name="test_log_dir")
+        assert app.test_response(url=f"{cip}", port=8080, expected_code=403, expected_output=".*")
+        assert ContainerTestLibUtils.check_files_are_present(
+            dir_name=logs_dir, file_name_to_check=[
+                "access_log",
+                "error_log",
+                "ssl_access_log",
+                "ssl_error_log",
+                "ssl_request_log",
+            ]
+        )
 
-        assert app.create_container(cid_file="data_volume", container_args="-e HTTPD_LOG_TO_VOLUME=1 --user 1001")
-        result_from_app = app.test_app_dockerfile()
-        print(result_from_app)
-        assert result_from_app == True
-        assert app.get_container_exitcode(container_id="app_dockerfile") == "1"
+    def test_data_volume(self, app):
+        logs_dir = ContainerTestLibUtils.create_local_temp_dir(
+            dir_name="/tmp/httpd-test-volume"
+        )
+        print(logs_dir)
+        ContainerTestLibUtils.commands_to_run(
+            commands_to_run = [
+                f"mkdir -p {logs_dir}/html",
+                f"echo hello > {logs_dir}/html/index.html",
+                f"chown -R 1001:1001 {logs_dir}",
+                f"chcon -Rvt svirt_sandbox_file_t {logs_dir}/"
+            ]
+        )
+        assert app.create_container(
+            cid_file="doc_root",
+            container_args=f"-v {logs_dir}:/var/www"
+        )
+        cip = app.get_cip(cid_name="doc_root")
+        assert app.test_response(url=f"{cip}", port=8080, expected_code=200, expected_output="^hello$")
+
+    # def test_self_cert_config(self, app):
+    #     app.build_as_df_build_args(
+    #         app_path=f"file://{TEST_DIR}/self-signed-ssl",
+    #         src_image=IMAGE_NAME,
+    #         dst_image=f"{IMAGE_NAME}-self-signed",
+    #         s2i_args="--pull-policy=never",
+    #     )
+    #
+    #     cid_name = f"self-signed-ssl"
+    #     app.set_new_image(f"{IMAGE_NAME}-self-signed")
+    #     assert app.create_container(cid_file=cid_name, container_args=f" --user 1000")
+    #     cid = app.get_cid(cid_name=cid_name)
+    #     cip = app.get_cip(cid_name=cid_name)
+    #     assert app.test_response(url=f"{cip}", port=8080, expected_code=403, expected_output=".*" )
+    #     logs = app.get_logs(cid_name=cid_name)
