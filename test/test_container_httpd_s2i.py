@@ -24,12 +24,10 @@ if not IMAGE_NAME:
 image_tag_wo_tag = IMAGE_NAME.split(":")[0]
 image_tag = IMAGE_NAME.split(":")[1]
 pre_init_test_app = os.path.join(TEST_DIR, "pre-init-test-app")
-self_cert_test = os.path.join(TEST_DIR, "self-signed-ssl")
 sample_test_app = os.path.join(TEST_DIR, "sample-test-app")
 
 app_params_pre = [pre_init_test_app]
 app_params_sample = [sample_test_app]
-app_params_ssl = [self_cert_test]
 
 
 @pytest.fixture(scope="module", params=app_params_pre)
@@ -43,7 +41,7 @@ def s2i_app_pre_init(request):
         dst_image=f"{IMAGE_NAME}-{app_name}"
     )
     yield s2i_app
-    pass
+    s2i_app.clean_containers()
 
 
 @pytest.fixture(scope="module", params=app_params_sample)
@@ -57,21 +55,7 @@ def s2i_sample_app(request):
         dst_image=f"{IMAGE_NAME}-{app_name}"
     )
     yield s2i_app
-    pass
-
-
-@pytest.fixture(scope="module", params=app_params_ssl)
-def ssl_app(request):
-    ci = ContainerTestLib(IMAGE_NAME)
-    app_name = os.path.basename(request.param)
-    s2i_app = ci.build_as_df(
-        app_path=request.param,
-        s2i_args="--pull-policy=never",
-        src_image=IMAGE_NAME,
-        dst_image=f"{IMAGE_NAME}-{app_name}"
-    )
-    yield s2i_app
-    pass
+    s2i_app.clean_containers()
 
 
 @pytest.mark.usefixtures("s2i_app_pre_init")
@@ -95,16 +79,9 @@ class TestHttpdS2ISampleAppContainer:
         assert cip
         response = "This is a sample s2i application with static content."
         assert s2i_sample_app.test_response(url=f"{cip}", expected_code=200, expected_output=response)
-        s2i_sample_app.clean_containers()
+        assert s2i_sample_app.test_response(
+            url=f"https://{cip}",
+            port=8443,
+            expected_output=response
+        )
 
-
-@pytest.mark.usefixtures("ssl_app")
-class TestHttpdS2ISslCertAppContainer:
-
-    def test_self_cert_test(self, ssl_app):
-        assert ssl_app.create_container(cid_file="ssl-cert", container_args="--user 1000")
-        cip = ssl_app.get_cip(cid_name="ssl-cert")
-        assert cip
-        response = ".*"
-        assert ssl_app.test_response(url=f"{cip}", expected_code=200, expected_output=response)
-        ssl_app.clean_containers()

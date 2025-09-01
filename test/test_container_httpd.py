@@ -41,7 +41,7 @@ def app(request):
 
 class TestHttpdAppContainer:
 
-    def test_default_path(self, app):
+    def test_default_page(self, app):
         assert app.create_container(cid_file="test_default_page")
         cip = app.get_cip("test_default_page")
         assert cip
@@ -108,7 +108,6 @@ class TestHttpdAppContainer:
         logs_dir = ContainerTestLibUtils.create_local_temp_dir(
             dir_name="/tmp/httpd-test_log_dir"
         )
-        print(logs_dir)
         ContainerTestLibUtils.commands_to_run(
             commands_to_run = [
                 f"mkdir -p {logs_dir}",
@@ -136,7 +135,6 @@ class TestHttpdAppContainer:
         logs_dir = ContainerTestLibUtils.create_local_temp_dir(
             dir_name="/tmp/httpd-test-volume"
         )
-        print(logs_dir)
         ContainerTestLibUtils.commands_to_run(
             commands_to_run = [
                 f"mkdir -p {logs_dir}/html",
@@ -151,19 +149,3 @@ class TestHttpdAppContainer:
         )
         cip = app.get_cip(cid_name="doc_root")
         assert app.test_response(url=f"{cip}", port=8080, expected_code=200, expected_output="^hello$")
-
-    # def test_self_cert_config(self, app):
-    #     app.build_as_df_build_args(
-    #         app_path=f"file://{TEST_DIR}/self-signed-ssl",
-    #         src_image=IMAGE_NAME,
-    #         dst_image=f"{IMAGE_NAME}-self-signed",
-    #         s2i_args="--pull-policy=never",
-    #     )
-    #
-    #     cid_name = f"self-signed-ssl"
-    #     app.set_new_image(f"{IMAGE_NAME}-self-signed")
-    #     assert app.create_container(cid_file=cid_name, container_args=f" --user 1000")
-    #     cid = app.get_cid(cid_name=cid_name)
-    #     cip = app.get_cip(cid_name=cid_name)
-    #     assert app.test_response(url=f"{cip}", port=8080, expected_code=403, expected_output=".*" )
-    #     logs = app.get_logs(cid_name=cid_name)
