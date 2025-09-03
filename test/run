@@ -8,11 +8,6 @@ test_dir="$(readlink -f $(dirname "${BASH_SOURCE[0]}"))"
 
 . "$test_dir/test-lib.sh"
 
-function _container_is_scl() {
-  docker inspect --format='{{.Config.Env}}' "${1-$IMAGE_NAME}" | grep -q HTTPD_SCL
-  return $?
-}
-
 function run() {
     cmd="$1"
     expected_res="${2:-0}"
@@ -49,11 +44,7 @@ function run_as_root_test() {
 
 function run_log_to_volume_test() {
   _run_invalid_log_volume_test
-  if _container_is_scl ; then
-    _run_log_to_volume_test old /var/log/httpd24
-  else
-    _run_log_to_volume_test new /var/log/httpd
-  fi
+  _run_log_to_volume_test new /var/log/httpd
 }
 
 function _run_log_to_volume_test() {
@@ -86,9 +77,6 @@ function _run_invalid_log_volume_test() {
 
 
 function run_data_volume_test() {
-  if _container_is_scl ; then
-     _run_data_volume_test old /opt/rh/httpd24/root/var/www
-  fi
    _run_data_volume_test new /var/www
 }
 
