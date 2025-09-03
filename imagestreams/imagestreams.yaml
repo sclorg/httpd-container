@@ -10,7 +10,7 @@
     https://github.com/sclorg/httpd-container/blob/master/APP_VERSION/README.md.
   imagestream_files:
   - filename: httpd-centos.json
-    latest: "2.4-ubi9"
+    latest: "2.4-ubi10"
     distros:
       - name: UBI 8
         app_versions: ["2.4"]
@@ -25,7 +25,7 @@
         app_versions: ["2.4-micro"]
 
   - filename: httpd-rhel.json
-    latest: "2.4-ubi9"
+    latest: "2.4-ubi10"
     distros:
       - name: UBI 8
         app_versions: ["2.4"]
@@ -41,7 +41,7 @@
 
 
   - filename: httpd-rhel-aarch64.json
-    latest: "2.4-ubi8"
+    latest: "2.4-ubi10"
     distros:
       - name: UBI 8
         app_versions: ["2.4"]

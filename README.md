@@ -35,31 +35,31 @@ Installation
 ------------
 Choose either the CentOS Stream 9, CentOS Stream 10, RHEL8 based image, RHEL9 based image, or RHEL10 based image:
 
-*  **RHEL8 based image**
+*  **RHEL10 based image**
 
     These images are available in the [Red Hat Container Catalog](https://catalog.redhat.com/software/containers/ubi8/httpd-24/6065b844aee24f523c207943?architecture=amd64&image=6660528072b80acc3c2193f3&container-tabs=overview).
     To download it run:
 
     ```
-    $ podman pull registry.access.redhat.com/rhel8/httpd-24
+    $ podman pull registry.access.redhat.com/rhel10/httpd-24
     ```
 
-    To build a RHEL8 based Apache HTTP Server image, you need to run Docker build on a properly
+    To build a RHEL10 based Apache HTTP Server image, you need to run Docker build on a properly
     subscribed RHEL machine.
 
     ```
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
     $ git submodule update --init
-    $ make build TARGET=rhel8 VERSIONS=2.4
+    $ make build TARGET=rhel10 VERSIONS=2.4
     ```
 
-*  **CentOS Stream 9 based image**
+*  **CentOS Stream 10 based image**
 
     This image is available on DockerHub. To download it run:
 
     ```
-    $ podman pull quay.io/sclorg/httpd-24-c9s
+    $ podman pull quay.io/sclorg/httpd-24-c10s
     ```
 
     To build a CentOS based Apache HTTP Server image from scratch run:
@@ -68,7 +68,7 @@ Choose either the CentOS Stream 9, CentOS Stream 10, RHEL8 based image, RHEL9 ba
     $ git clone --recursive https://github.com/sclorg/httpd-container.git
     $ cd httpd-container
     $ git submodule update --init
-    $ make build TARGET=c9s VERSIONS=2.4
+    $ make build TARGET=c10s VERSIONS=2.4
     ```
 
 For using other versions of Apache HTTP Server, just replace the `2.4` value by particular version
@@ -98,13 +98,13 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS St
 
 *  **RHEL based image**
 
-    To test a RHEL8 based Apache HTTP Server image, you need to run the test on a properly
+    To test a RHEL10 based Apache HTTP Server image, you need to run the test on a properly
     subscribed RHEL machine.
 
     ```
     $ cd httpd-container
     $ git submodule update --init
-    $ make test TARGET=rhel8 VERSIONS=2.4
+    $ make test TARGET=rhel10 VERSIONS=2.4
     ```
 
 *  **CentOS Stream based image**
@@ -112,7 +112,7 @@ Users can choose between testing Apache HTTP Server based on a RHEL or CentOS St
     ```
     $ cd httpd-container
     $ git submodule update --init
-    $ make test TARGET=c9s VERSIONS=2.4
+    $ make test TARGET=c10s VERSIONS=2.4
     ```
 
 For using other versions of Apache HTTP Server, just replace the `2.4` value by particular version

@@ -1,7 +1,6 @@
-FROM registry.redhat.io/rhel8/httpd-24
+FROM registry.redhat.io/rhel10/httpd-24
 
 # This image supports the Source-to-Image
-# (see more at https://docs.openshift.com/container-platform/3.11/creating_images/s2i.html).
 # In order to support the Source-to-Image framework, there are some interesting
 # scripts inside the builder image, that can be run in a Dockerfile directly as well:
 # * The `/usr/libexec/s2i/assemble` script inside the image is run in order
