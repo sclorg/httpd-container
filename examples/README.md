@@ -5,13 +5,13 @@ This directory includes several examples of how to use the httpd container to se
 Building and deploying in OpenShift
 -------------------
 ```
-oc new-app rhel8/httpd-24~https://github.com/sclorg/httpd-ex.git
+oc new-app rhel10/httpd-24~https://github.com/sclorg/httpd-ex.git
 ```
 
 Building with s2i
 -------------------
 ```
-s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/httpd-24-c9s httpd-sample-app
+s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ sclorg/httpd-24-c10s httpd-sample-app
 ```
 The `s2i` binary can be obtained from https://github.com/openshift/source-to-image.
 
