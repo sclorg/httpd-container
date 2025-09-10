@@ -37,7 +37,7 @@ Choose either the CentOS Stream 9, CentOS Stream 10, RHEL8 based image, RHEL9 ba
 
 *  **RHEL10 based image**
 
-    These images are available in the [Red Hat Container Catalog](https://catalog.redhat.com/software/containers/ubi8/httpd-24/6065b844aee24f523c207943?architecture=amd64&image=6660528072b80acc3c2193f3&container-tabs=overview).
+    These images are available in the [Red Hat Container Catalog](https://catalog.redhat.com/en/search?searchType=containers).
     To download it run:
 
     ```

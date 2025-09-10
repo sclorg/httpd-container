@@ -24,7 +24,7 @@ If you need to install packages inside the image, please use the full sized imag
 
 Usage in OpenShift
 ------------------
-In this example, we assume that you are using the `rhel8/httpd-24-micro` image, available through the `httpd:24-micro` imagestream tag in Openshift.
+In this example, we assume that you are using the `quay.io/sclorg/httpd-24-micro-c9s` image, available through the `httpd:2.4-micro-el9` imagestream tag in Openshift.
 To build a simple [httpd-sample-app](https://github.com/sclorg/httpd-ex.git) application in Openshift:
 
 ```
@@ -76,7 +76,7 @@ To use the httpd image in a Dockerfile, follow these steps:
 #### 1. Pull a base builder image to build on
 
 ```
-podman pull rhel8/httpd-24-micro
+podman pull quay.io/sclorg/httpd-24-micro-c9s
 ```
 
 #### 2. Pull an application code
@@ -99,7 +99,7 @@ For all these three parts, you can either set up all manually and use the `httpd
 
 ##### 3.1. To use your own setup, create a Dockerfile with this content:
 ```
-FROM registry.redhat.io/rhel8/httpd-24-micro
+FROM quay.io/sclorg/httpd-24-micro-c9s
 
 # Add application sources
 ADD app-src/index.html /var/www/html/index.html
@@ -110,7 +110,7 @@ CMD run-httpd
 
 ##### 3.2. To use the Source-to-Image scripts and build an image using a Dockerfile, create a Dockerfile with this content:
 ```
-FROM registry.redhat.io/rhel8/httpd-24-micro
+FROM quay.io/sclorg/httpd-24-micro-c9s
 
 # Add application sources to a directory where the assemble script expects them
 # and set permissions so that the container runs without the root access
@@ -155,7 +155,7 @@ If you want to run the image directly and mount the static pages available in th
 as a container volume, execute the following command:
 
 ```
-$ podman run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z rhel8/httpd-24-micro
+$ podman run -d --name httpd -p 8080:8080 -v /wwwdata:/var/www:Z quay.io/sclorg/httpd-24-micro-c9s
 ```
 
 This creates a container named `httpd` running the Apache HTTP Server, serving data from
@@ -179,13 +179,13 @@ If you want to run the image and mount the log files into `/wwwlogs` on the host
 as a container volume, execute the following command:
 
 ```
-$ podman run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/httpd24:Z rhel8/httpd-24-micro
+$ podman run -d -u 0 -e HTTPD_LOG_TO_VOLUME=1 --name httpd -v /wwwlogs:/var/log/httpd24:Z quay.io/sclorg/httpd-24-micro-c9s
 ```
 
 To run an image using the `event` MPM (rather than the default `prefork`), execute the following command:
 
 ```
-$ podman run -d -e HTTPD_MPM=event --name httpd rhel8/httpd-24-micro
+$ podman run -d -e HTTPD_MPM=event --name httpd quay.io/sclorg/httpd-24-micro-c9s
 ```
 
 You can also set the following mount points by passing the `-v /host:/container` flag to podman.
@@ -228,7 +228,7 @@ By default, Apache HTTP Server container runs as UID 1001. That means the volume
 To run the container as a different UID, use `-u` option. For example if you want to run the container as UID 1234, execute the following command:
 
 ```
-podman run -d -u 1234 rhel8/httpd-24-micro
+podman run -d -u 1234 quay.io/sclorg/httpd-24-micro-c9s
 ```
 
 To log into a volume mounted directory, the container needs to be run as UID 0 (see above).
@@ -245,6 +245,6 @@ See also
 --------
 Dockerfile and other sources for this container image are available on
 https://github.com/sclorg/httpd-container.
-In that repository, the Dockerfile for RHEL8 is called Dockerfile.rhel8,
+In that repository, the Dockerfile for CentOS Stream 9 is called Dockerfile.c9s,
 the Dockerfile for CentOS Stream 10 is called Dockerfile.c10s,
 and the Dockerfile for Fedora is called Dockerfile.fedora.
