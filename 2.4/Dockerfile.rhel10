@@ -27,7 +27,6 @@ LABEL summary="${SUMMARY}" \
       io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="builder,${NAME},${NAME}-${HTTPD_SHORT_VERSION}" \
       name="ubi10/${NAME}-${HTTPD_SHORT_VERSION}" \
-      version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       com.redhat.component="${NAME}-${HTTPD_SHORT_VERSION}-container" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ ubi10/${NAME}-${HTTPD_SHORT_VERSION} sample-server" \
