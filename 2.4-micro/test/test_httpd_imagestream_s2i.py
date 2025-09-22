@@ -1,1 +1,0 @@
-../../test/test_httpd_imagestream_s2i.py
