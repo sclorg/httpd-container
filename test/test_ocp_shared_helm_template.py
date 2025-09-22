@@ -1,12 +1,17 @@
 import os
+import sys
 
-import pytest
 from pathlib import Path
 
 from container_ci_suite.helm import HelmChartsAPI
+from container_ci_suite.utils import check_variables
 
 from constants import TAGS
 
+
+if not check_variables():
+    print("At least one variable from OS, VERSION is missing.")
+    sys.exit(1)
 
 test_dir = Path(os.path.abspath(os.path.dirname(__file__)))
 
