@@ -25,7 +25,7 @@ print(f"Test dir is: {TEST_DIR}")
 
 
 @pytest.fixture(scope="module")
-def app(request):
+def app():
     app = ContainerTestLib(image_name=IMAGE_NAME, s2i_image=True)
     yield app
     app.clean_containers()
