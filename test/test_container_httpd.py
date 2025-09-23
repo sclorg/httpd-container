@@ -58,7 +58,7 @@ class TestHttpdAppContainer:
     def test_run_s2i_usage(self, app):
         output = app.s2i_usage()
         print(f"S2i_USAGE output: '{output}'")
-        assert output != ""
+        assert output
 
     @pytest.mark.parametrize(
         "dockerfile",
