@@ -52,12 +52,6 @@ def ssl_app(request):
     yield s2i_app
     s2i_app.clean_containers()
 
-@pytest.fixture(scope="module")
-def app(request):
-    app = ContainerTestLib(image_name=IMAGE_NAME, s2i_image=True)
-    yield app
-    app.clean_containers()
-    app.clean_app_images()
 
 
 class TestHttpdS2ISslSelfSignedAppContainer:
