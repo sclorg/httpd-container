@@ -23,8 +23,6 @@ if not IMAGE_NAME:
     print(f"Built container for version {VERSION} on OS {OS} does not exist.")
     sys.exit(1)
 
-image_tag_wo_tag = IMAGE_NAME.split(":")[0]
-image_tag = IMAGE_NAME.split(":")[1]
 self_cert_test = os.path.join(TEST_DIR, "self-signed-ssl")
 sample_test_app = os.path.join(TEST_DIR, "sample-test-app")
 
