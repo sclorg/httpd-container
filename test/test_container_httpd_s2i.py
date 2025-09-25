@@ -110,12 +110,13 @@ class TestHttpdCertAgeContainer:
         ))
         cid = self.s2i_app.get_cid(self.s2i_app.app_name)
         # Testing of not presence of a certificate in the production image
-        certificate_content = PodmanCLIWrapper.podman_exec_bash_command(
+        certificate_content = PodmanCLIWrapper.podman_exec_shell_command(
             cid_file_name=cid, cmd="cat \\$HTTPD_TLS_CERT_PATH/localhost.crt"
-        ).strip()
+        )
+        assert certificate_content
         certificate_dir = tempfile.mkdtemp(prefix="/tmp/cert_dir")
         with open(Path(certificate_dir) / "cert", mode="w") as f:
-            f.write(certificate_content)
+            f.write(certificate_content.strip())
         certificate_age_s = ContainerTestLibUtils.run_command(
             cmd=f"openssl x509 -startdate -noout -in {Path(certificate_dir)}/cert"
         ).strip().replace("notBefore=", "")
@@ -125,10 +126,10 @@ class TestHttpdCertAgeContainer:
         # Testing whether the certificate was freshly generated after the image
         assert certificate_age < image_age
         # Testing presence and permissions of the generated certificate
-        assert PodmanCLIWrapper.podman_exec_bash_command(
+        assert PodmanCLIWrapper.podman_exec_shell_command(
             cid_file_name=cid, cmd="ls -l \\$HTTPD_TLS_CERT_PATH/localhost.crt"
         )
         # Testing presence and permissions of the generated certificate
-        assert PodmanCLIWrapper.podman_exec_bash_command(
+        assert PodmanCLIWrapper.podman_exec_shell_command(
             cid_file_name=cid, cmd="ls -l \\$HTTPD_TLS_CERT_PATH/localhost.key"
         )
