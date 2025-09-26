@@ -93,7 +93,7 @@ class TestHttpdAppContainer:
             container_args=f"-e HTTPD_LOG_TO_VOLUME=1 --user 0 -v {data_dir}:/var/log/httpd"
         )
         cip = self.app.get_cip(cid_file_name="test_log_dir")
-        assert self.app.test_response(url=f"{cip}", port=8080, expected_code=403)
+        assert self.app.test_response(url=cip, port=8080, expected_code=403)
         assert ContainerTestLibUtils.check_files_are_present(
             dir_name=data_dir, file_name_to_check=[
                 "access_log",
