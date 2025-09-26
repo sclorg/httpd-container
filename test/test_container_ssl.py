@@ -42,7 +42,7 @@ class TestHttpdS2ISslSelfSignedAppContainer:
         cip = self.s2i_app.get_cip(cid_file_name=self.s2i_app.app_name)
         assert cip
         response = ".*"
-        assert self.s2i_app.test_response(url=f"{cip}", expected_code=200, expected_output=response)
+        assert self.s2i_app.test_response(url=cip, expected_code=200, expected_output=response)
         assert self.s2i_app.test_response(url=f"https://{cip}", port=8443, expected_output="SSL test works")
         server_cmd = f"openssl s_client -showcerts -servername {cip} -connect {cip}:8443 2>/dev/null"
         server_output = ContainerTestLibUtils.run_command(cmd=server_cmd)
