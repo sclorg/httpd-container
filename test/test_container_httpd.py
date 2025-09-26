@@ -57,7 +57,7 @@ class TestHttpdAppContainer:
         assert self.app.test_app_dockerfile()
         cip = self.app.get_cip()
         assert cip
-        assert self.app.test_response(url=f"{cip}", expected_code=200, expected_output="Welcome to your static httpd application on OpenShift")
+        assert self.app.test_response(url=cip, expected_code=200, expected_output="Welcome to your static httpd application on OpenShift")
 
     @pytest.mark.parametrize(
         "mpm_config",
