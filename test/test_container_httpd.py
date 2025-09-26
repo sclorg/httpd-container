@@ -74,7 +74,7 @@ class TestHttpdAppContainer:
         # Let's check that server really response HTTP-403
         # See function here: in test/run `_run_mpm_config_test`
         # https://github.com/sclorg/httpd-container/blob/master/test/run#L97
-        assert self.app.test_response(url=f"{cip}", port=8080, expected_code=403)
+        assert self.app.test_response(url=cip, port=8080, expected_code=403)
         logs = self.app.get_logs(cid_file_name=cid_name)
         assert re.search(f"mpm_{mpm_config}:notice.*resuming normal operations", logs)
 
