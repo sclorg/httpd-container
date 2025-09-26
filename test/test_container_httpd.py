@@ -120,4 +120,4 @@ class TestHttpdAppContainer:
         )
         cip = self.app.get_cip(cid_file_name="doc_root")
         assert cip
-        assert self.app.test_response(url=f"{cip}", port=8080, expected_code=200, expected_output="hello")
+        assert self.app.test_response(url=cip, port=8080, expected_code=200, expected_output="hello")
