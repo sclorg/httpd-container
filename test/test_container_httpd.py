@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import tempfile
 
@@ -7,7 +8,11 @@ from pathlib import Path
 import pytest
 
 from container_ci_suite.container_lib import ContainerTestLib
-from container_ci_suite.utils import ContainerTestLibUtils
+from container_ci_suite.utils import ContainerTestLibUtils, check_variables
+
+
+if not check_variables():
+    sys.exit(1)
 
 
 TEST_DIR = Path(__file__).parent.absolute()
