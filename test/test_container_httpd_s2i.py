@@ -1,22 +1,13 @@
-import os
-import sys
 import time
 import tempfile
 
 from pathlib import Path
 
 from container_ci_suite.container_lib import ContainerTestLib
-from container_ci_suite.utils import ContainerTestLibUtils, check_variables
+from container_ci_suite.utils import ContainerTestLibUtils
 from container_ci_suite.engines.podman_wrapper import PodmanCLIWrapper
 
-if not check_variables():
-    sys.exit(1)
-
-TEST_DIR = Path(__file__).parent.absolute()
-VERSION = os.getenv("VERSION")
-OS = os.getenv("OS").lower()
-IMAGE_NAME = os.getenv("IMAGE_NAME")
-
+from settings import IMAGE_NAME, TEST_DIR
 
 pre_init_test_app = TEST_DIR / "pre-init-test-app"
 sample_test_app = TEST_DIR / "sample-test-app"

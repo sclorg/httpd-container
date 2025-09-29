@@ -1,24 +1,12 @@
-import os
-import sys
 import re
 import tempfile
-
-from pathlib import Path
 
 import pytest
 
 from container_ci_suite.container_lib import ContainerTestLib
-from container_ci_suite.utils import ContainerTestLibUtils, check_variables
+from container_ci_suite.utils import ContainerTestLibUtils
 
-
-if not check_variables():
-    sys.exit(1)
-
-
-TEST_DIR = Path(__file__).parent.absolute()
-VERSION = os.getenv("VERSION")
-OS = os.getenv("OS").lower()
-IMAGE_NAME = os.getenv("IMAGE_NAME")
+from settings import IMAGE_NAME, TEST_DIR
 
 
 class TestHttpdAppContainer:
