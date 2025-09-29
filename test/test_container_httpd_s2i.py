@@ -89,7 +89,6 @@ class TestHttpdCertAgeContainer:
 
     def test_cert_age(self):
         """
-        This tests checks whether the certificate was freshly generated after the image
         We need to make sure the certificate is generated no sooner than in assemble phase,
         because shipping the same certs in the image would make it easy to exploit
         Let's see how old the certificate is and compare with how old the image is
@@ -137,9 +136,9 @@ class TestHttpdS2ISslSelfSignedAppContainer:
 
     def test_self_cert_test(self):
         """
-            Test s2i use case #3 - using own ssl certs
-            Since we built the candidate image locally, we don't want S2I attempt to pull
-            it from Docker hub
+        Test s2i use case #3 - using own ssl certs
+        Since we built the candidate image locally, we don't want S2I attempt to pull
+        it from Docker hub
         """
         self.s2i_app.set_new_image(image_name=f"{IMAGE_NAME}-{self.s2i_app.app_name}")
         assert self.s2i_app.create_container(cid_file_name=self.s2i_app.app_name, container_args="--user 1000")
