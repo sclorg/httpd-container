@@ -39,8 +39,7 @@ class TestHttpdS2IPreInitContainer:
         cip = self.s2i_app.get_cip(cid_file_name=self.s2i_app.app_name)
         assert cip
         assert self.s2i_app.test_response(
-            url=cip,
-            expected_code=200,
+            url=f"http://{cip}",
             expected_output="This content was replaced by pre-init script."
         )
 
@@ -59,8 +58,7 @@ class TestHttpdS2ISampleAppContainer:
         assert cip
         response = "This is a sample s2i application with static content."
         assert self.s2i_app.test_response(
-            url=cip,
-            expected_code=200,
+            url=f"http://{cip}",
             expected_output=response
         )
         assert self.s2i_app.test_response(
@@ -135,7 +133,7 @@ class TestHttpdS2ISslSelfSignedAppContainer:
         assert self.s2i_app.create_container(cid_file_name=self.s2i_app.app_name, container_args="--user 1000")
         cip = self.s2i_app.get_cip(cid_file_name=self.s2i_app.app_name)
         assert cip
-        assert self.s2i_app.test_response(url=cip, expected_code=200, expected_output="SSL test works")
+        assert self.s2i_app.test_response(url=f"http://{cip}", expected_output="SSL test works")
         assert self.s2i_app.test_response(url=f"https://{cip}", port=8443, expected_output="SSL test works")
         server_cmd = f"openssl s_client -showcerts -servername {cip} -connect {cip}:8443 2>/dev/null"
         server_output = ContainerTestLibUtils.run_command(cmd=server_cmd)
