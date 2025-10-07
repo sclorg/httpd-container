@@ -50,7 +50,10 @@ class TestHttpdAppContainer:
         assert self.app.test_app_dockerfile()
         cip = self.app.get_cip()
         assert cip
-        assert self.app.test_response(url=cip, expected_code=200, expected_output="Welcome to your static httpd application on OpenShift")
+        assert self.app.test_response(
+            url=f"http://{cip}",
+            expected_output="Welcome to your static httpd application on OpenShift"
+        )
 
     @pytest.mark.parametrize(
         "mpm_config",
@@ -67,7 +70,7 @@ class TestHttpdAppContainer:
         # Let's check that server really response HTTP-403
         # See function here: in test/run `_run_mpm_config_test`
         # https://github.com/sclorg/httpd-container/blob/master/test/run#L97
-        assert self.app.test_response(url=cip, port=8080, expected_code=403)
+        assert self.app.test_response(url=f"http://{cip}", expected_code=403)
         logs = self.app.get_logs(cid_file_name=cid_name)
         assert re.search(f"mpm_{mpm_config}:notice.*resuming normal operations", logs)
 
@@ -86,7 +89,7 @@ class TestHttpdAppContainer:
             container_args=f"-e HTTPD_LOG_TO_VOLUME=1 --user 0 -v {data_dir}:/var/log/httpd"
         )
         cip = self.app.get_cip(cid_file_name="test_log_dir")
-        assert self.app.test_response(url=cip, port=8080, expected_code=403)
+        assert self.app.test_response(url=f"http://{cip}", expected_code=403)
         assert ContainerTestLibUtils.check_files_are_present(
             dir_name=data_dir, file_name_to_check=[
                 "access_log",
@@ -113,4 +116,4 @@ class TestHttpdAppContainer:
         )
         cip = self.app.get_cip(cid_file_name="doc_root")
         assert cip
-        assert self.app.test_response(url=cip, port=8080, expected_code=200, expected_output="hello")
+        assert self.app.test_response(url=f"http://{cip}", expected_output="hello")
