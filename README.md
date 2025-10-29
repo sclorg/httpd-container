@@ -3,8 +3,7 @@ Apache HTTP Server Container Images
 
 [![Build and push images to Quay.io registry](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml)
 
-This repository contains Dockerfiles for Apache HTTP Server images for OpenShift and general usage.
-Users can choose between RHEL and CentOS based images.
+This repository contains Dockerasldfkhjasdklfhjasdkl;fghlsdkghed images.
 
 For more information about contributing, see
 [the Contribution Guidelines](https://github.com/sclorg/welcome/blob/master/contribution.md).
