@@ -3,9 +3,6 @@ Apache HTTP Server Container Images
 
 [![Build and push images to Quay.io registry](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/sclorg/httpd-container/actions/workflows/build-and-push.yml)
 
-Images available on Quay are:
-* Fedora [httpd-2.4](https://quay.io/repository/fedora/httpd-24)
-
 This repository contains Dockerfiles for Apache HTTP Server images for OpenShift and general usage.
 Users can choose between RHEL and CentOS based images.
 
@@ -17,18 +14,17 @@ For more information about concepts used in these container images, see the
 
 Versions
 --------
-Apache HTTPD versions currently provided are:
-* [httpd-2.4](2.4)
-* [httpd-2.4-micro](2.4-micro)
-
-RHEL versions currently supported are:
-* RHEL 8
-* RHEL 9
-* RHEL 10
-
-CentOS Stream versions currently supported are:
-* CentOS Stream 9
-* CentOS Stream 10
+Currently supported versions are visible in the following table, expand an entry to see its container registry address.
+<!--
+Table start
+-->
+||CentOS Stream 9|CentOS Stream 10|Fedora|RHEL 8|RHEL 9|RHEL 10|
+|:--|:--:|:--:|:--:|:--:|:--:|:--:|
+|2.4-micro|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-micro-c9s`</details>|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-micro-c10s`</details>|<details><summary>✓</summary>`quay.io/fedora/httpd-24-micro`</details>||||
+|2.4|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-c9s`</details>|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-c10s`</details>|<details><summary>✓</summary>`quay.io/fedora/httpd-24`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel8/httpd-24`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel9/httpd-24`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel10/httpd-24`</details>|
+<!--
+Table end
+-->
 
 
 Installation

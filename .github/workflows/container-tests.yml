@@ -3,7 +3,35 @@ on:
     types:
       - created
 jobs:
+  check-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+        with:
+          ref: "refs/pull/${{ github.event.issue.number }}/head"
+          submodules: true
+   
+      - name: Update the available versions table in README.md
+        shell: bash
+        run: |
+          sha=$(git rev-parse HEAD)
+          sudo apt update && sudo apt -y install python3 python3-natsort
+          result="failure"
+          git status
+          make version-table
+          git diff --ignore-submodules=all --exit-code && result="success"
+          if [[ "$result" == "failure" ]]; then
+            echo "Incorrect version table in README.md"
+            echo "Please re-generate it with:"
+            echo "'make version-table'"
+            echo "Note that you need to have 'python' and 'python-natsort' installed"
+          fi
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
   container-tests:
+    needs: check-readme
     name: "Container tests: ${{ matrix.version }} - ${{ matrix.os_test }}"
     runs-on: ubuntu-latest
     concurrency:
