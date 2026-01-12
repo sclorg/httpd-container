@@ -168,6 +168,8 @@ class TestHttpdS2ISslSelfSignedAppContainer:
         server_cert = ContainerTestLibUtils.run_command(
             cmd=f"openssl x509 -inform pem -noout -text -in {Path(certificate_dir)}/output"
         )
-        config_cmd = f"openssl x509 -in {TEST_DIR}/{self.s2i_app.app_name}/httpd-ssl/certs/server-cert-selfsigned.pem -inform pem -noout -text"
+        pem_file = f"{TEST_DIR}/{self.s2i_app.app_name}/httpd-ssl/certs/server-cert-selfsigned.pem"
+        assert Path(pem_file).exists()
+        config_cmd = f"openssl x509 -in {pem_file} -inform pem -noout -text"
         config_cert = ContainerTestLibUtils.run_command(cmd=config_cmd)
         assert server_cert == config_cert
