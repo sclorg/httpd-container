@@ -21,13 +21,12 @@ def build_s2i_app(app_path: Path) -> ContainerTestLib:
         app_path=app_path,
         s2i_args="--pull-policy=never",
         src_image=IMAGE_NAME,
-        dst_image=f"{IMAGE_NAME}-{app_name}"
+        dst_image=f"{IMAGE_NAME}-{app_name}",
     )
     return s2i_app
 
 
 class TestHttpdS2IPreInitContainer:
-
     def setup_method(self):
         self.s2i_app = build_s2i_app(pre_init_test_app)
 
@@ -35,17 +34,18 @@ class TestHttpdS2IPreInitContainer:
         self.s2i_app.cleanup()
 
     def test_run_pre_init_test(self):
-        assert self.s2i_app.create_container(cid_file_name=self.s2i_app.app_name, container_args="--user 1000")
+        assert self.s2i_app.create_container(
+            cid_file_name=self.s2i_app.app_name, container_args="--user 1000"
+        )
         cip = self.s2i_app.get_cip(cid_file_name=self.s2i_app.app_name)
         assert cip
         assert self.s2i_app.test_response(
             url=f"http://{cip}",
-            expected_output="This content was replaced by pre-init script."
+            expected_output="This content was replaced by pre-init script.",
         )
 
 
 class TestHttpdS2ISampleAppContainer:
-
     def setup_method(self):
         self.s2i_app = build_s2i_app(sample_test_app)
 
@@ -53,23 +53,19 @@ class TestHttpdS2ISampleAppContainer:
         self.s2i_app.cleanup()
 
     def test_sample_app(self):
-        assert self.s2i_app.create_container(cid_file_name=self.s2i_app.app_name, container_args="--user 1000")
+        assert self.s2i_app.create_container(
+            cid_file_name=self.s2i_app.app_name, container_args="--user 1000"
+        )
         cip = self.s2i_app.get_cip(cid_file_name=self.s2i_app.app_name)
         assert cip
         response = "This is a sample s2i application with static content."
+        assert self.s2i_app.test_response(url=f"http://{cip}", expected_output=response)
         assert self.s2i_app.test_response(
-            url=f"http://{cip}",
-            expected_output=response
-        )
-        assert self.s2i_app.test_response(
-            url=f"https://{cip}",
-            port=8443,
-            expected_output=response
+            url=f"https://{cip}", port=8443, expected_output=response
         )
 
 
 class TestHttpdCertAgeContainer:
-
     def setup_method(self):
         self.s2i_app = build_s2i_app(sample_test_app)
 
@@ -82,41 +78,64 @@ class TestHttpdCertAgeContainer:
         because shipping the same certs in the image would make it easy to exploit
         Let's see how old the certificate is and compare with how old the image is
         """
-        assert self.s2i_app.create_container(cid_file_name=self.s2i_app.app_name, container_args="--user 1000")
-        image_age_s = PodmanCLIWrapper.podman_inspect(
-            field="{{.Created}}", src_image=IMAGE_NAME
-        ).strip().split(' ')
-        image_age = time.time() - float(ContainerTestLibUtils.run_command(
-            cmd=f"date -d '{image_age_s[0]} {image_age_s[1]} {image_age_s[2]}' '+%s'"
-        ))
+        assert self.s2i_app.create_container(
+            cid_file_name=self.s2i_app.app_name, container_args="--user 1000"
+        )
+        image_age_s = (
+            PodmanCLIWrapper.podman_inspect(field="{{.Created}}", src_image=IMAGE_NAME)
+            .strip()
+            .split(" ")
+        )
+        image_age = time.time() - float(
+            ContainerTestLibUtils.run_command(
+                cmd=f"date -d '{image_age_s[0]} {image_age_s[1]} {image_age_s[2]}' '+%s'"
+            )
+        )
         cid = self.s2i_app.get_cid(self.s2i_app.app_name)
         # Testing of not presence of a certificate in the production image
-        certificate_content = PodmanCLIWrapper.podman_exec_shell_command(
-            cid_file_name=cid, cmd="cat \\$HTTPD_TLS_CERT_PATH/localhost.crt"
+        cert_file_path = PodmanCLIWrapper.podman_exec_shell_command(
+            cid_file_name=cid, cmd="echo $HTTPD_TLS_CERT_PATH"
+        ).strip()
+        assert cert_file_path
+        certificate_path = f"{cert_file_path}/localhost.crt"
+        assert certificate_path
+        certificate_content = PodmanCLIWrapper.podman_get_file_content(
+            cid_file_name=cid, filename=certificate_path
         )
         assert certificate_content
         certificate_dir = tempfile.mkdtemp(prefix="/tmp/cert_dir")
         with open(Path(certificate_dir) / "cert", mode="w") as f:
             f.write(certificate_content.strip())
-        certificate_age_s = ContainerTestLibUtils.run_command(
-            cmd=f"openssl x509 -startdate -noout -in {Path(certificate_dir)}/cert"
-        ).strip().replace("notBefore=", "")
-        certificate_age = time.time() - float(ContainerTestLibUtils.run_command(
-            cmd=f"date '+%s' --date='{certificate_age_s}'")
+        certificate_age_s = (
+            ContainerTestLibUtils.run_command(
+                cmd=f"openssl x509 -startdate -noout -in {Path(certificate_dir)}/cert"
+            )
+            .strip()
+            .replace("notBefore=", "")
+        )
+        certificate_age = time.time() - float(
+            ContainerTestLibUtils.run_command(
+                cmd=f"date '+%s' --date='{certificate_age_s}'"
+            )
         )
         # Testing whether the certificate was freshly generated after the image
         assert certificate_age < image_age
-        # Testing presence and permissions of the generated certificate
-        assert PodmanCLIWrapper.podman_exec_shell_command(
-            cid_file_name=cid, cmd="ls -l \\$HTTPD_TLS_CERT_PATH/localhost.crt"
+        # Testing of not presence of a certificate in the production image
+        assert not PodmanCLIWrapper.podman_run_command_and_remove(
+            cid_file_name=IMAGE_NAME,
+            cmd=f"test -e {cert_file_path}/localhost.crt",
         )
         # Testing presence and permissions of the generated certificate
         assert PodmanCLIWrapper.podman_exec_shell_command(
-            cid_file_name=cid, cmd="ls -l \\$HTTPD_TLS_CERT_PATH/localhost.key"
+            cid_file_name=cid, cmd=f"ls -l {certificate_path}"
         )
+        # Testing presence and permissions of the generated certificate
+        assert PodmanCLIWrapper.podman_exec_shell_command(
+            cid_file_name=cid, cmd=f"ls -l {cert_file_path}/localhost.key"
+        )
+
 
 class TestHttpdS2ISslSelfSignedAppContainer:
-
     def setup_method(self):
         self.s2i_app = build_s2i_app(self_cert_test)
 
@@ -130,11 +149,17 @@ class TestHttpdS2ISslSelfSignedAppContainer:
         it from Docker hub
         """
         self.s2i_app.set_new_image(image_name=f"{IMAGE_NAME}-{self.s2i_app.app_name}")
-        assert self.s2i_app.create_container(cid_file_name=self.s2i_app.app_name, container_args="--user 1000")
+        assert self.s2i_app.create_container(
+            cid_file_name=self.s2i_app.app_name, container_args="--user 1000"
+        )
         cip = self.s2i_app.get_cip(cid_file_name=self.s2i_app.app_name)
         assert cip
-        assert self.s2i_app.test_response(url=f"http://{cip}", expected_output="SSL test works")
-        assert self.s2i_app.test_response(url=f"https://{cip}", port=8443, expected_output="SSL test works")
+        assert self.s2i_app.test_response(
+            url=f"http://{cip}", expected_output="SSL test works"
+        )
+        assert self.s2i_app.test_response(
+            url=f"https://{cip}", port=8443, expected_output="SSL test works"
+        )
         server_cmd = f"openssl s_client -showcerts -servername {cip} -connect {cip}:8443 2>/dev/null"
         server_output = ContainerTestLibUtils.run_command(cmd=server_cmd)
         certificate_dir = tempfile.mkdtemp(prefix="/tmp/server_cert_dir")
