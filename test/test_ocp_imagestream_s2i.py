@@ -1,34 +1,26 @@
-import os
-import sys
-
 from container_ci_suite.openshift import OpenShiftAPI
-from container_ci_suite.utils import get_service_image, check_variables
+from container_ci_suite.utils import get_service_image
 
-
-if not check_variables():
-    print("At least one variable from IMAGE_NAME, OS, SINGLE_VERSION is missing.")
-    sys.exit(1)
-
-IMAGE_NAME = os.getenv("IMAGE_NAME")
-OS = os.getenv("OS")
-VERSION = os.getenv("VERSION")
+from conftest import VARS
 
 
 class TestHTTPDImagestreamS2I:
     def setup_method(self):
-        self.template_name = get_service_image(IMAGE_NAME)
+        self.template_name = get_service_image(VARS.IMAGE_NAME)
         self.oc_api = OpenShiftAPI(
-            pod_name_prefix=self.template_name, version=VERSION, shared_cluster=True
+            pod_name_prefix=self.template_name,
+            version=VARS.VERSION,
+            shared_cluster=True
         )
 
     def teardown_method(self):
         self.oc_api.delete_project()
 
     def test_inside_cluster(self):
-        os_name = "".join(i for i in OS if not i.isdigit())
+        os_name = "".join(i for i in VARS.OS if not i.isdigit())
         assert self.oc_api.deploy_imagestream_s2i(
             imagestream_file=f"imagestreams/httpd-{os_name}.json",
-            image_name=IMAGE_NAME,
+            image_name=VARS.IMAGE_NAME,
             app="https://github.com/sclorg/httpd-container.git",
             context="examples/sample-test-app",
             service_name=self.template_name,
