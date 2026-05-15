@@ -8,7 +8,9 @@ class TestHTTPDExExampleRepo:
     def setup_method(self):
         self.template_name = get_service_image(VARS.IMAGE_NAME)
         self.oc_api = OpenShiftAPI(
-            pod_name_prefix=self.template_name, version=VARS.VERSION, shared_cluster=True
+            pod_name_prefix=self.template_name,
+            version=VARS.VERSION,
+            shared_cluster=True,
         )
 
     def teardown_method(self):

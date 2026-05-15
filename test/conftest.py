@@ -23,7 +23,6 @@ Vars = namedtuple(
         "TAG",
         "VERSION",
         "IMAGE_NAME",
-        "SHORT_VERSION",
         "TEST_DIR",
     ],
 )
@@ -35,6 +34,5 @@ VARS = Vars(
     TAG=TAGS.get(OS),
     VERSION=VERSION,
     IMAGE_NAME=os.getenv("IMAGE_NAME"),
-    SHORT_VERSION=VERSION.replace(".", ""),
     TEST_DIR=TEST_DIR,
 )
