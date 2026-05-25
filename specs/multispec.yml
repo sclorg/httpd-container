@@ -1,0 +1,133 @@
+version: 1
+
+specs:
+  distroinfo:
+    rhel8:
+      distros:
+        - rhel-8-x86_64
+      s2i_base: ubi8/s2i-core:1
+      org: "rhel8"
+      prod: "rhel8"
+      img_name: "{{ spec.org }}/httpd-{{ spec.short }}"
+      base_image_tag: ":1"
+      env_init: "simple"
+      var_style: "dollar"
+      pkg_manager: "yum"
+      pkgs: "gettext hostname nss_wrapper-libs httpd mod_ssl mod_ldap mod_session mod_security mod_auth_mellon sscg"
+      pkg_verify: true
+      module_enable: "yum -y module enable httpd:$HTTPD_VERSION && \\"
+      redhat_component: "httpd-{{ spec.short }}-container"
+      version_label: "1"
+      license_terms: "https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
+      usage_image: "{{ spec.org }}/httpd-{{ spec.short }}"
+      copy_version: "{{ spec.version }}"
+
+    rhel9:
+      distros:
+        - rhel-9-x86_64
+      s2i_base: ubi9/s2i-core:1
+      org: "rhel9"
+      prod: "rhel9"
+      img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
+      base_image_tag: ":1"
+      env_init: "combined"
+      var_style: "braces"
+      pkg_manager: "yum"
+      pkgs: "gettext hostname nss_wrapper-libs httpd mod_ssl mod_ldap mod_session mod_security mod_auth_mellon sscg"
+      pkg_verify: false
+      redhat_component: "${NAME}-${HTTPD_SHORT_VERSION}-container"
+      version_label: "1"
+      license_terms: "https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
+      usage_image: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
+
+    rhel10:
+      distros:
+        - rhel-10-x86_64
+      s2i_base: ubi10/s2i-core
+      org: "ubi10"
+      prod: "rhel10"
+      img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
+      base_image_tag: ""
+      env_init: "combined_with_arch"
+      var_style: "braces"
+      pkg_manager: "dnf"
+      pkgs: "gettext hostname nss_wrapper-libs httpd mod_ssl mod_ldap mod_session sscg"
+      pkg_verify: false
+      redhat_component: "${NAME}-${HTTPD_SHORT_VERSION}-container"
+      version_label: ""
+      license_terms: "https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
+      usage_image: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
+
+    c9s:
+      distros:
+        - centos-stream-9-x86_64
+      s2i_base: quay.io/sclorg/s2i-core-c9s:c9s
+      org: "sclorg"
+      prod: "c9s"
+      img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-{{ spec.prod }}"
+      base_image_tag: ":c9s"
+      env_init: "combined"
+      var_style: "braces"
+      pkg_manager: "yum"
+      pkgs: "gettext hostname nss_wrapper-libs httpd mod_ssl mod_ldap mod_session mod_security mod_auth_mellon sscg"
+      pkg_verify: false
+      redhat_component: "${NAME}-${HTTPD_SHORT_VERSION}-container"
+      version_label: "1"
+      license_terms: "https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
+      usage_image: "quay.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-{{ spec.prod }}"
+
+    c10s:
+      distros:
+        - centos-stream-10-x86_64
+      s2i_base: quay.io/sclorg/s2i-core-c10s:c10s
+      org: "sclorg"
+      prod: "c10s"
+      img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-{{ spec.prod }}"
+      base_image_tag: ":c10s"
+      env_init: "combined_with_arch"
+      var_style: "braces"
+      pkg_manager: "dnf"
+      pkgs: "gettext hostname nss_wrapper-libs httpd mod_ssl mod_ldap mod_session sscg"
+      pkg_verify: false
+      redhat_component: "${NAME}-${HTTPD_SHORT_VERSION}-container"
+      version_label: "1"
+      license_terms: "https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
+      usage_image: "quay.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-{{ spec.prod }}"
+
+    fedora42:
+      distros:
+        - fedora-42-x86_64
+      s2i_base: quay.io/fedora/s2i-core:42
+      org: "fedora"
+      prod: "fedora"
+      img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
+      base_image_tag: ":42"
+      env_init: "combined_with_arch"
+      var_style: "braces"
+      pkg_manager: "dnf"
+      pkg_clean: "dnf clean all"
+      pkgs: "nss_wrapper-libs httpd mod_ssl mod_ldap mod_session mod_security sscg"
+      extra_install: "dnf install -y yum-utils gettext hostname && \\"
+      pkg_verify: false
+      redhat_component: "${NAME}"
+      version_label: "version"
+      license_terms: ""
+      usage_image: "quya.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
+      fedora_specific: true
+
+  version:
+    "2.4":
+      version: "2.4"
+      short: "24"
+      common_image_name: "{{ spec.org }}/httpd-{{ spec.short }}-{{ spec.prod }}"
+
+matrix:
+  include:
+    - version: "2.4"
+      distros:
+        - rhel-8-x86_64
+        - rhel-9-x86_64
+        - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-42-x86_64
