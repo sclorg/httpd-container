@@ -1,9 +1,13 @@
-FROM quay.io/fedora/fedora:42 AS build
+FROM {{ spec.micro_build_base }} AS build
 
 RUN mkdir -p /mnt/rootfs
 RUN MICRO_PKGS="coreutils-single glibc-minimal-langpack" && \
-    INSTALL_PKGS="${MICRO_PKGS} httpd-core mod_ssl findutils hostname nss_wrapper-libs fedora-logos-httpd" && \
-    dnf install --installroot /mnt/rootfs ${INSTALL_PKGS} --releasever 42 --use-host-config --setopt install_weak_deps=false --nodocs -y && \
+    INSTALL_PKGS="${MICRO_PKGS} {{ spec.micro_pkgs }}" && \
+{% if spec.micro_use_host_config %}
+    dnf install --installroot /mnt/rootfs ${INSTALL_PKGS} --releasever {{ spec.micro_releasever }} --use-host-config --setopt install_weak_deps=false --nodocs -y && \
+{% else %}
+    dnf install --installroot /mnt/rootfs ${INSTALL_PKGS} --releasever {{ spec.micro_releasever }} --setopt install_weak_deps=false --nodocs -y && \
+{% endif %}
     dnf -y --installroot /mnt/rootfs clean all && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
@@ -16,8 +20,8 @@ FROM scratch
 # Environment:
 #  * $HTTPD_LOG_TO_VOLUME (optional) - When set, httpd will log into /var/log/httpd24
 
-ENV HTTPD_VERSION=2.4 \
-    HTTPD_SHORT_VERSION=24 \
+ENV HTTPD_VERSION={{ spec.version }} \
+    HTTPD_SHORT_VERSION={{ spec.short }} \
     NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
@@ -30,7 +34,7 @@ Virtual hosting allows one Apache installation to serve many different Web sites
     STI_SCRIPTS_PATH=/usr/libexec/s2i \
     APP_ROOT=/opt/app-root \
     HOME=/opt/app-root/src \
-    PLATFORM="fedora"
+    PLATFORM="{{ spec.micro_platform }}"
 
 LABEL summary="${SUMMARY}" \
       description="${DESCRIPTION}" \
@@ -38,9 +42,9 @@ LABEL summary="${SUMMARY}" \
       io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="builder,${NAME},${NAME}-${HTTPD_SHORT_VERSION}" \
-      name="fedora/${NAME}-${HTTPD_SHORT_VERSION}-micro" \
+      name="{{ spec.micro_img_name }}" \
       version="1" \
-      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ fedora/${NAME}-${HTTPD_SHORT_VERSION}-micro sample-server" \
+      usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ {{ spec.micro_img_name }} sample-server" \
       maintainer="SoftwareCollections.org <sclorg@redhat.com>"
 
 EXPOSE 8080
@@ -60,9 +64,9 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY 2.4-micro/s2i/bin/ ${STI_SCRIPTS_PATH}
-COPY 2.4-micro/root /
-COPY 2.4-micro/core-scripts/usr /usr
+COPY {{ spec.version }}{{ spec.suffix }}/s2i/bin/ ${STI_SCRIPTS_PATH}
+COPY {{ spec.version }}{{ spec.suffix }}/root /
+COPY {{ spec.version }}{{ spec.suffix }}/core-scripts/usr /usr
 
 WORKDIR ${HOME}
 

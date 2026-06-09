@@ -1,1 +1,0 @@
-../../test/test_container_httpd_s2i.py

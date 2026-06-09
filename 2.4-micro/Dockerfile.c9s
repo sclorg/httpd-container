@@ -60,13 +60,12 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY ${HTTPD_VERSION}-micro/s2i/bin/ ${STI_SCRIPTS_PATH}
-COPY ${HTTPD_VERSION}-micro/root /
-COPY ${HTTPD_VERSION}-micro/core-scripts/usr /usr
+COPY 2.4-micro/s2i/bin/ ${STI_SCRIPTS_PATH}
+COPY 2.4-micro/root /
+COPY 2.4-micro/core-scripts/usr /usr
 
 WORKDIR ${HOME}
 
-# Add default user and prepare httpd
 RUN useradd -u 1001 -r -g 0 -d ${HOME} -c "Default Application User" default && \
   chown -R 1001:0 ${APP_ROOT} && \
   httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
