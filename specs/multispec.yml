@@ -75,6 +75,11 @@ specs:
       version_label: "1"
       license_terms: "https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
       usage_image: "quay.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-{{ spec.prod }}"
+      micro_build_base: "quay.io/centos/centos:stream9"
+      micro_releasever: "9"
+      micro_pkgs: "httpd-core mod_ssl findutils hostname nss_wrapper-libs redhat-logos-httpd"
+      micro_platform: "el9"
+      micro_img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-micro-{{ spec.prod }}"
 
     c10s:
       distros:
@@ -93,6 +98,11 @@ specs:
       version_label: "1"
       license_terms: "https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
       usage_image: "quay.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-{{ spec.prod }}"
+      micro_build_base: "quay.io/centos/centos:stream10-development"
+      micro_releasever: "10"
+      micro_pkgs: "httpd-core mod_ssl findutils hostname nss_wrapper-libs redhat-logos-httpd"
+      micro_platform: "el10"
+      micro_img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-micro-{{ spec.prod }}"
 
     fedora42:
       distros:
@@ -114,12 +124,23 @@ specs:
       license_terms: ""
       usage_image: "quya.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
       fedora_specific: true
+      micro_build_base: "quay.io/fedora/fedora:42"
+      micro_releasever: "42"
+      micro_pkgs: "httpd-core mod_ssl findutils hostname nss_wrapper-libs fedora-logos-httpd"
+      micro_platform: "fedora"
+      micro_use_host_config: true
+      micro_img_name: "{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}-micro"
 
   version:
     "2.4":
       version: "2.4"
       short: "24"
       common_image_name: "{{ spec.org }}/httpd-{{ spec.short }}-{{ spec.prod }}"
+
+    "2.4-micro":
+      version: "2.4"
+      short: "24"
+      suffix: "-micro"
 
 matrix:
   include:
@@ -128,6 +149,12 @@ matrix:
         - rhel-8-x86_64
         - rhel-9-x86_64
         - rhel-10-x86_64
+        - centos-stream-9-x86_64
+        - centos-stream-10-x86_64
+        - fedora-42-x86_64
+
+    - version: "2.4-micro"
+      distros:
         - centos-stream-9-x86_64
         - centos-stream-10-x86_64
         - fedora-42-x86_64

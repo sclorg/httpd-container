@@ -20,7 +20,7 @@ Table start
 -->
 ||CentOS Stream 9|CentOS Stream 10|Fedora|RHEL 8|RHEL 9|RHEL 10|
 |:--|:--:|:--:|:--:|:--:|:--:|:--:|
-|2.4-micro|||||||
+|2.4-micro|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-micro-c9s`</details>|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-micro-c10s`</details>|<details><summary>✓</summary>`quay.io/fedora/httpd-24-micro`</details>||||
 |2.4|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-c9s`</details>|<details><summary>✓</summary>`quay.io/sclorg/httpd-24-c10s`</details>|<details><summary>✓</summary>`quay.io/fedora/httpd-24`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel8/httpd-24`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel9/httpd-24`</details>|<details><summary>✓</summary>`registry.redhat.io/rhel10/httpd-24`</details>|
 <!--
 Table end
