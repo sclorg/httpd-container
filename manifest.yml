@@ -27,9 +27,6 @@ DISTGEN_MULTI_RULES:
 # This section is the last one on purpose because the generator.py
 # does not allow dead symlinks.
 SYMLINK_RULES:
-  - src: .
-    dest: "2.4"
-
   - src: ../src/root
     dest: root
 
