@@ -94,30 +94,30 @@ EXPOSE 8443
 {% if spec.extra_install %}
 RUN {{ spec.extra_install }}
     INSTALL_PKGS="{{ spec.pkgs }}" && \
-    {{ spec.pkg_manager }} install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
+    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
 {% if spec.pkg_clean %}
     {{ spec.pkg_clean }}
 {% else %}
-    {{ spec.pkg_manager }} -y clean all --enablerepo='*'
+    dnf -y clean all --enablerepo='*'
 {% endif %}
 {% elif spec.pkg_verify %}
 RUN {% if spec.module_enable %}{{ spec.module_enable }}
     {% endif %}{% if spec.var_style == "dollar" %}    INSTALL_PKGS="{{ spec.pkgs }}" && \
-    {{ spec.pkg_manager }} install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    dnf install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     httpd -v | grep -qe "Apache/$HTTPD_VERSION" && echo "Found VERSION $HTTPD_VERSION" && \
 {% else %}INSTALL_PKGS="{{ spec.pkgs }}" && \
-    {{ spec.pkg_manager }} install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
+    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     rpm -V ${INSTALL_PKGS} && \
     httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
 {% endif %}
-    {{ spec.pkg_manager }} -y clean all --enablerepo='*'
+    dnf -y clean all --enablerepo='*'
 {% else %}
 RUN INSTALL_PKGS="{{ spec.pkgs }}" && \
-    {{ spec.pkg_manager }} install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
+    dnf install -y --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     httpd -v | grep -qe "Apache/${HTTPD_VERSION}" && echo "Found VERSION ${HTTPD_VERSION}" && \
-    {{ spec.pkg_manager }} -y clean all --enablerepo='*'
+    dnf -y clean all --enablerepo='*'
 {% endif %}
 
 ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
