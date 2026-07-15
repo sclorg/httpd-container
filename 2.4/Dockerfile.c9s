@@ -24,7 +24,7 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,${NAME},${NAME}-${HTTPD_SHORT_VERSION}" \
+      io.openshift.tags="builder,httpd,httpd-24" \
       name="sclorg/${NAME}-${HTTPD_SHORT_VERSION}-c9s" \
       version="1" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
@@ -52,8 +52,8 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY ${HTTPD_VERSION}/s2i/bin/ ${STI_SCRIPTS_PATH}
-COPY ${HTTPD_VERSION}/root /
+COPY 2.4/s2i/bin/ ${STI_SCRIPTS_PATH}
+COPY 2.4/root /
 
 # Reset permissions of filesystem to default values
 RUN /usr/libexec/httpd-prepare && rpm-file-permissions

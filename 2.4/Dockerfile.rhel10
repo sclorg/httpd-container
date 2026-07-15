@@ -10,8 +10,7 @@ FROM ubi10/s2i-core
 
 ENV HTTPD_VERSION=2.4 \
     HTTPD_SHORT_VERSION=24 \
-    NAME=httpd \
-    ARCH=x86_64
+    NAME=httpd
 
 ENV SUMMARY="Platform for running Apache httpd ${HTTPD_VERSION} or building httpd-based application" \
     DESCRIPTION="Apache httpd ${HTTPD_VERSION} available as container, is a powerful, efficient, \
@@ -25,8 +24,9 @@ LABEL summary="${SUMMARY}" \
       io.k8s.description="${DESCRIPTION}" \
       io.k8s.display-name="Apache httpd ${HTTPD_VERSION}" \
       io.openshift.expose-services="8080:http,8443:https" \
-      io.openshift.tags="builder,${NAME},${NAME}-${HTTPD_SHORT_VERSION}" \
+      io.openshift.tags="builder,httpd,httpd-24" \
       name="ubi10/${NAME}-${HTTPD_SHORT_VERSION}" \
+      version="" \
       com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       com.redhat.component="${NAME}-${HTTPD_SHORT_VERSION}-container" \
       usage="s2i build https://github.com/sclorg/httpd-container.git --context-dir=examples/sample-test-app/ ubi10/${NAME}-${HTTPD_SHORT_VERSION} sample-server" \
@@ -52,8 +52,8 @@ ENV HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_LOG_PATH=/var/log/httpd
 
-COPY ${HTTPD_VERSION}/s2i/bin/ ${STI_SCRIPTS_PATH}
-COPY ${HTTPD_VERSION}/root /
+COPY 2.4/s2i/bin/ ${STI_SCRIPTS_PATH}
+COPY 2.4/root /
 
 # Reset permissions of filesystem to default values
 RUN /usr/libexec/httpd-prepare && rpm-file-permissions
