@@ -122,7 +122,7 @@ specs:
       redhat_component: "${NAME}"
       version_label: "version"
       license_terms: ""
-      usage_image: "quya.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
+      usage_image: "quay.io/{{ spec.org }}/${NAME}-${HTTPD_SHORT_VERSION}"
       fedora_specific: true
       micro_build_base: "quay.io/fedora/fedora:42"
       micro_releasever: "42"
