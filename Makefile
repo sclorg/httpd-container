@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 # Variables are documented in common/build.sh.
 BASE_IMAGE_NAME = httpd
 VERSIONS = 2.4-micro 2.4
@@ -9,3 +11,14 @@ DOCKER_BUILD_CONTEXT = ..
 .PHONY: $(shell test -f common/common.mk || echo >&2 'Please do "git submodule update --init" first.')
 
 include common/common.mk
+
+generate:
+	for version in ${VERSIONS} ; do \
+		if [[ "$$version" == *-micro ]]; then \
+			$(generator) -v $$version -m manifest-micro.yml -s specs/multispec.yml ; \
+		elif [[ "$$version" == *-minimal ]]; then \
+			$(generator) -v $$version -m manifest-minimal.yml -s specs/multispec.yml ; \
+		else \
+			$(generator) -v $$version -m manifest.yml -s specs/multispec.yml ; \
+		fi \
+	done
